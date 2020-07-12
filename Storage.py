@@ -67,7 +67,7 @@ class Storage:
             self.c = self.conn.cursor()
 
             print("Grabbing data...")
-            strid = "'" + str(id) + "`"
+            strid = "'" + str(id) + "'"
             self.c.execute("SELECT user_name, user_school FROM userdata WHERE user_id = %s ORDER BY user_name" % strid)
             print("The number of parts: ", self.c.rowcount)
             row = self.c.fetchone()
