@@ -47,5 +47,39 @@ class Commands(commands.Cog):
             )
         await ctx.send(embed=embed)
 
+    @commands.command(name="whois")
+    async def whois(self, ctx, *args):
+        if len(args) <= 0:
+            embed = discord.Embed(
+                title="Not Enough Arguments",
+                description="`>whois <user>`",
+                colour=discord.Colour.red()
+            )
+            await ctx.send(embed = embed, delete_after=15)
+            return
+        user = await self.getuser(' '.join(args), ctx.guild)
+        storage = Storage()
+        data = storage.getuserdata(user.id)
+
+        if data is None:
+            embed = discord.Embed(
+                title="Not found...",
+                description="Talk to a dev if you believe this is an error.",
+                colour=discord.Colour.red()
+            )
+        else:
+            embed = discord.Embed(
+                title="Who is: `" + str(ctx.message.author.name) + "`",
+                description="Name: `" + data[0] + "` School: `" + data[1] + "`",
+                colour=discord.Colour.blurple()
+            )
+        await ctx.send(embed=embed)
+
+    async def getuser(self, nick, guild):
+        for member in guild.members:
+            if (member.display_name == nick):
+                return member
+        return None
+
 def setup(bot):
     bot.add_cog(Commands(bot))

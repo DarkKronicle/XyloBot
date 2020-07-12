@@ -106,7 +106,6 @@ class Setup(commands.Cog):
 
         return None
 
-
     async def verifyUser(self, user, guild):
         print("Verifying " + user.name)
         storage = Storage()
@@ -123,17 +122,20 @@ class Setup(commands.Cog):
             weighted = weighted + [rol] * weight
 
         role = await self.getRoleName(random.choice(weighted), guild)
+        role2 = await self.getRoleName("gamer", guild)
+        role3 = await self.getRoleName("lifer", guild)
+        role4 = await self.getRoleName("spam", guild)
 
         rules = await self.getChannelName("helpful-commands", guild)
         helpful = await self.getChannelName("rules", guild)
 
-        await user.edit(roles=[role],nick=self.names[user])
+        await user.edit(roles=[role, role2, role3, role4], nick=self.names[user])
         self.toverify.remove(user)
         del self.names[user]
         del self.schools[user]
         del self.step[user]
-        await welcome.send(message + " Make sure you read "+rules.mention+" and check out "+helpful.mention+". You've been assigned the random role of... *" + role.name+"*")
-
+        await welcome.send(
+            message + " Make sure you read " + rules.mention + " and check out " + helpful.mention + ". You've been assigned the random role of... *" + role.name + "*")
 
     async def rejectUser(self, user, *message):
         print("Rejecting " + user.name)
@@ -145,11 +147,11 @@ class Setup(commands.Cog):
             await user.create_dm()
         dm = user.dm_channel
         if (message is None):
-            await dm.send("Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.")
+            await dm.send(
+                "Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.")
         else:
-            await dm.send("Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.\n\nStaff Message: " + message)
-
-
+            await dm.send(
+                "Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.\n\nStaff Message: " + message)
 
     @commands.command(name="verify")
     async def verify(self, ctx, *args):
@@ -170,8 +172,9 @@ class Setup(commands.Cog):
                                                          'to them.', inline=False)
             embed.add_field(name="`>verify accept <num>`", value='Verifies a person based off of their number.'
                             , inline=False)
-            embed.add_field(name="`>verify reject <num> [<message>]`", value='Rejects a person based off of their number'
-                                                                 'to them.', inline=False)
+            embed.add_field(name="`>verify reject <num> [<message>]`",
+                            value='Rejects a person based off of their number'
+                                  'to them.', inline=False)
             await ctx.send(embed=embed)
         elif args[0] == "list":
             if len(self.toverify) <= 0:
@@ -210,7 +213,7 @@ class Setup(commands.Cog):
                 await ctx.send(embed=error, delete_after=15)
                 return
 
-            user = self.toverify[int(args[1])-1]
+            user = self.toverify[int(args[1]) - 1]
 
             if user is None:
                 await ctx.send(embed=error, delete_after=15)
@@ -234,7 +237,7 @@ class Setup(commands.Cog):
                 await ctx.send(embed=error, delete_after=15)
                 return
 
-            user = self.toverify[int(args[1])-1]
+            user = self.toverify[int(args[1]) - 1]
 
             if user is None:
                 await ctx.send(embed=error, delete_after=15)
@@ -244,8 +247,6 @@ class Setup(commands.Cog):
             else:
                 await self.rejectUser(user)
             await ctx.send(":bell: `" + ctx.message.author.name + "` has rejected `" + user.name + "`!")
-
-
 
 
 def setup(bot):

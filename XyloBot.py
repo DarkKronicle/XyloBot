@@ -13,7 +13,7 @@ BOT_PREFIX = ">"
 
 bot = Bot(command_prefix=BOT_PREFIX)
 bot.remove_command('help')
-startup_extensions = ["Commands", "Setup"]
+startup_extensions = ["Commands", "Setup", "Help"]
 
 
 @bot.event
