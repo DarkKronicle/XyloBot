@@ -10,7 +10,7 @@ class Storage:
     def createtable(self):
         print("Connecting to database...")
         self.conn = None
-        commands = (
+        command = (
             """
             CREATE TABLE userdata (
                 user_id VARCHAR(20) PRIMARY KEY,
@@ -25,9 +25,7 @@ class Storage:
             self.c = self.conn.cursor()
 
             print("Creating table...")
-            for command in commands:
-                self.c.execute(command)
-
+            self.c.execute(command)
             self.c.close()
             self.conn.commit()
             print("Done!")
