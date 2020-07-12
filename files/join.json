@@ -1,0 +1,16 @@
+{
+  "messages": [
+    "{user} has entered the simulation!",
+    "{user} snuck in without a ticket!",
+    "{user} has come for revenge!",
+    "{user} accidentally wandered in...",
+    "{user} was forced here at gunpoint!"
+  ],
+  "roles": {
+    "Common Folk": 50,
+    "Uncommon Folk":  25,
+    "Rare Folk": 15,
+    "Epic Folk": 7,
+    "Legendary Folk": 3
+  }
+}
