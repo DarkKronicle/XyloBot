@@ -13,10 +13,10 @@ class Storage:
         commands = (
             """
             CREATE TABLE userdata (
-                user_id VARCHAR(20),
+                user_id VARCHAR(20) PRIMARY KEY,
                 user_name VARCHAR(50),
                 user_school VARCHAR(50)
-            )
+            );
             """
         )
         try:
