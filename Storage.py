@@ -61,7 +61,7 @@ class Storage:
         print("Connecting to database...")
         self.conn = None
         namecom = """INSERT INTO userdata(user_id, user_name, user_school)
-                  VALUES(%s, %s, %s);
+                  VALUES(%s, %s, %s)
             """
         try:
             self.conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
