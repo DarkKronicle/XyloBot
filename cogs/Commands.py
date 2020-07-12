@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+from Storage import *
 
 class Commands(commands.Cog):
 
@@ -28,6 +28,11 @@ class Commands(commands.Cog):
     #     embed.set_footer(text="Default error message. Deletes after 30 seconds.")
     #     await ctx.send(embed=embed, delete_after=30)
 
+    @commands.command(name="whoami")
+    async def whoami(self, ctx):
+        id = ctx.message.author.id
+        storage = Storage()
+        storage.getuserdata(id)
 
 def setup(bot):
     bot.add_cog(Commands(bot))

@@ -3,6 +3,8 @@ from discord.ext.commands import Bot
 from discord.ext import commands
 from Config import *
 import random
+from Storage import *
+
 
 class Setup(commands.Cog):
     bot = Bot
@@ -103,9 +105,11 @@ class Setup(commands.Cog):
 
     async def verifyUser(self, user, guild):
         print("Verifying " + user.name)
-        config = Config(file="files/verified.json")
-        config.data[str(user.id)] = {"name": self.names[user], "school": self.schools[user]}
-        config.savefile()
+        # config = Config(file="files/verified.json")
+        # config.data[str(user.id)] = {"name": self.names[user], "school": self.schools[user]}
+        # config.savefile()
+        storage = Storage()
+        storage.insertuserdata(str(user.id), self.names[user], self.schools[user])
         welcome = await self.getChannelName("welcome", guild)
         join = Config(file="files/join.json")
         messages = join.data["messages"]

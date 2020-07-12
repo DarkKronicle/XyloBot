@@ -4,7 +4,6 @@ import logging
 import os
 from discord.ext import tasks
 import traceback
-from Storage import *
 
 import discord
 from discord.ext.commands import Bot
@@ -22,9 +21,6 @@ async def on_ready():
     print(f"{bot.user} has connected to Discord!")
 
     status.start()
-
-storage = Storage()
-storage.createtable()
 
 @tasks.loop(hours=1)
 async def status():
