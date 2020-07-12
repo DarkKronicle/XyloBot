@@ -33,11 +33,18 @@ class Commands(commands.Cog):
         id = ctx.message.author.id
         storage = Storage()
         data = storage.getuserdata(id)
-        embed = discord.Embed(
-            title="Who is: `" + str(ctx.message.author.name) + "`",
-            description="Name: `" + data[0] + "` School: `" + data[1] + "`",
-            colour=discord.Colour.blurple()
-        )
+        if (data is None):
+            embed = discord.Embed(
+                title="Not found...",
+                description="Talk to a dev if you believe this is an error.",
+                colour=discord.Colour.red()
+            )
+        else:
+            embed = discord.Embed(
+                title="Who is: `" + str(ctx.message.author.name) + "`",
+                description="Name: `" + data[0] + "` School: `" + data[1] + "`",
+                colour=discord.Colour.blurple()
+            )
         await ctx.send(embed=embed)
 
 def setup(bot):
