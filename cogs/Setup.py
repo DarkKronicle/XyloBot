@@ -24,12 +24,16 @@ class Setup(commands.Cog):
 
         if message.channel.name == "setup":
             author = message.author
-            await message.delete()
             if author in self.step:
                 curstep = self.step[author]
 
             else:
                 curstep = 1
+
+            if await self.getRoleName("unverified", author.guild) not in author.roles:
+                return
+            else:
+                await message.delete()
 
             if curstep is 1:
                 embed = discord.Embed(
@@ -105,9 +109,6 @@ class Setup(commands.Cog):
 
     async def verifyUser(self, user, guild):
         print("Verifying " + user.name)
-        # config = Config(file="files/verified.json")
-        # config.data[str(user.id)] = {"name": self.names[user], "school": self.schools[user]}
-        # config.savefile()
         storage = Storage()
         storage.insertuserdata(str(user.id), self.names[user], self.schools[user])
         welcome = await self.getChannelName("welcome", guild)
@@ -134,7 +135,7 @@ class Setup(commands.Cog):
         await welcome.send(message + " Make sure you read "+rules.mention+" and check out "+helpful.mention+". You've been assigned the random role of... *" + role.name+"*")
 
 
-    async def rejectUser(self, user):
+    async def rejectUser(self, user, *message):
         print("Rejecting " + user.name)
         self.toverify.remove(user)
         del self.names[user]
@@ -143,7 +144,11 @@ class Setup(commands.Cog):
         if user.dm_channel is None:
             await user.create_dm()
         dm = user.dm_channel
-        await dm.send("Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.")
+        if (message is None):
+            await dm.send("Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.")
+        else:
+            await dm.send("Your verification has been declined in *Rivertron*. Please contact a staff member if you believe this is a problem. You have one more attempt.\n\nStaff Message: " + message)
+
 
 
     @commands.command(name="verify")
@@ -165,7 +170,7 @@ class Setup(commands.Cog):
                                                          'to them.', inline=False)
             embed.add_field(name="`>verify accept <num>`", value='Verifies a person based off of their number.'
                             , inline=False)
-            embed.add_field(name="`>verify reject <num>`", value='Rejects a person based off of their number'
+            embed.add_field(name="`>verify reject <num> [<message>]`", value='Rejects a person based off of their number'
                                                                  'to them.', inline=False)
             await ctx.send(embed=embed)
         elif args[0] == "list":
@@ -212,7 +217,7 @@ class Setup(commands.Cog):
                 return
 
             await self.verifyUser(user, ctx.guild)
-            await ctx.send(":bell: Verifying " + user.name + "!")
+            await ctx.send(":bell: `" + ctx.message.author.name + "` has verified`" + user.name + "`!")
 
         elif args[0] == "reject":
             error = discord.Embed(
@@ -234,9 +239,11 @@ class Setup(commands.Cog):
             if user is None:
                 await ctx.send(embed=error, delete_after=15)
                 return
-
-            await self.rejectUser(user)
-            await ctx.send(":bell: Rejecting " + user.name + "!")
+            if (' '.join(args[2:]) is not None):
+                await self.rejectUser(user, ' '.join(args[2:]))
+            else:
+                await self.rejectUser(user)
+            await ctx.send(":bell: `" + ctx.message.author.name + "` has rejected `" + user.name + "`!")
 
 
 
