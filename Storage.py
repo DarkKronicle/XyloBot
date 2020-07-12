@@ -5,27 +5,36 @@ import os
 class Storage:
     DATABASE_URL = os.environ['DATABASE_URL']
     c = None
+    conn = None
 
-    def connect(self):
+    def createtable(self):
         print("Connecting to database...")
-        conn = None
+        self.conn = None
+        commands = (
+            """
+            CREATE TABLE userdata (
+                user_id VARCHAR(20),
+                user_name VARCHAR(50),
+                user_school VARCHAR(50)
+            )
+            """
+        )
         try:
-            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+            self.conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
 
-            self.c = conn.cursor()
+            self.c = self.conn.cursor()
 
-            print('PostgreSQL database version:')
-            self.c.execute('SELECT version()')
+            print("Creating table...")
+            for command in commands:
+                self.c.execute(command)
 
-            db_version = self.c.fetchone()
-            print(db_version)
             self.c.close()
-
+            self.conn.commit()
+            print("Done!")
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
-            if conn is not None:
-                conn.close()
+            if self.conn is not None:
+                self.conn.close()
 
-    def close(self):
-        self.c.close()
+

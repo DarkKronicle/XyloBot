@@ -24,7 +24,7 @@ async def on_ready():
     status.start()
 
 storage = Storage()
-storage.connect()
+storage.createtable()
 
 @tasks.loop(hours=1)
 async def status():
