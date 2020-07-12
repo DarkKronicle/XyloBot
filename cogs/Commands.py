@@ -58,6 +58,14 @@ class Commands(commands.Cog):
             await ctx.send(embed = embed, delete_after=15)
             return
         user = await self.getuser(' '.join(args), ctx.guild)
+        if (user is None):
+            embed = discord.Embed(
+                title="Not found...",
+                description="Talk to a dev if you believe this is an error.",
+                colour=discord.Colour.red()
+            )
+            await ctx.send(embed=embed)
+            return
         storage = Storage()
         data = storage.getuserdata(user.id)
 
@@ -69,7 +77,7 @@ class Commands(commands.Cog):
             )
         else:
             embed = discord.Embed(
-                title="Who is: `" + str(ctx.message.author.name) + "`",
+                title="Who is: `" + str(user.name) + "`",
                 description="Name: `" + data[0] + "` School: `" + data[1] + "`",
                 colour=discord.Colour.blurple()
             )
