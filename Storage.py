@@ -60,21 +60,16 @@ class Storage:
     def getuserdata(self, id):
         print("Connecting to database...")
         self.conn = None
-        namecom = """INSERT INTO userdata(user_id, user_name, user_school)
-                  VALUES(%s, %s, %s);
-            """
+        row = None
         try:
             self.conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
 
             self.c = self.conn.cursor()
 
             print("Grabbing data...")
-            self.c.execute("SELECT user_name, user_school FROM userdata ORDER BY user_name")
+            self.c.execute("SELECT user_name, user_school FROM userdata WHERE user_id = %s ORDER BY user_name" % str(id))
             print("The number of parts: ", self.c.rowcount)
             row = self.c.fetchone()
-            while row is not None:
-                print(row)
-                row = self.c.fetchone()
 
             self.c.close()
             print("Done!")
@@ -83,3 +78,7 @@ class Storage:
         finally:
             if self.conn is not None:
                 self.conn.close()
+        if (row is None):
+            return None
+        else:
+            return row

@@ -32,7 +32,13 @@ class Commands(commands.Cog):
     async def whoami(self, ctx):
         id = ctx.message.author.id
         storage = Storage()
-        storage.getuserdata(id)
+        data = storage.getuserdata(id)
+        embed = discord.Embed(
+            title="Who is: `" + str(ctx.message.author.name) + "`",
+            description="Name: `" + data[0] + "` School: `" + data[1] + "`",
+            colour=discord.Colour.blurple()
+        )
+        await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Commands(bot))
