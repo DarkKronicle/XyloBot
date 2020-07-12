@@ -4,6 +4,7 @@ import logging
 import os
 from discord.ext import tasks
 import traceback
+from Storage import *
 
 import discord
 from discord.ext.commands import Bot
@@ -22,6 +23,8 @@ async def on_ready():
 
     status.start()
 
+storage = Storage()
+storage.connect()
 
 @tasks.loop(hours=1)
 async def status():
