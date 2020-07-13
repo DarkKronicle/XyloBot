@@ -10,20 +10,26 @@ from discord.ext.commands import Bot
 import random
 
 BOT_PREFIX = ">"
-
 bot = Bot(command_prefix=BOT_PREFIX)
+# We create our own in cogs/Help.py
 bot.remove_command('help')
+# Command Extensions
 startup_extensions = ["Commands", "Setup", "Help"]
+# Extension directory
+cogs_dir = "cogs"
 
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
-
     status.start()
+
 
 @tasks.loop(hours=1)
 async def status():
+    """
+    Used for setting a random status for the bot.
+    """
     num = random.randint(1, 6)
     if num == 1:
         act = discord.Activity(name="the world burn.", type=discord.ActivityType.watching)
@@ -45,25 +51,9 @@ async def status():
         await bot.change_presence(status=discord.Status.dnd, activity=act)
 
 
-# class Configs:
-#     def __init__(self, file_name):
-#         # LOAD CONFIGS
-#         with open(file_name) as json_file:
-#             configs = json.load(json_file)
-#
-#         # then assign the values we need
-#         self.token = os.getenv('DISCORD_BOT_TOKEN')
-#         self.name = os.getenv('DISCORD_BOT_NAME')
-
-
-cogs_dir = "cogs"
-
-
 def main():
-    # setup other files first...
-    # for extension in [f.replace('.py', '') for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
+    # Load extensions for the bot.
     for extension in startup_extensions:
-
         try:
             print(f'trying to load: ' + cogs_dir + "." + extension)
             bot.load_extension(cogs_dir + "." + extension)
@@ -72,8 +62,7 @@ def main():
         except (discord.ClientException, ModuleNotFoundError):
             print(f'Failed to load extension {extension}.')
             traceback.print_exc()
-    # get token from the file and run it!
-    # configs = Configs("configs.json")
+    # Load the bot
     bot.run(os.getenv('DISCORD_BOT_TOKEN'), bot=True, reconnect=True)
 
 

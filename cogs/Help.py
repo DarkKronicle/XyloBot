@@ -6,11 +6,14 @@ from discord.ext import commands
 class Help(commands.Cog):
     bot = None
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.command("help")
-    async def help(self, ctx):
+    async def help(self, ctx: commands.Context):
+        """
+        Help command for Xylo!
+        """
         await ctx.message.delete()
         embed = discord.Embed(
             title="Xylo Help",
