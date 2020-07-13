@@ -57,7 +57,7 @@ class Commands(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="whois")
-    async def whois(self, ctx: commands.context.Context, *args: list[str]):
+    async def whois(self, ctx: commands.Context, *args):
         """
         Grabs data stored in the database about the specified user.
         """
