@@ -156,7 +156,7 @@ class Setup(commands.Cog):
             message + " Make sure you read " + rules.mention + " and check out "
             + helpful.mention + ". You've been assigned the random role of... *" + role.name + "*")
 
-    async def rejectuser(self, user: discord.Member, *message: str):
+    async def rejectuser(self, user: discord.Member, *message):
         """
         Rejects user
         """
@@ -285,9 +285,9 @@ class Setup(commands.Cog):
 
             # Reject and send message
             if ' '.join(args[2:]) is not None:
-                await self.rejectUser(user, ' '.join(args[2:]))
+                await self.rejectuser(user, ' '.join(args[2:]))
             else:
-                await self.rejectUser(user)
+                await self.rejectuser(user)
 
             await ctx.send(":bell: `" + ctx.message.author.name + "` has rejected `" + user.name + "`!")
 
