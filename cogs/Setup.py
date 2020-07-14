@@ -156,7 +156,7 @@ class Setup(commands.Cog):
             message + " Make sure you read " + rules.mention + " and check out "
             + helpful.mention + ". You've been assigned the random role of... *" + role.name + "*")
 
-    async def rejectuser(self, user: discord.Member, *message):
+    async def rejectuser(self, user: discord.Member, message):
         """
         Rejects user
         """
@@ -180,7 +180,7 @@ class Setup(commands.Cog):
         else:
             await dm.send(
                 "Your verification has been declined in *Rivertron*. Please contact a staff member if you believe "
-                "this is a problem. You have one more attempt.\n\nStaff Message: " + message)
+                "this is a problem. You have one more attempt.\n\nStaff Message: " + str(message))
 
     @commands.command(name="verify")
     async def verify(self, ctx, *args):
