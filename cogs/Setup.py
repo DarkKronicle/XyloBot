@@ -269,7 +269,7 @@ class Setup(commands.Cog):
             )
             error.add_field(name="Usage:", value="`>verify reject <num>")
 
-            if len(args) <= 1 or len(args) >= 3:
+            if len(args) <= 1:
                 await ctx.send(embed=error, delete_after=15)
                 return
 
