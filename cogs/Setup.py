@@ -128,15 +128,16 @@ class Setup(commands.Cog):
         message = random.choice(messages)
         message = message.replace("{user}", user.mention)
         # Get random role
-        randrole = join.data["roles"]
+        # randrole = join.data["roles"]
         # Setup weights for roles
-        weighted = []
-        for rol in randrole:
-            weight = randrole[rol]
-            weighted = weighted + [rol] * weight
+        # weighted = []
+        # for rol in randrole:
+        #     weight = randrole[rol]
+        #     weighted = weighted + [rol] * weight
 
         # Get roles to be assigned...
-        role = await getrolename(random.choice(weighted), guild)
+        # role = await getrolename(random.choice(weighted), guild)
+        # role = await getrolename("Common Folk", guild)
         role2 = await getrolename("gamer", guild)
         role3 = await getrolename("lifer", guild)
         role4 = await getrolename("spam", guild)
@@ -146,7 +147,7 @@ class Setup(commands.Cog):
         helpful = await getchannelname("rules", guild)
 
         # Assign user roles and nick
-        await user.edit(roles=[role, role2, role3, role4], nick=self.names[user])
+        await user.edit(roles=[role2, role3, role4], nick=self.names[user])
         # Remove past data...
         self.toverify.remove(user)
         del self.names[user]
@@ -154,7 +155,7 @@ class Setup(commands.Cog):
         del self.step[user]
         await welcome.send(
             message + " Make sure you read " + rules.mention + " and check out "
-            + helpful.mention + ". You've been assigned the random role of... *" + role.name + "*")
+            + helpful.mention) #+ ". You've been assigned the random role of... *" + role.name + "*")
 
     async def rejectuser(self, user: discord.Member, message):
         """
