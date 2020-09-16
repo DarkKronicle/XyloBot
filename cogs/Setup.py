@@ -177,11 +177,11 @@ class Setup(commands.Cog):
         if message is None:
             await dm.send(
                 "Your verification has been declined in *Rivertron*. Please contact a staff member if you believe "
-                "this is a problem. You have one more attempt.")
+                "this is a problem.")
         else:
             await dm.send(
                 "Your verification has been declined in *Rivertron*. Please contact a staff member if you believe "
-                "this is a problem. You have one more attempt.\n\nStaff Message: " + str(message))
+                "this is a problem. \n\nStaff Message: " + str(message))
 
     @commands.command(name="verify")
     async def verify(self, ctx, *args):
