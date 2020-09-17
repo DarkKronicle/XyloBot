@@ -38,7 +38,7 @@ class Commands(commands.Cog):
         """
         id = ctx.message.author.id
         storage = Storage()
-        data = storage.getuserdata(id)
+        data = storage.get_user_data(id)
 
         if data is None:
             embed = discord.Embed(
@@ -82,7 +82,7 @@ class Commands(commands.Cog):
             return
 
         storage = Storage()
-        data = storage.getuserdata(user.id)
+        data = storage.get_user_data(user.id)
 
         if data is None:
             embed = discord.Embed(

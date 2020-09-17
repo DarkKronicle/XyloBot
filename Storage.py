@@ -36,7 +36,53 @@ class Storage:
     #         if self.conn is not None:
     #             self.conn.close()
 
-    def insertuserdata(self, userid: str, name: str, school: str):
+    def change_user_school(self, userid: str, school: str):
+        """
+        Insert data into database table.
+        """
+        conn = None
+        namecom = """ UPDATE userdata SET user_school = %s WHERE user_id = %s;
+                    """
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(namecom, (school, userid))
+            c.close()
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def change_user_name(self, userid: str, name: str):
+        """
+        Insert data into database table.
+        """
+        conn = None
+        namecom = """ UPDATE userdata SET user_name = %s WHERE user_id = %s;
+                    """
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(namecom, (name, userid))
+            c.close()
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def insert_user_data(self, userid: str, name: str, school: str):
         """
         Insert data into database table.
         """
@@ -60,7 +106,7 @@ class Storage:
             if conn is not None:
                 conn.close()
 
-    def getuserdata(self, userid: str):
+    def get_user_data(self, userid: str):
         """
         Return data for a user's ID
 

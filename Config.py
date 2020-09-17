@@ -1,6 +1,6 @@
 import json
 
-class Config():
+class Config:
     file = ""
     data = ""
 
