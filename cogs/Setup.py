@@ -289,7 +289,7 @@ class Setup(commands.Cog):
                 await ctx.send(embed=error, delete_after=15)
                 return
 
-            user = get_user_id(args[2], ctx.guild)
+            user = await get_user_id(args[2], ctx.guild)
             if user is None:
                 await ctx.send(embed=error, delete_after=15)
                 return
@@ -298,13 +298,13 @@ class Setup(commands.Cog):
                 storage = Storage()
                 # Log to database
                 storage.change_user_name(str(user), ' '.join(args[3:]))
-                await ctx.send("Success!")
+                await ctx.send(f"Success! {user} name has been changed!")
                 return
             elif args[1] == "school":
                 storage = Storage()
                 # Log to database
                 storage.change_user_school(str(user), ' '.join(args[3:]))
-                await ctx.send("Success!")
+                await ctx.send(f"Success! {user} school has been changed")
                 return
             else:
                 await ctx.send(embed=error, delete_after=15)
