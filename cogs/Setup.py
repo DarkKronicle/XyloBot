@@ -297,13 +297,13 @@ class Setup(commands.Cog):
             if args[1] == "name":
                 storage = Storage()
                 # Log to database
-                storage.change_user_name(str(user), ' '.join(args[3:]))
+                storage.change_user_name(str(user.id), ' '.join(args[3:]))
                 await ctx.send(f"Success! {user} name has been changed!")
                 return
             elif args[1] == "school":
                 storage = Storage()
                 # Log to database
-                storage.change_user_school(str(user), ' '.join(args[3:]))
+                storage.change_user_school(str(user.id), ' '.join(args[3:]))
                 await ctx.send(f"Success! {user} school has been changed")
                 return
             else:
