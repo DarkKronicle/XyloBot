@@ -14,7 +14,7 @@ def get_time_until():
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
     curtime = now.astimezone(zone)
-    return (timedelta(hours=24) - curtime).total_seconds()
+    return (timedelta(hours=24) - (curtime - curtime.replace(hour=6, minute=30, second=0, microsecond=0))).total_seconds() % (24 * 3600)
 
 
 class QOTD(commands.Cog):
@@ -43,7 +43,6 @@ class QOTD(commands.Cog):
                 return
 
             if args[0] == "toggle":
-                embed = None
                 if self.go:
                     self.go = False
                     embed = discord.Embed(
