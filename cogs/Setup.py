@@ -20,7 +20,6 @@ class Setup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
@@ -134,9 +133,7 @@ class Setup(commands.Cog):
         del self.step[user]
         await welcome.send(
             message + " Make sure you read " + rules.mention + " and check out "
-            + helpful.mention) #+ ". You've been assigned the random role of... *" + role.name + "*")
-
-
+            + helpful.mention)  # + ". You've been assigned the random role of... *" + role.name + "*")
 
     async def reject_user(self, user: discord.Member, message):
         """
@@ -163,8 +160,6 @@ class Setup(commands.Cog):
             await dm.send(
                 "Your verification has been declined in *Rivertron*. Please contact a staff member if you believe "
                 "this is a problem. \n\nStaff Message: " + str(message))
-
-
 
     @commands.command(name="verify")
     async def verify(self, ctx, *args):
@@ -309,7 +304,6 @@ class Setup(commands.Cog):
             else:
                 await ctx.send(embed=error, delete_after=15)
                 return
-
 
 
 def setup(bot):

@@ -14,7 +14,7 @@ bot = Bot(command_prefix=BOT_PREFIX)
 # We create our own in cogs/Help.py
 bot.remove_command('help')
 # Command Extensions
-startup_extensions = ["Commands", "Setup", "Help"]
+startup_extensions = ["Commands", "Setup", "Help", "AutoReactions"]
 # Extension directory
 cogs_dir = "cogs"
 
