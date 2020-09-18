@@ -97,7 +97,7 @@ class QOTD(commands.Cog):
 
     setupcomplete = False
 
-    @tasks.loop(count=1)
+    @tasks.loop(count=2, seconds=get_time_until())
     async def setup(self):
         if not self.setupcomplete:
             self.setupcomplete = True
@@ -107,9 +107,7 @@ class QOTD(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        time = get_time_until()
-        print("Starting QOTD in " + str(time) + " seconds!")
-        self.setup.start(seconds=time)
+        self.setup.start()
 
 
 def setup(bot):
