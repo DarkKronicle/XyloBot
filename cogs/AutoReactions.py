@@ -11,6 +11,10 @@ class AutoReactions(commands.Cog):
         if "xylo" in content:
             await message.add_reaction('👻')
 
+        if "!poll!" in content:
+            await message.add_reaction('✔️')
+            await message.add_reaction('❌')
+
 
 def setup(bot):
     bot.add_cog(AutoReactions(bot))
