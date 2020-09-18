@@ -28,7 +28,6 @@ class Commands(commands.Cog):
         """
         Check to see if the bot is responsive.
         """
-
         await ctx.send("Pong!")
 
     @commands.command(name="whoami")

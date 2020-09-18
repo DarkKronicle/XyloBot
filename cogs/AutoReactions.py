@@ -37,7 +37,7 @@ class AutoReactions(commands.Cog):
         for reaction in self.reactions:
             value = " ".join(reaction.reaction)
             embed.add_field(name=reaction.trigger, value=value, inline=True)
-            
+
         await ctx.send(embed=embed)
 
 

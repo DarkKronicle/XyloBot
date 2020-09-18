@@ -46,6 +46,7 @@ class Setup(commands.Cog):
                     description='I need to know your first name.',
                     colour=discord.Colour.blurple()
                 )
+
                 embed.add_field(name="Usage:", value="NAME", inline=True)
 
                 self.step[author] = 2

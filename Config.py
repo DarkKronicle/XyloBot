@@ -1,5 +1,6 @@
 import json
 
+
 class Config:
     file = ""
     data = ""
@@ -12,6 +13,6 @@ class Config:
         with open(file=self.file) as f:
             self.data = json.load(f)
 
-    def savefile(self):
+    def save_file(self):
         with open(file=self.file, mode='w') as json_file:
             json.dump(self.data, json_file, indent=4, sort_keys=True)

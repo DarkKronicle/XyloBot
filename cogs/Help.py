@@ -1,5 +1,4 @@
 import discord
-from discord.ext.commands import Bot
 from discord.ext import commands
 
 
@@ -23,6 +22,7 @@ class Help(commands.Cog):
         embed.add_field(name="`>whoami`", value="Sends back data about you!")
         embed.add_field(name="`>whois <name>`", value="Sends you data about a specified user.")
         embed.add_field(name="`>ping`", value="Check to see if Xylo is responsive.")
+        embed.add_field(name="`>autoreactions`", value="Check what Xylo will automatically react to!")
         await ctx.send(embed=embed, delete_after=60)
 
 
