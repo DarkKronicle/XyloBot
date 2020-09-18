@@ -1,8 +1,19 @@
+import pytz
+from pytz import timezone
+
 from Config import *
 from discord.ext import commands, tasks
 from discord.ext.commands import Bot
 import random
 import discord
+from datetime import datetime, timedelta
+
+
+def get_time_until():
+    zone = timezone('US/Mountain')
+    now = zone.localize(datetime.now())
+    end = zone.localize(timedelta(hours=24))
+    return (end - (now - now.replace(hour=6, minute=0, second=0, microsecond=0))).total_seconds() % (24 * 3600)
 
 
 class QOTD(commands.Cog):
@@ -11,6 +22,9 @@ class QOTD(commands.Cog):
     next_question: str = random.choice(questions)
     go = True
     bot: Bot = None
+
+    def queue_next_question(self):
+        self.next_question = random.choice(self.questions)
 
     def __init__(self, bot):
         self.bot = bot
@@ -21,7 +35,7 @@ class QOTD(commands.Cog):
             if len(args) < 1:
                 error = discord.Embed(
                     title="Not enough arguments.",
-                    description="`>qotd <toggle/queue/send>`",
+                    description="`>qotd <toggle/queue/send/time>`",
                     colour=discord.Colour.red()
                 )
                 await ctx.send(embed=error)
@@ -62,6 +76,10 @@ class QOTD(commands.Cog):
                 await ctx.send(embed=embed)
                 return
 
+            if args[0] == "time":
+                await ctx.send("Time until is " + get_time_until() + " seconds!")
+                return
+
     async def send_qotd(self):
         guild: discord.Guild = self.bot.get_guild(731284440642224139)
         if guild is not None:
@@ -71,11 +89,13 @@ class QOTD(commands.Cog):
                 description=self.next_question,
                 colour=discord.Colour.dark_blue()
             )
+            self.queue_next_question()
             await channel.send(embed=message)
 
     @tasks.loop(hours=24)
     async def auto_qotd(self):
-        await self.send_qotd()
+        if self.go:
+            await self.send_qotd()
 
 
 def setup(bot):
