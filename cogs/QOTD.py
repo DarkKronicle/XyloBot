@@ -14,7 +14,7 @@ def get_time_until():
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
     curtime = now.astimezone(zone)
-    return (timedelta(hours=24) - (curtime - curtime.replace(hour=6, minute=30, second=0, microsecond=0))).total_seconds() % (24 * 3600)
+    return int(round((timedelta(hours=24) - (curtime - curtime.replace(hour=6, minute=0, second=0, microsecond=0))).total_seconds() % (24 * 3600)))
 
 
 class QOTD(commands.Cog):
@@ -27,8 +27,6 @@ class QOTD(commands.Cog):
     def queue_next_question(self):
         self.next_question = random.choice(self.questions)
 
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.command(name="qotd")
     async def qotd(self, ctx: commands.Context, *args):
@@ -96,6 +94,22 @@ class QOTD(commands.Cog):
     async def auto_qotd(self):
         if self.go:
             await self.send_qotd()
+
+    setupcomplete = False
+
+    @tasks.loop(count=1)
+    async def setup(self):
+        if not self.setupcomplete:
+            self.setupcomplete = True
+            print("Getting ready!")
+            return
+        self.auto_qotd.start()
+
+    def __init__(self, bot):
+        self.bot = bot
+        time = get_time_until()
+        print("Starting QOTD in " + str(time) + " seconds!")
+        self.setup.start(seconds=time)
 
 
 def setup(bot):
