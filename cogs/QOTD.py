@@ -4,6 +4,7 @@ from discord.ext.commands import Bot
 import random
 import discord
 
+
 class QOTD(commands.Cog):
     file = Config(file="files/questions.json")
     questions: list = file.data["questions"]
@@ -75,3 +76,7 @@ class QOTD(commands.Cog):
     @tasks.loop(hours=24)
     async def auto_qotd(self):
         await self.send_qotd()
+
+
+def setup(bot):
+    bot.add_cog(QOTD(bot))
