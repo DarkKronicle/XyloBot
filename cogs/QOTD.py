@@ -11,9 +11,10 @@ from datetime import datetime, timedelta
 
 def get_time_until():
     zone = timezone('US/Mountain')
-    now = zone.localize(datetime.now())
-    end = zone.localize(timedelta(hours=24))
-    return (end - (now - now.replace(hour=6, minute=0, second=0, microsecond=0))).total_seconds() % (24 * 3600)
+    utc = timezone('UTC')
+    now = utc.localize(datetime.now())
+    curtime = now.astimezone(zone)
+    return (timedelta(hours=24) - curtime).total_seconds()
 
 
 class QOTD(commands.Cog):
@@ -77,7 +78,7 @@ class QOTD(commands.Cog):
                 return
 
             if args[0] == "time":
-                await ctx.send("Time until is " + get_time_until() + " seconds!")
+                await ctx.send("Time until is " + str(get_time_until()) + " seconds!")
                 return
 
     async def send_qotd(self):

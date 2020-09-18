@@ -35,7 +35,7 @@ async def status():
         act = discord.Activity(name="the world burn.", type=discord.ActivityType.watching)
         await bot.change_presence(status=discord.Status.dnd, activity=act)
     elif num == 2:
-        act = discord.Activity(name="to Marimba.", type=discord.ActivityType.listening)
+        act = discord.Activity(name="the Marimba.", type=discord.ActivityType.listening)
         await bot.change_presence(status=discord.Status.dnd, activity=act)
     elif num == 3:
         act = discord.Activity(name="lets bully Elcinor.", type=discord.ActivityType.playing)
