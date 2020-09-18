@@ -28,12 +28,17 @@ class AutoReactions(commands.Cog):
                 for emoji in reaction.reaction:
                     await message.add_reaction(emoji)
 
-        # if "xylo" in content:
-        #     await message.add_reaction('👻')
-        #
-        # if "!poll!" in content:
-        #     await message.add_reaction('✔️')
-        #     await message.add_reaction('❌')
+    @commands.command(name="autoreactions")
+    async def autoreaction(self, ctx: commands.Context):
+        embed = discord.Embed(
+            title="Xylo Auto Reactions",
+            colour=discord.Colour.green()
+        )
+        for reaction in self.reactions:
+            value = " ".join(reaction.reaction)
+            embed.add_field(name=reaction.trigger, value=value, inline=True)
+            
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
