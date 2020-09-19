@@ -122,8 +122,8 @@ class Setup(commands.Cog):
         role4 = await get_role_name("spam", guild)
 
         # Channels to be mentioned in welcome message
-        rules = await get_channel_name("helpful-commands", guild)
-        helpful = await get_channel_name("rules", guild)
+        # rules = await get_channel_name("helpful-commands", guild)
+        helpful = await get_channel_name("information", guild)
 
         # Assign user roles and nick
         await user.edit(roles=[role, role3, role4], nick=self.names[user])
@@ -133,8 +133,7 @@ class Setup(commands.Cog):
         del self.schools[user]
         del self.step[user]
         await welcome.send(
-            message + " Make sure you read " + rules.mention + " and check out "
-            + helpful.mention)  # + ". You've been assigned the random role of... *" + role.name + "*")
+            message + " Make sure you read " + helpful.mention + ".")  # + ". You've been assigned the random role of... *" + role.name + "*")
 
     async def reject_user(self, user: discord.Member, message):
         """

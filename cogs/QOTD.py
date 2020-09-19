@@ -13,7 +13,8 @@ def get_time_until():
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
     curtime = now.astimezone(zone)
-    return int(round((timedelta(hours=24) - (curtime - curtime.replace(hour=13, minute=0, second=0, microsecond=0))).total_seconds() % (24 * 3600)))
+    return int(round((timedelta(hours=24) - (
+                curtime - curtime.replace(hour=13, minute=0, second=0, microsecond=0))).total_seconds() % (24 * 3600)))
 
 
 class QOTD(commands.Cog):
@@ -25,7 +26,6 @@ class QOTD(commands.Cog):
 
     def queue_next_question(self):
         self.next_question = random.choice(self.questions)
-
 
     @commands.command(name="qotd")
     async def qotd(self, ctx: commands.Context, *args):
