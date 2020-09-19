@@ -116,7 +116,7 @@ class Setup(commands.Cog):
 
         # Get roles to be assigned...
         # role = await getrolename(random.choice(weighted), guild)
-        # role = await getrolename("Common Folk", guild)
+        role = await get_role_name("Folk", guild)
         # role2 = await getrolename("gamer", guild)
         role3 = await get_role_name("lifer", guild)
         role4 = await get_role_name("spam", guild)
@@ -126,7 +126,7 @@ class Setup(commands.Cog):
         helpful = await get_channel_name("rules", guild)
 
         # Assign user roles and nick
-        await user.edit(roles=[role3, role4], nick=self.names[user])
+        await user.edit(roles=[role, role3, role4], nick=self.names[user])
         # Remove past data...
         self.to_verify.remove(user)
         del self.names[user]
