@@ -1,4 +1,3 @@
-# import json
 import argparse
 import logging
 import os
@@ -16,7 +15,7 @@ bot = Bot(command_prefix=BOT_PREFIX)
 bot.remove_command('help')
 
 # Command Extensions
-startup_extensions = ["Commands", "Setup", "Help", "AutoReactions", "QOTD"]
+startup_extensions = ["DataCommands", "Setup", "Help", "AutoReactions", "QOTD"]
 
 # Extension directory
 cogs_dir = "cogs"
