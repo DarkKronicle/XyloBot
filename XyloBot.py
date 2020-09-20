@@ -11,10 +11,13 @@ import random
 
 BOT_PREFIX = ">"
 bot = Bot(command_prefix=BOT_PREFIX)
+
 # We create our own in cogs/Help.py
 bot.remove_command('help')
+
 # Command Extensions
 startup_extensions = ["Commands", "Setup", "Help", "AutoReactions", "QOTD"]
+
 # Extension directory
 cogs_dir = "cogs"
 
@@ -62,6 +65,7 @@ def main():
         except (discord.ClientException, ModuleNotFoundError):
             print(f'Failed to load extension {extension}.')
             traceback.print_exc()
+
     # Load the bot
     bot.run(os.getenv('DISCORD_BOT_TOKEN'), bot=True, reconnect=True)
 

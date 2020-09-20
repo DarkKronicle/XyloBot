@@ -50,16 +50,13 @@ def get_channel(channel, guild, bot):
     """
     guild = get_guild(guild, bot)
     if guild is None:
-        print("Not even")
         return None
     guild: discord.Guild
 
     if isinstance(channel, str):
         channel = ConfigData.idstorage.data[str(guild.id)]["channels"][channel]
         if channel is None:
-            print("None")
             return None
-        print("Going")
         channel = guild.get_channel(channel)
     elif isinstance(channel, int):
         channel = guild.get_channel(channel)

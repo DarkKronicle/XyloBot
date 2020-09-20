@@ -26,7 +26,7 @@ class Setup(commands.Cog):
             return
 
         # Checks to see if in #setup
-        if message.channel.name == "setup":
+        if message.channel is get_channel("setup", message.guild, self.bot):
             author = message.author
             # Gets what step of the setting up process they're in
             if author in self.step:
@@ -75,9 +75,11 @@ class Setup(commands.Cog):
                 self.step[author] = 4
                 self.to_verify.append(author)
                 await message.channel.send(embed=embed, delete_after=15)
+
                 # Notify staff that the person is done
                 who = ":bell: `" + author.name + "` just went through the verification process!\n Name: `" + self.names[
                     author] + "` School: `" + self.schools[author] + "`"
+
                 channel_name = get_channel("setup-verify", message.guild, self.bot)
                 await channel_name.send(who)
 
@@ -91,21 +93,21 @@ class Setup(commands.Cog):
                 await message.channel.send(embed=embed, delete_after=15)
 
     async def verify_user(self, user: discord.Member, guild):
-        """
-        Verifies user
-        """
 
         print("Verifying " + user.name)
-        storage = Storage()
+
         # Log to database
+        storage = Storage()
         storage.insert_user_data(str(user.id), self.names[user], self.schools[user])
 
         # Get random welcome message
         welcome = await get_channel("welcome", guild, self.bot)
+
         join = ConfigData.join
         messages = join.data["messages"]
         message = random.choice(messages)
         message = message.replace("{user}", user.mention)
+
         # Get roles to be assigned...
         role = await get_role("folk", guild, self.bot)
         role3 = await get_role("life", guild, self.bot)
@@ -126,11 +128,9 @@ class Setup(commands.Cog):
             message + " Make sure you read " + helpful.mention + ".")  # + ". You've been assigned the random role of... *" + role.name + "*")
 
     async def reject_user(self, user: discord.Member, message):
-        """
-        Rejects user
-        """
 
         print("Rejecting " + user.name)
+
         # Remove data
         self.to_verify.remove(user)
         del self.names[user]
@@ -141,6 +141,7 @@ class Setup(commands.Cog):
         if user.dm_channel is None:
             await user.create_dm()
         dm = user.dm_channel
+
         # Send message. If there is an extra staff message that will be added.
         if message is None:
             await dm.send(
@@ -153,8 +154,9 @@ class Setup(commands.Cog):
 
     @commands.command(name="verify")
     async def verify(self, ctx, *args):
+
         # Only works in one channel
-        if ctx.message.channel.name != "setup-verify":
+        if ctx.message.channel is not get_channel("setup", ctx.guild, self.bot):
             return
 
         # Has to have correct role
@@ -263,11 +265,13 @@ class Setup(commands.Cog):
             await ctx.send(":bell: `" + ctx.message.author.name + "` has rejected `" + user.name + "`!")
 
         elif args[0] == "update":
+
             error = discord.Embed(
                 title="Error in Command",
                 description="Make sure you only specify 2 arguments. Could be an invalid number. Check list.",
                 colour=discord.Colour.red()
             )
+
             error.add_field(name="Usage:", value="`>verify update <id> <name> <school>`")
 
             if len(args) <= 3:

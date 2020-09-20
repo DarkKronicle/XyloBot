@@ -1,6 +1,5 @@
 from discord.ext import commands
 import discord
-from storage.JSONReader import *
 from storage.Config import ConfigData
 
 

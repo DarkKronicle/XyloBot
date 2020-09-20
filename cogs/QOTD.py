@@ -1,10 +1,8 @@
 from pytz import timezone
 
-from storage.Config import *
 from discord.ext import commands, tasks
 from discord.ext.commands import Bot
 import random
-import discord
 from datetime import datetime, timedelta
 from util.DiscordUtil import *
 
@@ -80,14 +78,17 @@ class QOTD(commands.Cog):
 
     async def send_qotd(self):
         channel: discord.TextChannel = get_channel("qotd", "rivertron", self.bot)
+
         if channel is None:
-            print("AAA NO")
+            print("Could not find QOTD channel.")
             return
+
         message = discord.Embed(
             title="Question of the Day",
             description=self.next_question,
             colour=discord.Colour.dark_blue()
         )
+
         self.queue_next_question()
         await channel.send(embed=message)
 
@@ -102,7 +103,6 @@ class QOTD(commands.Cog):
     async def setup(self):
         if not self.setupcomplete:
             self.setupcomplete = True
-            print("Getting ready!")
             return
         self.auto_qotd.start()
         self.setup.stop()

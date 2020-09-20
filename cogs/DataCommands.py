@@ -23,12 +23,6 @@ class Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(name='ping')
-    async def ping(self, ctx: commands.Context):
-        """
-        Check to see if the bot is responsive.
-        """
-        await ctx.send("Pong!")
 
     @commands.command(name="whoami")
     async def whoami(self, ctx: commands.Context):
