@@ -23,6 +23,8 @@ cogs_dir = "cogs"
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
     status.start()
+    guild: discord.Guild = bot.get_guild(731284440642224139)
+    print(str(guild.name))
 
 
 @tasks.loop(hours=1)
@@ -91,9 +93,6 @@ def _cli():
 def get_guild(guild_id: int):
     return bot.get_guild(guild_id)
 
-
-guild: discord.Guild = bot.get_guild(731284440642224139)
-print(str(guild.name))
 
 if __name__ == "__main__":
     main()
