@@ -13,9 +13,9 @@ class AutoReaction:
 
 class AutoReactions(commands.Cog):
 
-    questions = ConfigData.questions
+    autoreactions = ConfigData.autoreactions
     reactions = []
-    config_reactions = questions.data["reactions"]
+    config_reactions = autoreactions.data["reactions"]
 
     for react in config_reactions:
         reactions.append(AutoReaction(react, config_reactions[react]))
