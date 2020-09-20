@@ -1,7 +1,7 @@
 import json
 
 
-class Config:
+class JSONReader:
     file = ""
     data = ""
 

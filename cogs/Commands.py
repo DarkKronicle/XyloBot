@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from Storage import *
+from storage.DatabaseHelper import *
 
 
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:

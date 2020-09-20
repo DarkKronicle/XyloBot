@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
-from Config import *
+from storage.JSONReader import *
+from storage.Config import ConfigData
 
 
 class AutoReaction:
@@ -12,9 +13,9 @@ class AutoReaction:
 
 class AutoReactions(commands.Cog):
 
-    join = Config(file="files/autoreaction.json")
+    questions = ConfigData.questions
     reactions = []
-    config_reactions = join.data["reactions"]
+    config_reactions = questions.data["reactions"]
 
     for react in config_reactions:
         reactions.append(AutoReaction(react, config_reactions[react]))

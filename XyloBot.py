@@ -88,5 +88,9 @@ def _cli():
     return vars(args)
 
 
+def get_guild(guild_id: int):
+    return bot.get_guild(guild_id)
+
+
 if __name__ == "__main__":
     main()

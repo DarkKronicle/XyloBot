@@ -1,11 +1,12 @@
 from pytz import timezone
 
-from Config import *
+from storage.Config import *
 from discord.ext import commands, tasks
 from discord.ext.commands import Bot
 import random
 import discord
 from datetime import datetime, timedelta
+from util.DiscordUtil import *
 
 
 def get_time_until():
@@ -18,7 +19,7 @@ def get_time_until():
 
 
 class QOTD(commands.Cog):
-    file = Config(file="files/questions.json")
+    file = ConfigData.questions
     questions: list = file.data["questions"]
     next_question: str = random.choice(questions)
     go = True
@@ -78,16 +79,17 @@ class QOTD(commands.Cog):
                 return
 
     async def send_qotd(self):
-        guild: discord.Guild = self.bot.get_guild(731284440642224139)
-        if guild is not None:
-            channel: discord.TextChannel = guild.get_channel(756619374944846279)
-            message = discord.Embed(
-                title="Question of the Day",
-                description=self.next_question,
-                colour=discord.Colour.dark_blue()
-            )
-            self.queue_next_question()
-            await channel.send(embed=message)
+        channel: discord.TextChannel = get_channel("qotd", "rivertron")
+        if channel is None:
+            print("AAA NO")
+            return
+        message = discord.Embed(
+            title="Question of the Day",
+            description=self.next_question,
+            colour=discord.Colour.dark_blue()
+        )
+        self.queue_next_question()
+        await channel.send(embed=message)
 
     @tasks.loop(hours=24)
     async def auto_qotd(self):
@@ -96,13 +98,14 @@ class QOTD(commands.Cog):
 
     setupcomplete = False
 
-    @tasks.loop(count=2, seconds=get_time_until())
+    @tasks.loop(seconds=get_time_until())
     async def setup(self):
         if not self.setupcomplete:
             self.setupcomplete = True
             print("Getting ready!")
             return
         self.auto_qotd.start()
+        self.setup.stop()
 
     def __init__(self, bot):
         self.bot = bot
