@@ -89,7 +89,7 @@ def _cli():
 
 
 def get_guild(guild_id: int):
-    print(str(bot.user.name))
+    global bot
     return bot.get_guild(guild_id)
 
 
