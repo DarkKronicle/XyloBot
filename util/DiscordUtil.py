@@ -31,6 +31,7 @@ def get_guild(guild):
     if isinstance(guild, discord.Guild):
         pass
     elif isinstance(guild, str):
+        print(str(ConfigData.idstorage.data[guild]))
         guild = XyloBot.get_guild(ConfigData.idstorage.data[guild])
         print(str(guild))
         if guild is None:
