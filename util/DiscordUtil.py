@@ -3,11 +3,11 @@ from storage.Config import *
 import XyloBot
 
 
-def get_role(role, guild):
+def get_role(role, guild, bot):
     """
     Get role from name
     """
-    guild = get_guild(guild)
+    guild = get_guild(guild, bot)
     if guild is None:
         return None
     guild: discord.Guild
@@ -27,28 +27,28 @@ def get_role(role, guild):
     return role
 
 
-def get_guild(guild):
+def get_guild(guild, bot):
     if isinstance(guild, discord.Guild):
         pass
     elif isinstance(guild, str):
         print(str(ConfigData.idstorage.data[guild]))
-        guild = XyloBot.get_guild(ConfigData.idstorage.data[guild])
+        guild = bot.get_guild(ConfigData.idstorage.data[guild])
         print(str(guild))
         if guild is None:
             return None
     elif isinstance(guild, int):
-        guild = XyloBot.get_guild(guild)
+        guild = bot.get_guild(guild)
         if guild is None:
             return None
 
     return guild
 
 
-def get_channel(channel, guild):
+def get_channel(channel, guild, bot):
     """
     Get role from name
     """
-    guild = get_guild(guild)
+    guild = get_guild(guild, bot)
     if guild is None:
         print("Not even")
         return None

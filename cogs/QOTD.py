@@ -30,7 +30,7 @@ class QOTD(commands.Cog):
 
     @commands.command(name="qotd")
     async def qotd(self, ctx: commands.Context, *args):
-        if ctx.guild.get_role(731285230249574503) in ctx.author.roles:
+        if get_role("admin", "rivertron", self.bot) in ctx.author.roles:
             if len(args) < 1:
                 error = discord.Embed(
                     title="Not enough arguments.",
@@ -79,7 +79,7 @@ class QOTD(commands.Cog):
                 return
 
     async def send_qotd(self):
-        channel: discord.TextChannel = get_channel("qotd", "rivertron")
+        channel: discord.TextChannel = get_channel("qotd", "rivertron", self.bot)
         if channel is None:
             print("AAA NO")
             return

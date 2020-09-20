@@ -34,7 +34,7 @@ class Setup(commands.Cog):
             else:
                 current_step = 1
 
-            if await get_role("unverified", author.guild) not in author.roles:
+            if await get_role("unverified", author.guild, self.bot) not in author.roles:
                 return
             else:
                 # Only other people who have access is staff, so don't do anything if it isn't an 'unverified' person
@@ -78,7 +78,7 @@ class Setup(commands.Cog):
                 # Notify staff that the person is done
                 who = ":bell: `" + author.name + "` just went through the verification process!\n Name: `" + self.names[
                     author] + "` School: `" + self.schools[author] + "`"
-                channel_name = get_channel("setup-verify", message.guild)
+                channel_name = get_channel("setup-verify", message.guild, self.bot)
                 await channel_name.send(who)
 
             elif current_step is 4:
@@ -101,19 +101,19 @@ class Setup(commands.Cog):
         storage.insert_user_data(str(user.id), self.names[user], self.schools[user])
 
         # Get random welcome message
-        welcome = await get_channel("welcome", guild)
+        welcome = await get_channel("welcome", guild, self.bot)
         join = ConfigData.join
         messages = join.data["messages"]
         message = random.choice(messages)
         message = message.replace("{user}", user.mention)
         # Get roles to be assigned...
-        role = await get_role("folk", guild)
-        role3 = await get_role("life", guild)
-        role4 = await get_role("spam", guild)
+        role = await get_role("folk", guild, self.bot)
+        role3 = await get_role("life", guild, self.bot)
+        role4 = await get_role("spam", guild, self.bot)
 
         # Channels to be mentioned in welcome message
         # rules = await get_channel_name("helpful-commands", guild)
-        helpful = await get_channel("information", guild)
+        helpful = await get_channel("information", guild, self.bot)
 
         # Assign user roles and nick
         await user.edit(roles=[role, role3, role4], nick=self.names[user])
@@ -158,7 +158,7 @@ class Setup(commands.Cog):
             return
 
         # Has to have correct role
-        if await get_role("verifier", ctx.guild) not in ctx.message.author.roles:
+        if await get_role("verifier", ctx.guild, self.bot) not in ctx.message.author.roles:
             return
 
         if len(args) <= 0 or args[0] == "help":
