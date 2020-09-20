@@ -90,7 +90,7 @@ def _cli():
 
 def get_guild(guild_id: int):
     global bot
-    return bot.get_guild(guild_id)
+    return bot.get_guild(731284440642224139)
 
 
 if __name__ == "__main__":
