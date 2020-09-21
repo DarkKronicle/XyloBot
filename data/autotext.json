@@ -45,7 +45,19 @@
     "no u": {
       "text": "no u",
       "aliases": [],
-      "case": false
+      "case": false,
+      "type": "only"
+    },
+    "xylo": {
+      "text": "Oh hello! Thanks for sending me this message. It's pretty pog ngl.",
+      "aliases": [],
+      "case": false,
+      "type": "command"
+    },
+    "(╯°□°）╯︵ ┻━┻": {
+      "text": "┬─┬ノ( º _ ºノ)",
+      "aliases": [],
+      "type": "only"
     }
   }
 }
