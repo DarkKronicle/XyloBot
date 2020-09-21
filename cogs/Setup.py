@@ -34,7 +34,7 @@ class Setup(commands.Cog):
             else:
                 current_step = 1
 
-            if await get_role("unverified", "rivertron", self.bot) not in author.roles:
+            if get_role("unverified", "rivertron", self.bot) not in author.roles:
                 return
             else:
                 # Only other people who have access is staff, so don't do anything if it isn't an 'unverified' person
@@ -101,7 +101,7 @@ class Setup(commands.Cog):
         storage.insert_user_data(str(user.id), self.names[user], self.schools[user])
 
         # Get random welcome message
-        welcome = await get_channel("welcome", "rivertron", self.bot)
+        welcome = get_channel("welcome", "rivertron", self.bot)
 
         join = ConfigData.join
         messages = join.data["messages"]
@@ -109,13 +109,13 @@ class Setup(commands.Cog):
         message = message.replace("{user}", user.mention)
 
         # Get roles to be assigned...
-        role = await get_role("folk", "rivertron", self.bot)
-        role3 = await get_role("life", "rivertron", self.bot)
-        role4 = await get_role("spam", "rivertron", self.bot)
+        role = get_role("folk", "rivertron", self.bot)
+        role3 = get_role("life", "rivertron", self.bot)
+        role4 = get_role("spam", "rivertron", self.bot)
 
         # Channels to be mentioned in welcome message
         # rules = await get_channel_name("helpful-commands", guild)
-        helpful = await get_channel("information", "rivertron", self.bot)
+        helpful = get_channel("information", "rivertron", self.bot)
 
         # Assign user roles and nick
         await user.edit(roles=[role, role3, role4], nick=self.names[user])
@@ -160,7 +160,7 @@ class Setup(commands.Cog):
             return
 
         # Has to have correct role
-        if await get_role("verifier", "rivertron", self.bot) not in ctx.message.author.roles:
+        if get_role("verifier", "rivertron", self.bot) not in ctx.message.author.roles:
             return
 
         if len(args) <= 0 or args[0] == "help":
