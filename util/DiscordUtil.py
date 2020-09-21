@@ -31,9 +31,7 @@ def get_guild(guild, bot):
     if isinstance(guild, discord.Guild):
         pass
     elif isinstance(guild, str):
-        print(str(ConfigData.idstorage.data[guild]))
         guild = bot.get_guild(ConfigData.idstorage.data[guild])
-        print(str(guild))
         if guild is None:
             return None
     elif isinstance(guild, int):
