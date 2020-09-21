@@ -26,9 +26,9 @@ class AutoText:
         self.text = text
         self.aliases = aliases
         self.case = case
-        if texttype is "only":
+        if texttype in "only":
             self.texttype = TextType.only
-        elif texttype is "command":
+        elif texttype in "command":
             self.texttype = TextType.command
         else:
             self.texttype = TextType.anywhere
