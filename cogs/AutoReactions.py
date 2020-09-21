@@ -56,7 +56,7 @@ class AutoReactions(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         # Don't want recursion now... it's the skeletons all over
-        if message.author is self.bot:
+        if message.author.bot:
             return
 
         # AutoReaction
