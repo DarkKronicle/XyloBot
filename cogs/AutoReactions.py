@@ -89,12 +89,12 @@ class AutoReactions(commands.Cog):
             else:
                 content: str = message.content
 
-            if text.texttype == TextType.command:
+            if text.texttype is TextType.command:
                 if content[0] is self.bot.command_prefix:
                     if content is text.trigger or content in text.aliases:
                         await message.channel.send(text.text)
                         continue
-            elif text.texttype == TextType.only:
+            elif text.texttype is TextType.only:
                 if content is text.trigger or content in text.aliases:
                     await message.channel.send(text.text)
                     continue
