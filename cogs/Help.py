@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from util.DiscordUtil import *
 
 
 class Help(commands.Cog):
@@ -26,8 +27,9 @@ class Help(commands.Cog):
             description="All of the commands for Xylo!",
             colour=discord.Colour.blue()
         )
-        embed.add_field(name="`>whoami`", value="Sends back data about you!")
-        embed.add_field(name="`>whois <name>`", value="Sends you data about a specified user.")
+        if ctx.guild is get_guild("rivertron", self.bot):
+            embed.add_field(name="`>whoami`", value="Sends back data about you!")
+            embed.add_field(name="`>whois <name>`", value="Sends you data about a specified user.")
         embed.add_field(name="`>ping`", value="Check to see if Xylo is responsive.")
         embed.add_field(name="`>autoreactions`", value="Check what Xylo will automatically react to!")
         await ctx.send(embed=embed, delete_after=60)

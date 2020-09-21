@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from storage.DatabaseHelper import *
+from util.DiscordUtil import *
 
 
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
@@ -28,6 +29,10 @@ class Commands(commands.Cog):
         """
         Grabs data stored in the database about the sender.
         """
+
+        if ctx.guild is not get_guild("rivertron", self.bot):
+            return
+
         id = ctx.message.author.id
         storage = Storage()
         data = storage.get_user_data(id)
@@ -53,6 +58,9 @@ class Commands(commands.Cog):
         """
         Grabs data stored in the database about the specified user.
         """
+        if ctx.guild is not get_guild("rivertron", self.bot):
+            return
+
         if len(args) <= 0:
             embed = discord.Embed(
                 title="Not Enough Arguments",
