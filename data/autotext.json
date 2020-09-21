@@ -57,7 +57,7 @@
     "(╯°□°）╯︵ ┻━┻": {
       "text": "┬─┬ノ( º _ ºノ)",
       "aliases": [],
-      "case": true
+      "case": true,
       "type": "only"
     }
   }
