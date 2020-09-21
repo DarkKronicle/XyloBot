@@ -23,7 +23,6 @@ class Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-
     @commands.command(name="whoami")
     async def whoami(self, ctx: commands.Context):
         """
