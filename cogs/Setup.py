@@ -156,7 +156,7 @@ class Setup(commands.Cog):
     async def verify(self, ctx, *args):
 
         # Only works in one channel
-        if ctx.message.channel is not get_channel("setup", "rivertron", self.bot):
+        if ctx.message.channel is not get_channel("setup-verify", "rivertron", self.bot):
             return
 
         # Has to have correct role
