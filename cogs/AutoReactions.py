@@ -5,9 +5,11 @@ from storage.Config import ConfigData
 
 class AutoReaction:
 
-    def __init__(self, trigger: str, reaction: list):
+    def __init__(self, trigger: str, reaction: list, aliases: list, case: bool):
         self.trigger = trigger
         self.reaction = reaction
+        self.aliases = aliases
+        self.case = case
 
 
 class AutoReactions(commands.Cog):
@@ -17,16 +19,33 @@ class AutoReactions(commands.Cog):
     config_reactions = autoreactions.data["reactions"]
 
     for react in config_reactions:
-        reactions.append(AutoReaction(react, config_reactions[react]))
+        data = config_reactions[react]
+        reactions.append(AutoReaction(react, data["emojis"], data["aliases"], data["case"]))
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        content: str = message.content.lower()
 
         for reaction in self.reactions:
+            if not reaction.case:
+                content: str = message.content.lower()
+            else:
+                content: str = message.content
+            done = False
+
             if reaction.trigger in content:
                 for emoji in reaction.reaction:
                     await message.add_reaction(emoji)
+                    done = True
+            if not done:
+                for alias in reaction.aliases:
+                    if done:
+                        continue
+                    if alias in content:
+                        for emoji in reaction.reaction:
+                            if done:
+                                continue
+                            await message.add_reaction(emoji)
+                            done = True
 
     @commands.command(name="autoreactions")
     async def autoreaction(self, ctx: commands.Context):

@@ -1,0 +1,51 @@
+{
+  "reactions": {
+    "xylo": {
+      "emojis": ["👻"],
+      "aliases": [],
+      "case": false
+    },
+    "!poll!": {
+      "emojis": ["✔️", "❌"],
+      "aliases": [],
+      "case": false
+    },
+    "pog": {
+      "emojis": ["<:pog:756555239766622319>"],
+      "aliases": [],
+      "case": false
+    },
+    "cat": {
+      "emojis": ["\uD83D\uDC31"],
+      "aliases": [],
+      "case": false
+    },
+    "dog": {
+      "emojis": ["\uD83D\uDC36"],
+      "aliases": [],
+      "case": false
+    },
+    "pizza": {
+      "emojis": ["\uD83C\uDF55"],
+      "aliases": [],
+      "case": false
+    },
+    "love": {
+      "emojis": ["\uD83D\uDE18"],
+      "aliases": [],
+      "case": false
+    },
+    "panic": {
+      "emojis": ["<:panik:757371327408636007>"],
+      "aliases": ["panik", "oh no"],
+      "case": false
+    }
+  },
+  "text": {
+    "no u": {
+      "text": "no u",
+      "aliases": [],
+      "case": false
+    }
+  }
+}
