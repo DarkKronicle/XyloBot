@@ -39,7 +39,7 @@ class AutoText:
         file_list = []
         if len(self.files) > 0:
             for f in self.files:
-                file = get_file_from_image(f, f)
+                file = await get_file_from_image(f, f)
                 if file is not None:
                     file_list.append(file)
         if len(file_list) > 0:
