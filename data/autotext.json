@@ -78,18 +78,21 @@
     "nerd": {
       "text": "Heh, nerd.",
       "aliases": [],
+      "case": false,
       "type": "command",
       "files": ["https://i.imgur.com/b3yD9SR.png"]
     },
     "github": {
       "text": "You can look at how I work! https://github.com/DarkKronicle/XyloBot",
       "aliases": ["repo"],
+      "case": false,
       "type": "command",
       "files": []
     },
     "nice": {
       "text": "10/10 would *highly* recommend.",
       "aliases": ["10/10"],
+      "case": false,
       "type": "command",
       "files": ["https://media.discordapp.net/attachments/757781442674688041/757785729177747467/aKpmqdT.png?width=535&height=687"]
     }
