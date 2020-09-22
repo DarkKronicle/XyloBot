@@ -79,6 +79,15 @@ async def get_user_id(discord_id: str, guild: discord.Guild):
     return guild.get_member(int(discord_id))
 
 
+def get_keys(data, *args):
+    for arg in args:
+        if arg in data:
+            data = data[arg]
+        else:
+            return None
+    return data
+
+
 async def get_file_from_image(url: str, name: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:

@@ -47,6 +47,9 @@ class Setup(commands.Cog):
         else:
             await dm.send(content=content)
 
+        verify = get_channel("setup-verify", member.guild, self.bot)
+        await verify.send(f":bell: `{member.display_name}` just joined!")
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:

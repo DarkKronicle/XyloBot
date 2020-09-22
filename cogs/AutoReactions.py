@@ -61,7 +61,7 @@ class AutoReactions(commands.Cog):
 
     for react in config_reactions:
         data = config_reactions[react]
-        reactions.append(AutoReaction(react, data["emojis"], data["aliases"], data["case"]))
+        reactions.append(AutoReaction(react, get_keys(data, "emojis"), get_keys(data, "aliases"), get_keys(data, "case")))
 
     for text in config_text:
         data = config_text[text]
