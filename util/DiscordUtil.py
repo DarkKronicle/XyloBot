@@ -84,5 +84,5 @@ async def get_file_from_image(url: str, name: str):
         async with session.get(url) as resp:
             if resp.status != 200:
                 return None
-        data = io.BytesIO(await resp.read())
-        return discord.File(data, name)
+            data = io.BytesIO(await resp.read())
+            return discord.File(data, name)
