@@ -35,11 +35,17 @@ class Setup(commands.Cog):
 
         setup: discord.TextChannel = get_channel("setup", member.guild, self.bot)
 
+        file = get_file_from_image(
+            "https://media.discordapp.net/attachments/757781442674688041/757782641943773264/logo3.png?width=687&height=687",
+            "logo.png")
         # Send message. If there is an extra staff message that will be added.
-        await dm.send(f"Welcome to *Rivertron*! I'm here to let you know that to get full access of the server you "
-                      f"will need to go through the setup process in "
-                      f"{setup.mention}. There we'll double check we know you!"
-                      )
+        content = (f"Welcome to *Rivertron*! I'm here to let you know that to get full access of the"
+                   " server you will need to go through the setup process in "
+                   f"{setup.mention}. There we'll double check we know you!")
+        if file is not None:
+            await dm.send(content=content, file=file)
+        else:
+            await dm.send(content=content)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):

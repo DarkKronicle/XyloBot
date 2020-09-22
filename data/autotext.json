@@ -39,6 +39,11 @@
       "emojis": ["<:panik:757371327408636007>"],
       "aliases": ["panik", "oh no"],
       "case": false
+    },
+    "gotem": {
+      "emojis": ["\uD83D\uDC4C"],
+      "aliases": ["goteem", "goteeem"],
+      "case": false
     }
   },
   "text": {
@@ -68,7 +73,25 @@
       "aliases": ["no"],
       "case": false,
       "type": "command",
-      "files": ["https://images-ext-1.discordapp.net/external/2FNdqs8IJl8uHKZmzQCiopvSb3A_jxaet4_DoGh3BjQ/https/media.discordapp.net/attachments/756327970494218280/757769781389688872/temp6.png"]
+      "files": ["https://media.discordapp.net/attachments/757781442674688041/757782434506080376/https_images-ext-1.png"]
+    },
+    "nerd": {
+      "text": "Heh, nerd.",
+      "aliases": [],
+      "type": "command",
+      "files": ["https://i.imgur.com/b3yD9SR.png"]
+    },
+    "github": {
+      "text": "You can look at how I work! https://github.com/DarkKronicle/XyloBot",
+      "aliases": ["repo"],
+      "type": "command",
+      "files": []
+    },
+    "nice": {
+      "text": "10/10 would *highly* recommend.",
+      "aliases": ["10/10"],
+      "type": "command",
+      "files": ["https://media.discordapp.net/attachments/757781442674688041/757785729177747467/aKpmqdT.png?width=535&height=687"]
     }
   }
 }
