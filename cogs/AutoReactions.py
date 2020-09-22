@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 import enum
 from storage.Config import ConfigData
+from util.DiscordUtil import *
 
 
 class TextType(enum.Enum):
@@ -35,7 +36,16 @@ class AutoText:
             self.texttype = TextType.anywhere
 
     async def send(self, message: discord.Message):
-        await message.channel.send(self.text)
+        file_list = []
+        if len(self.files) > 0:
+            for f in self.files:
+                file = get_file_from_image(f, f)
+                if file is not None:
+                    file_list.append(file)
+        if len(file_list) > 0:
+            await message.channel.send(message=self.text, files=file_list)
+        else:
+            await message.channel.send(self.text)
 
 
 class AutoReactions(commands.Cog):

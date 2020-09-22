@@ -1,6 +1,7 @@
 import discord
 from storage.Config import *
-import XyloBot
+import io
+import aiohttp
 
 
 def get_role(role, guild, bot):
@@ -76,3 +77,12 @@ async def get_user_id(discord_id: str, guild: discord.Guild):
         return None
 
     return guild.get_member(int(discord_id))
+
+
+async def get_file_from_image(url: str, name: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status != 200:
+                return None
+        data = io.BytesIO(await resp.read())
+        return discord.File(data, name)

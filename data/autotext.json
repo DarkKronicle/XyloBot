@@ -62,6 +62,13 @@
       "case": true,
       "type": "only",
       "files": []
+    },
+    "stop": {
+      "text": "Hey guys! Please stop.",
+      "aliases": ["no"],
+      "case": false,
+      "type": "command",
+      "files": ["https://images-ext-1.discordapp.net/external/2FNdqs8IJl8uHKZmzQCiopvSb3A_jxaet4_DoGh3BjQ/https/media.discordapp.net/attachments/756327970494218280/757769781389688872/temp6.png"]
     }
   }
 }
