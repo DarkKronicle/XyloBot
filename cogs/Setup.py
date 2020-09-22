@@ -21,6 +21,27 @@ class Setup(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        if member.bot:
+            return
+
+        if member.guild is not get_guild("rivertron", self.bot):
+            return
+
+        # Check for dm channel
+        if member.dm_channel is None:
+            await member.create_dm()
+        dm = member.dm_channel
+
+        setup: discord.TextChannel = get_channel("setup", member.guild, self.bot)
+
+        # Send message. If there is an extra staff message that will be added.
+        await dm.send(f"Welcome to *Rivertron*! I'm here to let you know that to get full access of the server you "
+                      f"will need to go through the setup process in "
+                      f"{setup.mention}. There we'll double check we know you!"
+                      )
+
+    @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return

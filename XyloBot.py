@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 from discord.ext import tasks
+from discord.ext.commands import CommandNotFound
 import traceback
 
 import discord
@@ -25,6 +26,13 @@ cogs_dir = "cogs"
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
     status.start()
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandNotFound):
+        return
+    raise error
 
 
 @tasks.loop(hours=1)

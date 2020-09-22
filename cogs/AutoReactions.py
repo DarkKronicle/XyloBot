@@ -21,17 +21,21 @@ class AutoReaction:
 
 class AutoText:
 
-    def __init__(self, trigger: str, text: str, aliases: list, case: bool, texttype: str):
+    def __init__(self, trigger: str, text: str, aliases: list, case: bool, texttype: str, files: list):
         self.trigger = trigger
         self.text = text
         self.aliases = aliases
         self.case = case
+        self.files = files
         if texttype in "only":
             self.texttype = TextType.only
         elif texttype in "command":
             self.texttype = TextType.command
         else:
             self.texttype = TextType.anywhere
+
+    async def send(self, message: discord.Message):
+        await message.channel.send(self.text)
 
 
 class AutoReactions(commands.Cog):
@@ -51,7 +55,7 @@ class AutoReactions(commands.Cog):
 
     for text in config_text:
         data = config_text[text]
-        texts.append(AutoText(text, data["text"], data["aliases"], data["case"], data["type"]))
+        texts.append(AutoText(text, data["text"], data["aliases"], data["case"], data["type"], data["files"]))
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -92,11 +96,11 @@ class AutoReactions(commands.Cog):
             if text.texttype == TextType.command:
                 if content[0] == self.bot.command_prefix:
                     if content[1:] == text.trigger or content in text.aliases:
-                        await message.channel.send(text.text)
+                        await text.send(message)
                         continue
             elif text.texttype == TextType.only:
                 if content == text.trigger or content in text.aliases:
-                    await message.channel.send(text.text)
+                    await text.send(message)
                     continue
             else:
                 done = False
@@ -108,7 +112,7 @@ class AutoReactions(commands.Cog):
                         if done:
                             continue
                         if alias in content:
-                            await message.channel.send(text.text)
+                            await text.send(message)
                             done = True
 
     @commands.command(name="autoreactions")

@@ -46,19 +46,22 @@
       "text": "no u",
       "aliases": [],
       "case": false,
-      "type": "only"
+      "type": "only",
+      "files": []
     },
     "xylo": {
-      "text": "Oh hello! Thanks for sending me this message. It's pretty pog ngl.",
+      "text": "My name is Xylo. PROTECTOR OF ***RIVERTRON***!!!!!!",
       "aliases": [],
       "case": false,
-      "type": "command"
+      "type": "command",
+      "files": []
     },
     "(╯°□°）╯︵ ┻━┻": {
       "text": "┬─┬ノ( º _ ºノ)",
       "aliases": [],
       "case": true,
-      "type": "only"
+      "type": "only",
+      "files": []
     }
   }
 }
