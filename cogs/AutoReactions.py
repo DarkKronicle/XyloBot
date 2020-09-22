@@ -43,7 +43,7 @@ class AutoText:
                 if file is not None:
                     file_list.append(file)
         if len(file_list) > 0:
-            await message.channel.send(message=self.text, files=file_list)
+            await message.channel.send(content=self.text, files=file_list)
         else:
             await message.channel.send(self.text)
 
