@@ -50,6 +50,8 @@ class Roles(commands.Cog):
                 colour=discord.Colour.green()
             )
             help.add_field(name="list", value="View what roles there are that you can get!")
+            await ctx.send(embed=help)
+            return
 
         if args[0] == "list":
             role_embed = discord.Embed(
@@ -61,6 +63,41 @@ class Roles(commands.Cog):
                 role_embed.add_field(name=role.title, value=role.description)
 
             await ctx.send(embed=role_embed)
+            return
+
+        if args[0] == "toggle":
+            if len(args) < 2:
+                error = discord.Embed(
+                    title="Incorrect Usage",
+                    description="`>roles toggle <role>`",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=error)
+                return
+
+            role = None
+
+            name: str = args[1]
+            for r in roles:
+                if name.lower() == r.title.lower():
+                    role = get_role(r.role, guild, self.bot)
+                    break
+
+            if role is None:
+                not_found = discord.Embed(
+                    title="Role Not Found",
+                    description="Try a different role from `>roles list`",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=not_found)
+                return
+
+            if args[1] in roles:
+                if role in ctx.author.roles:
+                    await ctx.send(f"Removing the role `{name}`")
+                #  await ctx.author.remove_roles(role)
+                else:
+                    await ctx.send(f"Adding the role `{name}`")
 
 
 def setup(bot):

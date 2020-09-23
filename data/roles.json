@@ -5,6 +5,12 @@
       "description": "",
       "role": "spam",
       "required": ""
+    },
+    "feeds": {
+      "title": "Feeds",
+      "description": "View some of the staff's favorite feeds and keep up to date with updates.",
+      "role": "feeds",
+      "required": ""
     }
   }
 }

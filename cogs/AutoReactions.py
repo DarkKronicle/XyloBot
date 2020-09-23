@@ -61,11 +61,14 @@ class AutoReactions(commands.Cog):
 
     for react in config_reactions:
         data = config_reactions[react]
-        reactions.append(AutoReaction(react, get_keys(data, "emojis"), get_keys(data, "aliases"), get_keys(data, "case")))
+        reactions.append(
+            AutoReaction(react, get_keys(data, "emojis"), get_keys(data, "aliases"), get_keys(data, "case")))
 
     for text in config_text:
         data = config_text[text]
-        texts.append(AutoText(text, data["text"], data["aliases"], data["case"], data["type"], data["files"]))
+        texts.append(AutoText(text, get_keys(data, "text"), get_keys(data, "aliases"), get_keys(data, "case"),
+                              get_keys(data, "type"), get_keys(data, "files")))
+        # texts.append(AutoText(text, data["text"], data["aliases"], data["case"], data["type"], data["files"]))
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -104,7 +107,7 @@ class AutoReactions(commands.Cog):
                 content: str = message.content
 
             if text.texttype == TextType.command:
-                if content[0] == self.bot.command_prefix:
+                if len(content) > 0 and content[0] == self.bot.command_prefix:
                     if content[1:] == text.trigger or content in text.aliases:
                         await text.send(message)
                         continue
