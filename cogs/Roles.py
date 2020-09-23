@@ -95,9 +95,10 @@ class Roles(commands.Cog):
 
             if role in ctx.author.roles:
                 await ctx.send(f"Removing the role `{name}`")
-            #  await ctx.author.remove_roles(role)
+                await ctx.author.remove_roles(role)
             else:
                 await ctx.send(f"Adding the role `{name}`")
+                await ctx.author.add_roles(role)
 
 
 def setup(bot):
