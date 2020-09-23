@@ -2,7 +2,7 @@
   "731284440642224139": {
     "spam": {
       "title": "Spam",
-      "description": "",
+      "description": "View some spammish channels.",
       "role": "spam",
       "required": ""
     },
