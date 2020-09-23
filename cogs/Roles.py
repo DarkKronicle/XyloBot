@@ -20,8 +20,9 @@ def get_roles(guild: discord.Guild):
         return None
     role_list = []
     for role in roles:
-        role_list.append(Role(get_keys(role, "title"), get_keys(role, "description"), get_keys(role, "role"),
-                              get_keys(role, "required")))
+        data = get_keys(roles, role)
+        role_list.append(Role(get_keys(data, "title"), get_keys(data, "description"), get_keys(data, "role"),
+                              get_keys(data, "required")))
     return role_list
 
 
