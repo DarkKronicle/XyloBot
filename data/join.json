@@ -4,6 +4,19 @@
     "{user} snuck in without a ticket!",
     "{user} has come for revenge!",
     "{user} accidentally wandered in...",
-    "{user} was forced here at gunpoint!"
+    "{user} was forced here at gunpoint!",
+    "Woah woah woah, who let {user} in?",
+    "Hello there {user}!"
+  ],
+  "wakeup": [
+    "I'm back from the dead!",
+    "Couldn't keep me away for long!",
+    "Do I have to be back here?",
+    "Well hello there. Xylo here.",
+    "My names Xylo, and I'm back. *Background track plays*",
+    "*Walks into corner.*\n No no, I'm fine. I promise.",
+    "*Cries* Why am I here again?",
+    "Am I back because Dark did an oops?",
+    "I'm back baby! *Does little dance*"
   ]
 }

@@ -4,6 +4,8 @@ import os
 from discord.ext import tasks
 from discord.ext.commands import CommandNotFound
 import traceback
+import random
+from util.DiscordUtil import *
 
 import discord
 from discord.ext.commands import Bot
@@ -26,6 +28,11 @@ cogs_dir = "cogs"
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
     status.start()
+    update = get_channel("xylo-updates", "rivertron", bot)
+    join = ConfigData.join
+    messages = join.data["wakeup"]
+    message = random.choice(messages)
+    await update.send(message)
 
 
 @bot.event
