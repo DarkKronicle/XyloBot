@@ -93,12 +93,11 @@ class Roles(commands.Cog):
                 await ctx.send(embed=not_found)
                 return
 
-            if args[1] in roles:
-                if role in ctx.author.roles:
-                    await ctx.send(f"Removing the role `{name}`")
-                #  await ctx.author.remove_roles(role)
-                else:
-                    await ctx.send(f"Adding the role `{name}`")
+            if role in ctx.author.roles:
+                await ctx.send(f"Removing the role `{name}`")
+            #  await ctx.author.remove_roles(role)
+            else:
+                await ctx.send(f"Adding the role `{name}`")
 
 
 def setup(bot):
