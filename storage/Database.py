@@ -63,7 +63,7 @@ class Database:
 
     def get_prefix(self, guild_id):
         command = "SELECT prefix FROM guild_storage WHERE id = {} ORDER BY id;"
-        command.format("'" + guild_id + "'")
+        command = command.format("'" + guild_id + "'")
         conn = None
         row = None
         try:
