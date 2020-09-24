@@ -101,38 +101,6 @@ class Commands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="storage")
-    @has_permissions(administrator=True)
-    async def storage(self, ctx: commands.Context, *args):
-        author: discord.Member = ctx.author
-        if len(args) == 0:
-            help_message = discord.Embed(
-                title="Storage Commands",
-                description="Keep useful info and settings.",
-                colour=discord.Colour.purple()
-            )
-            help_message.add_field(name="`start`", value="Create an entry for your server.")
-            await ctx.send(embed=help_message)
-            return
-
-        if args[0] == "start":
-            if len(args) == 1 or len(args) >= 3:
-                embed = discord.Embed(
-                    title="Incorrect Usage",
-                    description="`storage start <PREFIX>`",
-                    colour=discord.Colour.red()
-                )
-                await ctx.send(embed=embed)
-                return
-
-            db = Database()
-            if db.guild_exists(str(ctx.guild.id)):
-                await ctx.send("Guild already has data!")
-                return
-
-            db.new_guild(str(ctx.guild.id), args[1])
-            await ctx.send("Created!")
-
     @commands.command(name="db")
     async def database(self, ctx: commands.Context, *args):
         if await self.bot.is_owner(ctx.author):

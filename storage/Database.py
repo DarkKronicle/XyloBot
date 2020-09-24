@@ -61,6 +61,15 @@ class Database:
         command = "SELECT id FROM guild_storage WHERE id = {} ORDER BY id;"
         return self.exists(command.format(guild))
 
+    def set_prefix(self, guild_id, prefix):
+        guild_id = "'" + guild_id + "'"
+        prefix = "'" + prefix + "'"
+        command = """
+                UPDATE guild_storage SET prefix = {} WHERE id = {}; 
+                """
+        command = command.format(prefix, guild_id)
+        self.send_commands(command)
+
     def get_prefix(self, guild_id):
         command = "SELECT prefix FROM guild_storage WHERE id = {} ORDER BY id;"
         command = command.format("'" + guild_id + "'")
