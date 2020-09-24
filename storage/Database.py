@@ -47,18 +47,18 @@ class Database:
 
     def user_exists(self, user_id):
         user = "'" + user_id + "'"
-        command = "SELECT id FROM user_storage WHERE id = %s ORDER BY id;"
+        command = "SELECT id FROM user_storage WHERE id = {} ORDER BY id;"
         return self.exists(command.format(user))
 
     def user_guild_exists(self, user_id, guild_id):
         user = "'" + user_id + "'"
         guild = "'" + guild_id + "'"
-        command = "SELECT user_id FROM user_data WHERE user_id = %s and guild_id = %s ORDER BY user_id;"
+        command = "SELECT user_id FROM user_data WHERE user_id = {} AND guild_id = {} ORDER BY user_id;"
         return self.exists(command.format(user, guild))
 
     def guild_exists(self, guild_id):
         guild = "'" + guild_id + "'"
-        command = "SELECT id FROM guild_storage WHERE id = %s ORDER BY id;"
+        command = "SELECT id FROM guild_storage WHERE id = {} ORDER BY id;"
         return self.exists(command.format(guild))
 
     def exists(self, command):
@@ -99,7 +99,7 @@ class Database:
         prefix = "'" + prefix + "'"
         command = """
                     INSERT INTO guild_storage(id, prefix)
-                    VALUES(%s, %s);
+                    VALUES({}, {});
                     """
 
         command = command.format(guild_id, prefix)

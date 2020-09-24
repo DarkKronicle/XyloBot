@@ -135,7 +135,7 @@ class Commands(commands.Cog):
 
     @commands.command(name="db")
     async def database(self, ctx: commands.Context, *args):
-        if self.bot.is_owner(ctx.author):
+        if await self.bot.is_owner(ctx.author):
             db = Database()
             if len(args) == 0:
                 await ctx.send("Nope")
