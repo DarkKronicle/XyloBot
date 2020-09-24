@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from storage.DatabaseHelper import *
 from util.DiscordUtil import *
+from storage.Database import *
 
 
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
@@ -98,6 +99,16 @@ class Commands(commands.Cog):
             )
 
         await ctx.send(embed=embed)
+
+    @commands.command("db")
+    async def database(self, ctx: commands.Context, *args):
+        river = get_guild("rivertron", self.bot)
+        if ctx.author is river.get_member(523605852557672449):
+            if args[0] == "create":
+                await ctx.send("Creating tables...")
+                db = Database()
+                db.create_tables()
+                await ctx.send("Done!")
 
 
 def setup(bot):
