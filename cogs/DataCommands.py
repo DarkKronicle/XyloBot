@@ -3,6 +3,7 @@ from discord.ext import commands
 from storage.DatabaseHelper import *
 from util.DiscordUtil import *
 from storage.Database import *
+from discord.ext.commands import has_permissions
 
 
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
@@ -100,16 +101,77 @@ class Commands(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(name="storage")
+    @has_permissions(administrator=True)
+    async def storage(self, ctx: commands.Context, *args):
+        author: discord.Member = ctx.author
+        if len(args) == 0:
+            help_message = discord.Embed(
+                title="Storage Commands",
+                description="Keep useful info and settings.",
+                colour=discord.Colour.purple()
+            )
+            help_message.add_field(name="`start`", value="Create an entry for your server.")
+            await ctx.send(embed=help_message)
+            return
+
+        if args[0] == "start":
+            if len(args) == 1 or len(args) >= 3:
+                embed = discord.Embed(
+                    title="Incorrect Usage",
+                    description="`storage start <PREFIX>`",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=embed)
+                return
+
+            db = Database()
+            if db.guild_exists(str(ctx.guild.id)):
+                await ctx.send("Guild already has data!")
+                return
+
+            db.new_guild(str(ctx.guild.id), args[1])
+            await ctx.send("Created!")
+
     @commands.command(name="db")
     async def database(self, ctx: commands.Context, *args):
         if self.bot.is_owner(ctx.author):
+            db = Database()
+            if len(args) == 0:
+                await ctx.send("Nope")
+                return
+
             if args[0] == "create":
                 await ctx.send("Creating tables...")
-                db = Database()
                 db.create_tables()
                 await ctx.send("Done!")
-            else:
-                await ctx.send("Unknown command...")
+                return
+
+            if args[0] == "ge" and len(args) > 1:
+                await ctx.send("Checking...")
+                result = db.guild_exists(args[1])
+                if result:
+                    await ctx.send("It exists!")
+                else:
+                    await ctx.send("It does not :(")
+
+            if args[0] == "ue" and len(args) > 1:
+                await ctx.send("Checking...")
+                result = db.user_exists(args[1])
+                if result:
+                    await ctx.send("It exists!")
+                else:
+                    await ctx.send("It does not :(")
+
+            if args[0] == "gue" and len(args) > 2:
+                await ctx.send("Checking...")
+                result = db.user_guild_exists(args[1], args[2])
+                if result:
+                    await ctx.send("It exists!")
+                else:
+                    await ctx.send("It does not :(")
+
+            await ctx.send("Unknown command...")
         else:
             await ctx.send("You're not my owner!")
 
