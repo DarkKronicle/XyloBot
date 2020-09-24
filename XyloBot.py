@@ -6,13 +6,25 @@ from discord.ext.commands import CommandNotFound
 import traceback
 import random
 from util.DiscordUtil import *
+from storage.Database import *
 
 import discord
 from discord.ext.commands import Bot
 import random
 
-BOT_PREFIX = ">"
-bot = Bot(command_prefix=BOT_PREFIX)
+
+def get_prefix(message):
+    db = Database()
+    prefixes = ["x>"]
+    if message.guild is None:
+        return prefixes
+    prefix = db.get_prefix(str(message.guild.id))
+    if prefix is not None:
+        prefixes.append(prefix)
+    return prefixes
+
+
+bot = Bot(command_prefix=get_prefix)
 
 # We create our own in cogs/Help.py
 bot.remove_command('help')

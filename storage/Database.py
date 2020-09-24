@@ -61,6 +61,31 @@ class Database:
         command = "SELECT id FROM guild_storage WHERE id = {} ORDER BY id;"
         return self.exists(command.format(guild))
 
+    def get_prefix(self, guild_id):
+        command = "SELECT prefix FROM guild_storage WHERE id = {} ORDER BY id;"
+        command.format("'" + guild_id + "'")
+        conn = None
+        row = None
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(command)
+            row = c.fetchone()
+            c.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if row is None:
+            return None
+        else:
+            return row[0]
+
     def exists(self, command):
         conn = None
         row = None
