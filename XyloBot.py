@@ -25,7 +25,7 @@ def get_prefix(dbot, message: discord.Message):
             space.append(prefix + " ")
             return space
         strip2 = message.content.strip("x>")
-        if len(strip2) > 0 and strip[0] == " ":
+        if len(strip2) > 0 and strip2[0] == " ":
             space.append(prefix + " ")
             return space
         prefixes.append(prefix)
