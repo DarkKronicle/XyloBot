@@ -102,13 +102,16 @@ class Commands(commands.Cog):
 
     @commands.command("db")
     async def database(self, ctx: commands.Context, *args):
-        river = get_guild("rivertron", self.bot)
-        if ctx.author is river.get_member(523605852557672449):
+        if self.bot.is_owner(ctx.author):
             if args[0] == "create":
                 await ctx.send("Creating tables...")
                 db = Database()
                 db.create_tables()
                 await ctx.send("Done!")
+            else:
+                await ctx.send("Unknown command...")
+        else:
+            await ctx.send("You're not my owner!")
 
 
 def setup(bot):
