@@ -126,7 +126,7 @@ class Database:
         command = ["""
          
         """]
-        self.send_commands(command)
+        self.send_commands([command])
 
     def new_guild(self, guild_id, prefix):
         guild_id = "'" + guild_id + "'"
@@ -147,7 +147,6 @@ class Database:
             conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
             c = conn.cursor()
 
-            print("Creating table...")
             for command in commands:
                 c.execute(command)
             c.close()

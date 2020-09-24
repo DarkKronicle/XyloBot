@@ -21,6 +21,7 @@ class Customization(commands.Cog):
                 colour=discord.Colour.purple()
             )
             help_message.add_field(name="`start`", value="Create an entry for your server.")
+            help_message.add_field(name="`prefix`", value="Configure the server prefix!")
             await ctx.send(embed=help_message)
             return
 

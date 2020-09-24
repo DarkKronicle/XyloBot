@@ -16,12 +16,13 @@ import random
 def get_prefix(dbot, message):
     db = Database()
     user_id = dbot.user.id
-    prefixes = ["x>", f"<@{user_id}>"]
+    prefixes = ["x>", f"<@{user_id}>", "x> ", f"<@{user_id}> "]
     if message.guild is None:
         return prefixes
     prefix = db.get_prefix(str(message.guild.id))
     if prefix is not None:
         prefixes.append(prefix)
+        prefixes.append(prefix + " ")
     return prefixes
 
 
