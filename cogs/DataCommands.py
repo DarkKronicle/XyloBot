@@ -100,7 +100,7 @@ class Commands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command("db")
+    @commands.command(name="db")
     async def database(self, ctx: commands.Context, *args):
         if self.bot.is_owner(ctx.author):
             if args[0] == "create":
