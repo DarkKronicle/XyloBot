@@ -13,9 +13,10 @@ from discord.ext.commands import Bot
 import random
 
 
-def get_prefix(message):
+def get_prefix(dbot, message):
     db = Database()
-    prefixes = ["x>"]
+    user_id = dbot.user.id
+    prefixes = ["x>", f"<@{user_id}>"]
     if message.guild is None:
         return prefixes
     prefix = db.get_prefix(str(message.guild.id))
