@@ -68,7 +68,7 @@ class Database:
                 UPDATE guild_storage SET prefix = {} WHERE id = {}; 
                 """
         command = command.format(prefix, guild_id)
-        self.send_commands(command)
+        self.send_commands([command])
 
     def get_prefix(self, guild_id):
         command = "SELECT prefix FROM guild_storage WHERE id = {} ORDER BY id;"

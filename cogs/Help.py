@@ -33,6 +33,7 @@ class Help(commands.Cog):
         embed.add_field(name="`>ping`", value="Check to see if Xylo is responsive.")
         embed.add_field(name="`>autoreactions`", value="Check what Xylo will automatically react to!")
         embed.add_field(name='`>role`', value="Toggle specific roles!")
+        embed.add_field(name='`>storage`', value="For Admin's: Configure how Xylo processes data!")
         await ctx.send(embed=embed, delete_after=60)
 
 
