@@ -1,10 +1,8 @@
 import argparse
 import logging
-import os
 from discord.ext import tasks
 from discord.ext.commands import CommandNotFound
 import traceback
-import random
 from util.DiscordUtil import *
 from storage.Database import *
 
@@ -13,17 +11,25 @@ from discord.ext.commands import Bot
 import random
 
 
-def get_prefix(dbot, message):
+def get_prefix(dbot, message: discord.Message):
     db = Database()
     user_id = dbot.user.id
-    prefixes = ["x>", f"<@{user_id}>", "x> ", f"<@{user_id}> "]
+    prefixes = ["x>", f"<@{user_id}> "]
+    space = ["x> ", f"<@{user_id}> "]
     if message.guild is None:
         return prefixes
     prefix = db.get_prefix(str(message.guild.id))
     if prefix is not None:
+        strip = message.content.strip(prefix)
+        if len(strip) > 0 and strip[0] == " ":
+            space.append(prefix + " ")
+            return space
+        strip2 = message.content.strip("x>")
+        if len(strip2) > 0 and strip[0] == " ":
+            space.append(prefix + " ")
+            return space
         prefixes.append(prefix)
-        prefixes.append(prefix + " ")
-    return prefixes
+        return prefixes
 
 
 bot = Bot(command_prefix=get_prefix)
