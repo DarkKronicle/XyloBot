@@ -20,16 +20,14 @@ def get_prefix(dbot, message: discord.Message):
         return prefixes
     prefix = db.get_prefix(str(message.guild.id))
     if prefix is not None:
-        strip = message.content.strip(prefix)
-        if len(strip) > 0 and strip[0] == " ":
-            space.append(prefix + " ")
+        content: str = message.content
+        if content.startswith("x> "):
             return space
-        strip2 = message.content.strip("x>")
-        if len(strip2) > 0 and strip2[0] == " ":
+        if content.startswith(prefix + " "):
             space.append(prefix + " ")
-            return space
+            return prefix
         prefixes.append(prefix)
-        return prefixes
+    return prefixes
 
 
 bot = Bot(command_prefix=get_prefix)

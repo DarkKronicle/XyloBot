@@ -122,6 +122,7 @@ class Commands(commands.Cog):
                     await ctx.send("It exists!")
                 else:
                     await ctx.send("It does not :(")
+                    return
 
             if args[0] == "ue" and len(args) > 1:
                 await ctx.send("Checking...")
@@ -130,6 +131,7 @@ class Commands(commands.Cog):
                     await ctx.send("It exists!")
                 else:
                     await ctx.send("It does not :(")
+                    return
 
             if args[0] == "gue" and len(args) > 2:
                 await ctx.send("Checking...")
@@ -138,6 +140,13 @@ class Commands(commands.Cog):
                     await ctx.send("It exists!")
                 else:
                     await ctx.send("It does not :(")
+                    return
+
+            if args[0] == "alter":
+                await ctx.send("Altering...")
+                db.alter()
+                await ctx.send("Altered!")
+                return
 
             await ctx.send("Unknown command...")
         else:
