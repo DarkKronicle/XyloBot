@@ -153,12 +153,14 @@ class Commands(commands.Cog):
                 await ctx.send("Resetting guild settings...")
                 db.default_settings(str(ctx.guild.id))
                 await ctx.send("Reset!")
+                return
 
             if args[0] == "ggs":
                 await ctx.send("Getting settings...")
                 message = "```JSON\n{}\n```"
                 message.format(json.dumps(db.get_settings(str(ctx.guild.id)), indent=4, sort_keys=True))
                 await ctx.send(message)
+                return
 
             await ctx.send("Unknown command...")
         else:

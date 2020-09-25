@@ -135,7 +135,7 @@ class Database:
             return None
         else:
             data = row[0]
-            return json.loads(data)
+            return data
 
     def exists(self, command):
         conn = None
