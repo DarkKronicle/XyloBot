@@ -77,6 +77,14 @@ def get_db_role(guild: discord.Guild, role):
     return None
 
 
+def get_db_channel(guild: discord.Guild, channel):
+    db = Database()
+    settings: dict = db.get_settings(str(guild.id))
+    if "channels" in settings and channel in settings["channels"]:
+        return guild.get_channel(settings["channels"][channel])
+    return None
+
+
 async def get_user_id(discord_id: str, guild: discord.Guild):
     """
     Get user based off of their ID
@@ -105,6 +113,16 @@ async def get_file_from_image(url: str, name: str):
                 return None
             data = io.BytesIO(await resp.read())
             return discord.File(data, name)
+
+
+def check_verification_channels(guild: discord.Guild):
+    db = Database()
+    settings: dict = db.get_settings(str(guild.id))
+    if "channels" in settings and "setup" in settings["channels"] and "setup-verify" in settings["channels"]:
+        if guild.get_channel(settings["channels"]["setup"]) is None or guild.get_channel(settings["channels"]["setup-verify"]) is None:
+            return False
+        return True
+    return False
 
 
 def is_allowed():
