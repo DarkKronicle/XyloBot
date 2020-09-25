@@ -1,7 +1,7 @@
 import argparse
 import logging
 from discord.ext import tasks
-from discord.ext.commands import CommandNotFound
+from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole
 import traceback
 from util.DiscordUtil import *
 from storage.Database import *
@@ -54,8 +54,14 @@ async def on_ready():
 
 
 @bot.event
-async def on_command_error(ctx, error):
+async def on_command_error(ctx: commands.Context, error):
     if isinstance(error, CommandNotFound):
+        return
+    if isinstance(error, MissingPermissions):
+        await ctx.send("You don't have permission to do that!", delete_after=15)
+        return
+    if isinstance(error, MissingRole):
+        await ctx.send("You don't have permission to do that!", delete_after=15)
         return
     raise error
 

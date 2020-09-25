@@ -49,14 +49,38 @@ class Verify(commands.Cog):
                 colour=discord.Colour.purple()
             )
             settings = settings["verification"]
-            info.add_field(name="Enabled:", value=str(key_or_false(settings, "enabled")))
-            info.add_field(name="First Name:", value=str(key_or_false(settings, "first")))
-            info.add_field(name="Last Name:", value=str(key_or_false(settings, "last")))
-            info.add_field(name="School:", value=str(key_or_false(settings, "school")))
-            info.add_field(name="Extra Information:", value=str(key_or_false(settings, "extra")))
-            info.add_field(name="Birthday:", value=str(key_or_false(settings, "birthday")))
+            info.add_field(name="Enabled", value=str(key_or_false(settings, "enabled")))
+            info.add_field(name="First Name", value=str(key_or_false(settings, "first")))
+            info.add_field(name="Last Name", value=str(key_or_false(settings, "last")))
+            info.add_field(name="School", value=str(key_or_false(settings, "school")))
+            info.add_field(name="Extra Information", value=str(key_or_false(settings, "extra")))
+            info.add_field(name="Birthday", value=str(key_or_false(settings, "birthday")))
             await ctx.send(embed=info)
 
+        else:
+            await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+
+    @verification.command(name="toggle")
+    async def toggle(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            error = discord.Embed(
+                title="Incorrect Usage",
+                description="`>verification toggle <SETTING>`"
+            )
+            await ctx.send(embed=error)
+        db = Database()
+        settings = db.get_settings(str(ctx.guild.id))
+        if "verification" in settings:
+            if args[0] in settings["verification"]:
+                enabled = settings["verification"][args[0]]
+                settings["verification"][args[0]] = not enabled
+                db.set_settings(str(ctx.guild.id), settings)
+                if enabled:
+                    await ctx.send(f"Toggling off {args[0]}.")
+                if enabled:
+                    await ctx.send(f"Toggling on {args[0]}.")
+            else:
+                await ctx.send("No setting found by that name. Look through `>verification info`")
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 
