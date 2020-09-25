@@ -36,7 +36,7 @@ bot = Bot(command_prefix=get_prefix)
 bot.remove_command('help')
 
 # Command Extensions
-startup_extensions = ["DataCommands", "Setup", "Help", "AutoReactions", "QOTD", "Roles", "Customization"]
+startup_extensions = ["DataCommands", "Setup", "Help", "AutoReactions", "QOTD", "Roles", "Customization", "Verify"]
 
 # Extension directory
 cogs_dir = "cogs"

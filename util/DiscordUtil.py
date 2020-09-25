@@ -2,6 +2,8 @@ import discord
 from storage.Config import *
 import io
 import aiohttp
+from discord.ext import commands
+from storage.Database import *
 
 
 def get_role(role, guild, bot):
@@ -67,6 +69,14 @@ def get_channel(channel, guild, bot):
     return channel
 
 
+def get_db_role(guild: discord.Guild, role):
+    db = Database()
+    settings: dict = db.get_settings(str(guild.id))
+    if "roles" in settings and role in settings["roles"]:
+        return guild.get_role(settings["roles"][role])
+    return None
+
+
 async def get_user_id(discord_id: str, guild: discord.Guild):
     """
     Get user based off of their ID
@@ -95,3 +105,20 @@ async def get_file_from_image(url: str, name: str):
                 return None
             data = io.BytesIO(await resp.read())
             return discord.File(data, name)
+
+
+def is_allowed():
+    permission = commands.has_permissions(administrator=True).predicate
+
+    def predicate(context: commands.Context):
+        if context.bot.is_owner(context.author):
+            return True
+        if permission(context):
+            return True
+        role = get_db_role(context.guild, "botmanager")
+        if role is not None:
+            comm = commands.has_role(role).predicate
+            return comm(context)
+        return False
+
+    return commands.check(predicate)

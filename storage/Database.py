@@ -171,6 +171,8 @@ class Database:
         self.send_commands([command])
 
     def default_settings(self, guild_id):
+        if not self.guild_exists(guild_id):
+            self.new_guild(guild_id, ">")
         self.set_settings(guild_id, ConfigData.defaultsettings.data)
 
     def new_guild(self, guild_id, prefix):
