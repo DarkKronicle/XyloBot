@@ -22,6 +22,8 @@ class Verify(commands.Cog):
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="`info`", value="View what verification settings are enabled.")
+            embed.add_field(name="`reset`", value="Reset verification information for your server.")
+            await context.send(embed=embed)
 
     @verification.command(name="reset")
     async def reset(self, ctx: commands.Context):
@@ -31,6 +33,7 @@ class Verify(commands.Cog):
             settings["verification"] = ConfigData.defaultsettings["verification"]
         else:
             db.default_settings(str(ctx.guild.id))
+        await ctx.send("Reset verification information!")
 
     @verification.command(name="info")
     async def info(self, ctx: commands.Context):
@@ -45,6 +48,7 @@ class Verify(commands.Cog):
                 description="What you have enabled.",
                 colour=discord.Colour.purple()
             )
+            settings = settings["verification"]
             info.add_field(name="Enabled:", value=str(key_or_false(settings, "enabled")))
             info.add_field(name="First Name:", value=str(key_or_false(settings, "first")))
             info.add_field(name="Last Name:", value=str(key_or_false(settings, "last")))
