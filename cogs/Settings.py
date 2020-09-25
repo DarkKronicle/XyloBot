@@ -82,7 +82,7 @@ class Settings(commands.Cog):
                 return
 
             db = Database()
-            settings = db.get_prefix(str(ctx.guild.id))
+            settings = db.get_settings(str(ctx.guild.id))
             if "channels" not in settings:
                 settings["channels"] = {}
             settings["channels"][args[0]] = str(channel.id)
