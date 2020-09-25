@@ -19,7 +19,6 @@ class Settings(commands.Cog):
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="Verification", value="To see verification settings use `>verification`")
-            embed.add_field(name='`channel`', value="Channels for settings")
             await ctx.send(embed=embed)
 
     @settings.command(name="channel")
@@ -74,7 +73,10 @@ class Settings(commands.Cog):
             return
 
         if args[0] in self.channel_list:
-            channel = ctx.guild.get_channel(args[1])
+            try:
+                channel = ctx.guild.get_channel(int(args[1]))
+            except ValueError:
+                channel = None
             if channel is None:
                 await ctx.send("Channel ID is incorrect!")
                 return
@@ -85,6 +87,7 @@ class Settings(commands.Cog):
                 settings["channels"] = {}
             settings["channels"][args[0]] = str(channel.id)
             db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
 
         else:
             await ctx.send("Channel name is incorrect! see `>settings channel list`")
