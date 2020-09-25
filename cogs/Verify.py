@@ -55,3 +55,7 @@ class Verify(commands.Cog):
 
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+
+
+def setup(bot):
+    bot.add_cog(Verify())
