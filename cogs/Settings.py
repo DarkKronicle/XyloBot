@@ -84,6 +84,7 @@ class Settings(commands.Cog):
             if "channels" not in settings:
                 settings["channels"] = {}
             settings["channels"][args[0]] = str(channel.id)
+            db.set_settings(str(ctx.guild.id), settings)
 
         else:
             await ctx.send("Channel name is incorrect! see `>settings channel list`")
