@@ -58,9 +58,8 @@ class Customization(commands.Cog):
                 await ctx.send("Prefix too large!")
                 return
 
-            if "'" in prefix or '"' in prefix:
-                await ctx.send("These prefixes aren't supported yet, sorry!")
-                return
+            if "$" in prefix:
+                prefix = prefix.replace("$", "\\$")
 
             db = Database()
             db.set_prefix(str(ctx.guild.id), prefix)
@@ -71,6 +70,12 @@ class Customization(commands.Cog):
             )
             await ctx.send(embed=success)
             return
+
+        if args[0] == "setup":
+            if len(args) == 1:
+                embed = discord.Embed(
+                    title="`storage setup view`"
+                )
 
 
 

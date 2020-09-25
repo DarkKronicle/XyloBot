@@ -1,0 +1,16 @@
+{
+  "verification": {
+    "enabled": false,
+    "first": true,
+    "last": false,
+    "school": false,
+    "extra": false,
+    "birthday": false
+  },
+  "channels": {
+    "setup": ""
+  },
+  "roles": {
+    
+  }
+}

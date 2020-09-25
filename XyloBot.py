@@ -25,7 +25,7 @@ def get_prefix(dbot, message: discord.Message):
             return space
         if content.startswith(prefix + " "):
             space.append(prefix + " ")
-            return prefix
+            return space
         prefixes.append(prefix)
     return prefixes
 

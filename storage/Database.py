@@ -1,6 +1,7 @@
 import psycopg2
 import os
 import json
+from storage.Config import *
 
 
 class Database:
@@ -169,6 +170,9 @@ class Database:
         """]
         self.send_commands([command])
 
+    def default_settings(self, guild_id):
+        self.set_settings(guild_id, ConfigData.defaultsettings.data)
+
     def new_guild(self, guild_id, prefix):
         guild_id = "$$" + guild_id + "$$"
         prefix = "$$" + prefix + "$$"
@@ -182,7 +186,7 @@ class Database:
         self.send_commands([command])
 
     def send_commands(self, commands):
-        print("Connecting to database...")
+       # print("Connecting to database...")
         conn = None
         try:
             conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
@@ -192,7 +196,7 @@ class Database:
                 c.execute(command)
             c.close()
             conn.commit()
-            print("Done!")
+            # print("Done!")
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:

@@ -7,6 +7,7 @@ class ConfigData:
     autoreactions = JSONReader("data/autotext.json")
     idstorage = JSONReader("data/idstorage.json")
     rolestorage = JSONReader("data/roles.json")
+    defaultsettings = JSONReader("data/guildsettings.json")
 
     def reload(self):
         self.questions.loadfile()
@@ -14,3 +15,4 @@ class ConfigData:
         self.autoreactions.loadfile()
         self.idstorage.loadfile()
         self.rolestorage.loadfile()
+        self.defaultsettings.loadfile()
