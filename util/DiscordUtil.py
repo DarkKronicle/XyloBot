@@ -110,8 +110,8 @@ async def get_file_from_image(url: str, name: str):
 def is_allowed():
     permission = commands.has_permissions(administrator=True).predicate
 
-    def predicate(context: commands.Context):
-        if context.bot.is_owner(context.author):
+    async def predicate(context: commands.Context):
+        if await context.bot.is_owner(context.author):
             return True
         if permission(context):
             return True
