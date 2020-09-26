@@ -10,6 +10,8 @@ import discord
 from discord.ext.commands import Bot
 import random
 
+cached_prefixes = {}
+
 
 def get_prefix(dbot, message: discord.Message):
     db = Database()
@@ -18,7 +20,11 @@ def get_prefix(dbot, message: discord.Message):
     space = ["x> ", f"<@{user_id}> "]
     if message.guild is None:
         return prefixes
-    prefix = db.get_prefix(str(message.guild.id))
+    if message.guild.id in cached_prefixes:
+        prefix = cached_prefixes[message.guild.id]
+    else:
+        prefix = db.get_prefix(str(message.guild.id))
+        cached_prefixes[message.guild.id] = prefix
     if prefix is not None:
         content: str = message.content
         if content.startswith("x> "):
@@ -52,11 +58,6 @@ async def on_ready():
     messages = join.data["wakeup"]
     message = random.choice(messages)
     await update.send(message)
-
-
-@bot.event
-async def on_member_join(member):
-    print("Joined3")
 
 
 @bot.event
