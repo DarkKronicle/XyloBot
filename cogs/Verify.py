@@ -46,7 +46,7 @@ class Verify(commands.Cog):
         if message.author.bot:
             return
 
-        if not Cache.verify_enabled(message.guild):
+        if not Cache.get_enabled(message.guild):
             return
 
         channel: discord.TextChannel = Cache.get_setup_channel(message.guild)
