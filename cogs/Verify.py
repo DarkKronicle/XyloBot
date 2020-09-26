@@ -13,7 +13,6 @@ def key_or_false(data: dict, key: str):
 class Verify(commands.Cog):
 
     names = {
-        "enabled": "enabled",
         "first name": "first",
         "last name": "last",
         "school": "school",
@@ -32,7 +31,8 @@ class Verify(commands.Cog):
             )
             embed.add_field(name="`info`", value="View what verification settings are enabled.")
             embed.add_field(name="`reset`", value="Reset verification information for your server.")
-            embed.add_field(name="`toggle`", value="Toggle a verification setting.")
+            embed.add_field(name="`fields`", value="Toggle a verification setting.")
+            embed.add_field(name="`toggle`", value="Toggle verification on/off")
             embed.add_field(name='`channel`', value="Channels for verification.")
             await context.send(embed=embed)
 
@@ -53,13 +53,13 @@ class Verify(commands.Cog):
         if settings is None:
             db.default_settings(str(ctx.guild.id))
             await ctx.send("You didn't have settings. Creating now.")
-        if "verification" in settings:
+        if "verification" in settings and "fields" in settings["verification"]:
             info = discord.Embed(
                 title="Information",
                 description="What you have enabled.",
                 colour=discord.Colour.purple()
             )
-            settings = settings["verification"]
+            settings = settings["verification"]["fields"]
             info.add_field(name="Enabled", value=str(key_or_false(settings, "enabled")))
             info.add_field(name="First Name", value=str(key_or_false(settings, "first")))
             info.add_field(name="Last Name", value=str(key_or_false(settings, "last")))
@@ -71,33 +71,27 @@ class Verify(commands.Cog):
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 
-    @verification.command(name="toggle")
-    async def toggle(self, ctx: commands.Context, *args):
+    @verification.command(name="fields")
+    async def fields(self, ctx: commands.Context, *args):
         if len(args) == 0:
             error = discord.Embed(
                 title="Incorrect Usage",
-                description="`>verification toggle <SETTING>`",
+                description="`>verification field <SETTING>`",
                 colour=discord.Colour.red()
             )
             await ctx.send(embed=error)
             return
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
-        if "verification" in settings:
+        if "verification" in settings and "fields" in settings["verification"]:
             full_setting = ' '.join(args[0:]).lower()
             if full_setting in self.names:
                 setting = self.names[full_setting]
-                if setting == "enabled":
-                    if not check_verification_channels(ctx.guild):
-                        await ctx.send("You need to setup the channels `setup` and `setup-verify` before you can "
-                                       "enable! `>settings channel`")
-                        return
-
-                if setting in settings["verification"]:
-                    enabled = settings["verification"][setting]
+                if setting in settings["verification"]["fields"]:
+                    enabled = settings["verification"]["fields"][setting]
                 else:
                     enabled = False
-                settings["verification"][setting] = not enabled
+                settings["verification"]["fields"][setting] = not enabled
                 db.set_settings(str(ctx.guild.id), settings)
                 if enabled:
                     await ctx.send(f"Toggling off {args[0]}.")
@@ -105,7 +99,27 @@ class Verify(commands.Cog):
                     await ctx.send(f"Toggling on {args[0]}.")
             else:
                 await ctx.send("No setting found by that name. Look through `>verification info`. `>verification "
-                               "toggle <SETTING>")
+                               "field <SETTING>")
+        else:
+            await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+
+    @verification.group(name="toggle")
+    async def toggle(self, ctx: commands.Context):
+        db = Database()
+        settings = db.get_settings(str(ctx.guild.id))
+        if not check_verification_channels(ctx.guild):
+            await ctx.send("You need to setup the channels `setup` and `setup-verify` before you can "
+                           "enable! `>settings channel`")
+            return
+
+        if "verification" in settings:
+            settings = settings["verification"]
+            enabled = key_or_false(settings, "enabled")
+            settings["enabled"] = not enabled
+            if enabled:
+                await ctx.send("Turning off verification!")
+            else:
+                await ctx.send("Turning on verification!")
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 

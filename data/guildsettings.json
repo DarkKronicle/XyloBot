@@ -1,15 +1,17 @@
 {
   "verification": {
     "enabled": false,
-    "first": true,
-    "last": false,
-    "school": false,
-    "extra": false,
-    "birthday": false
+    "fields": {
+      "first": true,
+      "last": false,
+      "school": false,
+      "extra": false,
+      "birthday": false
+    },
+    "join-message": "Hello! Welcome to {server}! You're going to have to put in some information in {channel} to get verified. Once that's done, you will get a notice from me letting you know if you're in or not!"
   },
   "channels": {
   },
   "roles": {
-    "botmanager": ""
   }
 }

@@ -6,7 +6,8 @@ from discord.ext import commands
 class Settings(commands.Cog):
     channel_list = {
         "setup": "Where user's get verified",
-        "setup-verify": "Where staff member's verify users."
+        "setup-logs": "Where information about verification goes.",
+        "qotd": "Where the question of the day is posted!"
     }
 
     @commands.group(name="settings")
@@ -63,7 +64,7 @@ class Settings(commands.Cog):
         if args[0] == "list" or len(args) < 2:
             channels = discord.Embed(
                 title="Channels List",
-                description="See what channels you can edit. Edit one with `>settings channel <CHANNEL> <ID>`",
+                description="See what channels you can edit. Edit one with `>settings channel <CHANNEL> <ID or [none]`",
                 colour=discord.Colour.purple()
             )
             for name in self.channel_list:
@@ -73,21 +74,31 @@ class Settings(commands.Cog):
             return
 
         if args[0] in self.channel_list:
-            try:
-                channel = ctx.guild.get_channel(int(args[1]))
-            except ValueError:
-                channel = None
-            if channel is None:
-                await ctx.send("Channel ID is incorrect!")
-                return
+            if args[1] is not "none":
+                try:
+                    channel = ctx.guild.get_channel(int(args[1]))
+                except ValueError:
+                    channel = None
+                if channel is None:
+                    await ctx.send("Channel ID is incorrect!")
+                    return
 
-            db = Database()
-            settings = db.get_settings(str(ctx.guild.id))
-            if "channels" not in settings:
-                settings["channels"] = {}
-            settings["channels"][args[0]] = str(channel.id)
-            db.set_settings(str(ctx.guild.id), settings)
-            await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
+                db = Database()
+                settings = db.get_settings(str(ctx.guild.id))
+                if "channels" not in settings:
+                    settings["channels"] = {}
+                settings["channels"][args[0]] = str(channel.id)
+                db.set_settings(str(ctx.guild.id), settings)
+                await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
+
+            else:
+                db = Database()
+                settings = db.get_settings(str(ctx.guild.id))
+                if "channels" not in settings:
+                    settings["channels"] = {}
+                settings["channels"][args[0]] = ""
+                db.set_settings(str(ctx.guild.id), settings)
+                await ctx.send(f"The `{args[0]}` channel has been removed!")
 
         else:
             await ctx.send("Channel name is incorrect! see `>settings channel list`")
