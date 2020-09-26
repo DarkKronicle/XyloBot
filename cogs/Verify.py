@@ -2,6 +2,7 @@ from util.DiscordUtil import *
 import discord
 from util.DiscordUtil import *
 from discord.ext import commands
+from storage import Cache
 
 
 def key_or_false(data: dict, key: str):
@@ -10,8 +11,17 @@ def key_or_false(data: dict, key: str):
     return False
 
 
-class Verify(commands.Cog):
+def get_true(guild):
+    field: dict = Cache.get_fields(guild)
+    if field is None:
+        return None
+    for f in field:
+        if not f:
+            field.pop(f)
+    return field
 
+
+class Verify(commands.Cog):
     names = {
         "first name": "first",
         "last name": "last",
@@ -20,12 +30,101 @@ class Verify(commands.Cog):
         "birthday": "birthday"
     }
 
+    verifying = {}
+
+    def __init__(self, bot):
+        self.bot: commands.Bot = bot
+
+    def verify_queue(self, member: discord.Member, guild: discord.Guild):
+        pass
+
+    def is_done(self, member, guild):
+        return self.verifying[guild.id][member.id]["done"]
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
+
+        if not Cache.verify_enabled(message.guild):
+            return
+
+        channel: discord.TextChannel = Cache.get_setup_channel(message.guild)
+        if channel is None or message.channel is not channel:
+            return
+
+        if message.guild.id not in self.verifying:
+            self.verifying[message.guild.id] = {}
+
+        fields = get_true(message.guild)
+
+        if message.author.id in self.verifying[message.guild.id]:
+            current = self.verifying[message.guild.id][message.author.id]
+        else:
+            self.verifying[message.guild.id][message.author.id] = {
+                "step": 0,
+                "done": False
+            }
+            current = self.verifying[message.guild.id][message.author.id]
+
+        if current["step"] > 0:
+            return
+
+        if self.is_done(message.author, message.guild):
+            done = discord.Embed(
+                title="Verification Process Complete!",
+                description="You're all set! You'll get a DM from me when you get processed.",
+                colour=discord.Colour.green()
+            )
+            await channel.send(embed=done, delete_after=15)
+            return
+
+        if len(fields) == 0:
+            await message.delete()
+            done = discord.Embed(
+                title="Verification Process Complete!",
+                description="You're all set! You'll get a DM from me when you get processed.",
+                colour=discord.Colour.green()
+            )
+            await channel.send(embed=done, delete_after=15)
+            self.verify_queue(message.author, message.guild)
+            return
+
+        self.verifying[message.guild.id][message.author.id]["step"] = 1
+        for value in fields:
+            prompt = await channel.send(f"I now need your {value}.", delete_after=15)
+            answer = await self.bot.wait_for(
+                "message",
+                timeout=60,
+                check=lambda msg: msg.author == message.author and msg.channel == message.channel
+            )
+            await prompt.delete()
+            await answer.delete()
+            if answer is None:
+                self.verifying[message.guild.id].pop(message.author.id)
+                await channel.send("This has been closed due to a timeout", delete_after=15)
+                break
+            else:
+                self.verifying[message.guild.id][message.author.id][value] = answer.content
+
+        if self.verifying[message.guild.id][message.author.id] is not None:
+            self.verifying[message.guild.id][message.author.id]["step"] = 0
+            self.verifying[message.guild.id][message.author.id]["done"] = True
+            self.verify_queue(message.author, message.guild)
+            done = discord.Embed(
+                title="Verification Process Complete!",
+                description="You're all set! You'll get a DM from me when you get processed.",
+                colour=discord.Colour.green()
+            )
+            await channel.send(embed=done, delete_after=15)
+
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         print("Joining")
         db = Database()
         settings = db.get_settings(str(member.guild.id))
-        if "verification" in settings and "enabled" in settings["verification"] and settings["verification"]["enabled"] == True:
+        if "verification" in settings and "enabled" in settings["verification"] and settings["verification"][
+            "enabled"] == True:
             if member.dm_channel is None:
                 await member.create_dm()
             dm = member.dm_channel
@@ -91,7 +190,8 @@ class Verify(commands.Cog):
             await ctx.send(embed=info)
 
         else:
-            await ctx.send("No verification settings found. Please use `verification reset` to reset verification info.")
+            await ctx.send(
+                "No verification settings found. Please use `verification reset` to reset verification info.")
 
     @verification.command(name="fields")
     async def fields(self, ctx: commands.Context, *args):

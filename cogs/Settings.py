@@ -1,3 +1,4 @@
+from storage import Cache
 from util.DiscordUtil import *
 import discord
 from discord.ext import commands
@@ -12,6 +13,7 @@ class Settings(commands.Cog):
 
     role_list = {
         "verifier": "Verifies users",
+        "unverified": "Someone who is not verified",
         "botmanager": "Can manage the bot"
     }
 
@@ -96,6 +98,7 @@ class Settings(commands.Cog):
                     settings["channels"] = {}
                 settings["channels"][args[0]] = str(channel.id)
                 db.set_settings(str(ctx.guild.id), settings)
+                Cache.clear_setup_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
 
             else:
@@ -105,6 +108,7 @@ class Settings(commands.Cog):
                     settings["channels"] = {}
                 settings["channels"][args[0]] = ""
                 db.set_settings(str(ctx.guild.id), settings)
+                Cache.clear_setup_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been removed!")
 
         else:
@@ -178,6 +182,7 @@ class Settings(commands.Cog):
                     settings["roles"] = {}
                 settings["roles"][args[0]] = str(role.id)
                 db.set_settings(str(ctx.guild.id), settings)
+                Cache.clear_unverified_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` role has been set to {role.name}")
 
             else:
@@ -187,6 +192,7 @@ class Settings(commands.Cog):
                     settings["roles"] = {}
                 settings["roles"][args[0]] = ""
                 db.set_settings(str(ctx.guild.id), settings)
+                Cache.clear_unverified_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` role has been removed!")
 
         else:

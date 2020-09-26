@@ -124,8 +124,8 @@ def check_verification(guild: discord.Guild):
             return False
     else:
         return False
-    if "roles" in settings and "verifier" in settings["roles"]:
-        if guild.get_role(int(settings["roles"]["verifier"])) is None:
+    if "roles" in settings and "verifier" in settings["roles"] and "unverified" in settings:
+        if guild.get_role(int(settings["roles"]["verifier"])) is None or guild.get_role(int(settings["roles"]["unverified"])):
             return False
     else:
         return False
