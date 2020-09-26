@@ -13,7 +13,8 @@ fields = {}
 
 
 def clear_setup_cache(guild):
-    setup_channels.pop(guild.id)
+    if guild in setup_channels:
+        setup_channels.pop(guild.id)
 
 
 def get_setup_channel(guild: discord.Guild):
@@ -31,7 +32,8 @@ def get_setup_channel(guild: discord.Guild):
 
 
 def clear_unverified_cache(guild):
-    unverified_roles.pop(guild.id)
+    if guild in unverified_roles:
+        unverified_roles.pop(guild.id)
 
 
 def get_unverified_role(guild: discord.Guild):
@@ -49,7 +51,8 @@ def get_unverified_role(guild: discord.Guild):
 
 
 def clear_enabled_cache(guild):
-    verify_enabled.pop(guild.id)
+    if guild in verify_enabled:
+        verify_enabled.pop(guild.id)
 
 
 def get_enabled(guild: discord.Guild):
@@ -65,8 +68,11 @@ def get_enabled(guild: discord.Guild):
         else:
             return None
 
+
 def clear_fields_cache(guild):
-    verify_enabled.pop(guild.id)
+    if guild in verify_enabled:
+        verify_enabled.pop(guild.id)
+
 
 def get_fields(guild: discord.Guild):
     if guild.id in fields:
