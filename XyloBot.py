@@ -55,7 +55,7 @@ async def on_ready():
 
 
 @bot.event
-async def on_member_join():
+async def on_member_join(member):
     print("Joined3")
 
 
