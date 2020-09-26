@@ -41,7 +41,7 @@ class Verify(commands.Cog):
         db = Database()
         if db.guild_exists(str(ctx.guild.id)):
             settings = db.get_settings(str(ctx.guild.id))
-            settings["verification"] = ConfigData.defaultsettings["verification"]
+            settings["verification"] = ConfigData.defaultsettings.data["verification"]
         else:
             db.default_settings(str(ctx.guild.id))
         await ctx.send("Reset verification information!")
@@ -69,7 +69,7 @@ class Verify(commands.Cog):
             await ctx.send(embed=info)
 
         else:
-            await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+            await ctx.send("No verification settings found. Please use `verification reset` to reset verification info.")
 
     @verification.command(name="fields")
     async def fields(self, ctx: commands.Context, *args):
