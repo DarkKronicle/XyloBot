@@ -134,9 +134,8 @@ class Verify(commands.Cog):
             return
 
         if "verification" in settings:
-            settings = settings["verification"]
-            enabled = key_or_false(settings, "enabled")
-            settings["enabled"] = not enabled
+            enabled = key_or_false(settings["verification"], "enabled")
+            settings["verification"]["enabled"] = not enabled
             if enabled:
                 await ctx.send("Turning off verification!")
             else:
