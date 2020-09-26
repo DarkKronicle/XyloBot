@@ -36,7 +36,8 @@ bot = Bot(command_prefix=get_prefix)
 bot.remove_command('help')
 
 # Command Extensions
-startup_extensions = ["DataCommands", "Setup", "Help", "AutoReactions", "QOTD", "Roles", "Customization", "Verify", "Settings"]
+startup_extensions = ["DataCommands", "Setup", "Help", "AutoReactions", "QOTD", "Roles", "Customization", "Verify",
+                      "Settings"]
 
 # Extension directory
 cogs_dir = "cogs"
@@ -51,6 +52,11 @@ async def on_ready():
     messages = join.data["wakeup"]
     message = random.choice(messages)
     await update.send(message)
+
+
+@bot.event
+async def on_member_join():
+    print("Joined3")
 
 
 @bot.event
