@@ -178,7 +178,7 @@ class Settings(commands.Cog):
                     settings["roles"] = {}
                 settings["roles"][args[0]] = str(role.id)
                 db.set_settings(str(ctx.guild.id), settings)
-                await ctx.send(f"The `{args[0]}` role has been set to {role.mention}")
+                await ctx.send(f"The `{args[0]}` role has been set to {role.name}")
 
             else:
                 db = Database()

@@ -115,14 +115,22 @@ async def get_file_from_image(url: str, name: str):
             return discord.File(data, name)
 
 
-def check_verification_channels(guild: discord.Guild):
+def check_verification(guild: discord.Guild):
     db = Database()
     settings: dict = db.get_settings(str(guild.id))
     if "channels" in settings and "setup" in settings["channels"] and "setup-logs" in settings["channels"]:
-        if guild.get_channel(settings["channels"]["setup"]) is None or guild.get_channel(settings["channels"]["setup-logs"]) is None:
+        if guild.get_channel(int(settings["channels"]["setup"])) is None or guild.get_channel(
+                int(settings["channels"]["setup-logs"])) is None:
             return False
-        return True
-    return False
+    else:
+        return False
+    if "roles" in settings and "verifier" in settings["roles"]:
+        if guild.get_role(int(settings["roles"]["verifier"])) is None:
+            return False
+    else:
+        return False
+
+    return True
 
 
 def is_allowed():
@@ -135,7 +143,22 @@ def is_allowed():
             return True
         role = get_db_role(context.guild, "botmanager")
         if role is not None:
-            comm = commands.has_role(role).predicate
+            comm = commands.has_role(int(role)).predicate
+            return await comm(context)
+        return False
+
+    return commands.check(predicate)
+
+
+def is_verifier():
+    permission = commands.has_permissions(administrator=True).predicate
+
+    async def predicate(context: commands.Context):
+        if await permission(context):
+            return True
+        role = get_db_role(context.guild, "verifier")
+        if role is not None:
+            comm = commands.has_role(int(role)).predicate
             return await comm(context)
         return False
 

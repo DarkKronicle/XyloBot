@@ -22,7 +22,24 @@ class Verify(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        pass
+        db = Database()
+        settings = db.get_settings(str(member.guild.id))
+        if "verification" in settings and "enabled" in settings["verification"] and settings["verification"]["enabled"]:
+            if member.dm_channel is None:
+                await member.create_dm()
+            dm = member.dm_channel
+
+            setup_channel: discord.TextChannel = member.guild.get_channel(settings["channels"]["setup"])
+
+            # Send message. If there is an extra staff message that will be added.
+            content: str = settings["verification"]["join-message"]
+            content = content.replace("{server}", member.guild.name)
+            content = content.replace("{channel}", setup_channel.mention)
+
+            await dm.send(content=content)
+
+            log = member.guild.get_channel(settings["channels"]["setup-logs"])
+            await log.send(f":bell: `{member.display_name}` just joined!")
 
     @commands.group(name="verification")
     @is_allowed()
@@ -111,7 +128,7 @@ class Verify(commands.Cog):
     async def toggle(self, ctx: commands.Context):
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
-        if not check_verification_channels(ctx.guild):
+        if not check_verification(ctx.guild):
             await ctx.send("You need to setup the channels `setup` and `setup-logs` before you can "
                            "enable! `>settings channel`")
             return
