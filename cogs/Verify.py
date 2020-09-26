@@ -42,6 +42,7 @@ class Verify(commands.Cog):
         if db.guild_exists(str(ctx.guild.id)):
             settings = db.get_settings(str(ctx.guild.id))
             settings["verification"] = ConfigData.defaultsettings.data["verification"]
+            db.set_settings(str(ctx.guild.id), settings)
         else:
             db.default_settings(str(ctx.guild.id))
         await ctx.send("Reset verification information!")
