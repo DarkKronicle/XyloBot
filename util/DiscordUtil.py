@@ -118,8 +118,8 @@ async def get_file_from_image(url: str, name: str):
 def check_verification_channels(guild: discord.Guild):
     db = Database()
     settings: dict = db.get_settings(str(guild.id))
-    if "channels" in settings and "setup" in settings["channels"] and "setup-verify" in settings["channels"]:
-        if guild.get_channel(settings["channels"]["setup"]) is None or guild.get_channel(settings["channels"]["setup-verify"]) is None:
+    if "channels" in settings and "setup" in settings["channels"] and "setup-logs" in settings["channels"]:
+        if guild.get_channel(settings["channels"]["setup"]) is None or guild.get_channel(settings["channels"]["setup-logs"]) is None:
             return False
         return True
     return False

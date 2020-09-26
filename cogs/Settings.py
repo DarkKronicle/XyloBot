@@ -10,16 +10,23 @@ class Settings(commands.Cog):
         "qotd": "Where the question of the day is posted!"
     }
 
+    role_list = {
+        "verifier": "Verifies users",
+        "botmanager": "Can manage the bot"
+    }
+
     @commands.group(name="settings")
     @is_allowed()
     async def settings(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Settings Help",
-                description="View commands for verification.",
+                description="View commands for configuring Xylo.",
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="Verification", value="To see verification settings use `>verification`")
+            embed.add_field(name="`channel`", value="Configure what channels Xylo uses!")
+            embed.add_field(name="`role`", value="Configure what roles Xylo uses!")
             await ctx.send(embed=embed)
 
     @settings.command(name="channel")
@@ -64,7 +71,7 @@ class Settings(commands.Cog):
         if args[0] == "list" or len(args) < 2:
             channels = discord.Embed(
                 title="Channels List",
-                description="See what channels you can edit. Edit one with `>settings channel <CHANNEL> <ID or [none]`",
+                description="See what channels you can edit. Edit one with `>settings channel <CHANNEL> <ID or [none]>`",
                 colour=discord.Colour.purple()
             )
             for name in self.channel_list:
@@ -74,7 +81,7 @@ class Settings(commands.Cog):
             return
 
         if args[0] in self.channel_list:
-            if args[1] is not "none":
+            if args[1] != "none":
                 try:
                     channel = ctx.guild.get_channel(int(args[1]))
                 except ValueError:
@@ -102,6 +109,88 @@ class Settings(commands.Cog):
 
         else:
             await ctx.send("Channel name is incorrect! see `>settings channel list`")
+            return
+
+    @settings.command(name="role")
+    async def role(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            error = discord.Embed(
+                title="Incorrect Usage",
+                description="`>settings role [list/current/<role>]`",
+                colour=discord.Colour.red()
+            )
+            await ctx.send(embed=error)
+            return
+
+        if args[0] == "current":
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings or len(settings["roles"]) == 0:
+                await ctx.send("You don't have any roles configured!")
+                return
+
+            embed = discord.Embed(
+                title="Roles!",
+                description="Here are the roles configured:",
+                colour=discord.Colour.purple()
+            )
+            roles_set = settings["roles"]
+            for role in roles_set:
+                if roles_set[role] == "":
+                    continue
+                try:
+                    chan_id = int(roles_set[role])
+                    rl: discord.Role = ctx.guild.get_role(chan_id)
+                    if rl is None:
+                        continue
+                    embed.add_field(name=role, value=rl.name)
+                except ValueError:
+                    continue
+
+            await ctx.send(embed=embed)
+            return
+
+        if args[0] == "list" or len(args) < 2:
+            roles = discord.Embed(
+                title="Roles List",
+                description="See what roles you can edit. Edit one with `>settings role <ROLE> <ID or [none]>`",
+                colour=discord.Colour.purple()
+            )
+            for name in self.role_list:
+                roles.add_field(name=name, value=self.role_list[name])
+
+            await ctx.send(embed=roles)
+            return
+
+        if args[0] in self.role_list:
+            if args[1] != "none":
+                try:
+                    role = ctx.guild.get_role(int(args[1]))
+                except ValueError:
+                    role = None
+                if role is None:
+                    await ctx.send("Role ID is incorrect!")
+                    return
+
+                db = Database()
+                settings = db.get_settings(str(ctx.guild.id))
+                if "roles" not in settings:
+                    settings["roles"] = {}
+                settings["roles"][args[0]] = str(role.id)
+                db.set_settings(str(ctx.guild.id), settings)
+                await ctx.send(f"The `{args[0]}` role has been set to {role.mention}")
+
+            else:
+                db = Database()
+                settings = db.get_settings(str(ctx.guild.id))
+                if "roles" not in settings:
+                    settings["roles"] = {}
+                settings["roles"][args[0]] = ""
+                db.set_settings(str(ctx.guild.id), settings)
+                await ctx.send(f"The `{args[0]}` role has been removed!")
+
+        else:
+            await ctx.send("Role name is incorrect! see `>settings role list`")
             return
 
 

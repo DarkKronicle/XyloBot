@@ -20,6 +20,10 @@ class Verify(commands.Cog):
         "birthday": "birthday"
     }
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        pass
+
     @commands.group(name="verification")
     @is_allowed()
     async def verification(self, context):
@@ -33,7 +37,6 @@ class Verify(commands.Cog):
             embed.add_field(name="`reset`", value="Reset verification information for your server.")
             embed.add_field(name="`fields`", value="Toggle a verification setting.")
             embed.add_field(name="`toggle`", value="Toggle verification on/off")
-            embed.add_field(name='`channel`', value="Channels for verification.")
             await context.send(embed=embed)
 
     @verification.command(name="reset")
@@ -109,7 +112,7 @@ class Verify(commands.Cog):
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
         if not check_verification_channels(ctx.guild):
-            await ctx.send("You need to setup the channels `setup` and `setup-verify` before you can "
+            await ctx.send("You need to setup the channels `setup` and `setup-logs` before you can "
                            "enable! `>settings channel`")
             return
 
