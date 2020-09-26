@@ -22,9 +22,10 @@ class Verify(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        print("Joining")
         db = Database()
         settings = db.get_settings(str(member.guild.id))
-        if "verification" in settings and "enabled" in settings["verification"] and settings["verification"]["enabled"]:
+        if "verification" in settings and "enabled" in settings["verification"] and settings["verification"]["enabled"] == True:
             if member.dm_channel is None:
                 await member.create_dm()
             dm = member.dm_channel
