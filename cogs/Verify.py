@@ -29,16 +29,16 @@ class Verify(commands.Cog):
                 await member.create_dm()
             dm = member.dm_channel
 
-            setup_channel: discord.TextChannel = member.guild.get_channel(settings["channels"]["setup"])
+            setup_channel: discord.TextChannel = member.guild.get_channel(int(settings["channels"]["setup"]))
 
             # Send message. If there is an extra staff message that will be added.
             content: str = settings["verification"]["join-message"]
             content = content.replace("{server}", member.guild.name)
             content = content.replace("{channel}", setup_channel.mention)
 
-            await dm.send(content=content)
+            await dm.send(content)
 
-            log = member.guild.get_channel(settings["channels"]["setup-logs"])
+            log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
             await log.send(f":bell: `{member.display_name}` just joined!")
 
     @commands.group(name="verification")
@@ -141,6 +141,7 @@ class Verify(commands.Cog):
                 await ctx.send("Turning off verification!")
             else:
                 await ctx.send("Turning on verification!")
+            db.set_settings(str(ctx.guild.id), settings)
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 
