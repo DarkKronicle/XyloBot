@@ -247,4 +247,4 @@ class Verify(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Verify())
+    bot.add_cog(Verify(bot))
