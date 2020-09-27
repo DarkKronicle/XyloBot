@@ -3,6 +3,7 @@ from util.DiscordUtil import *
 from storage.Database import *
 from discord.ext import commands
 from discord.ext.commands import bot, has_permissions
+from storage import Cache
 
 
 class Customization(commands.Cog):
@@ -68,6 +69,7 @@ class Customization(commands.Cog):
                 description=f"Prefix changed to `{prefix}`!",
                 colour=discord.Colour.green()
             )
+            Cache.clear_prefix_cache(ctx.guild)
             await ctx.send(embed=success)
             return
 

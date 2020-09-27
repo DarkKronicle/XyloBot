@@ -13,6 +13,8 @@ fields = {}
 
 fun = {}
 
+prefixes = {}
+
 
 def clear_setup_cache(guild):
     if guild in setup_channels:
@@ -65,6 +67,7 @@ def get_enabled(guild: discord.Guild):
         settings = db.get_settings(str(guild.id))
         if settings is None:
             db.default_settings(str(guild.id))
+            return
         if "verification" in settings and "enabled" in settings["verification"]:
             channel = settings["verification"]["enabled"]
             verify_enabled[guild.id] = channel
@@ -109,3 +112,18 @@ def get_fun(guild: discord.Guild):
             return fun_field
         else:
             return None
+
+
+def clear_prefix_cache(guild):
+    if guild.id in prefixes:
+        prefixes.pop(guild.id)
+
+
+def get_prefix(guild: discord.Guild):
+    if guild.id in prefixes:
+        return prefixes[guild.id]
+    else:
+        db = Database()
+        prefix = db.get_prefix(str(guild.id))
+        prefixes[guild.id] = prefix
+        return prefix

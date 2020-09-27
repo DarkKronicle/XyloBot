@@ -5,26 +5,20 @@ from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRol
 import traceback
 from util.DiscordUtil import *
 from storage.Database import *
+from storage import Cache
 
 import discord
 from discord.ext.commands import Bot
 import random
 
-cached_prefixes = {}
-
 
 def get_prefix(dbot, message: discord.Message):
-    db = Database()
     user_id = dbot.user.id
     prefixes = ["x>", f"<@{user_id}> "]
     space = ["x> ", f"<@{user_id}> "]
     if message.guild is None:
         return prefixes
-    if message.guild.id in cached_prefixes:
-        prefix = cached_prefixes[message.guild.id]
-    else:
-        prefix = db.get_prefix(str(message.guild.id))
-        cached_prefixes[message.guild.id] = prefix
+    prefix = Cache.get_prefix(message.guild)
     if prefix is not None:
         content: str = message.content
         if content.startswith("x> "):
