@@ -52,21 +52,17 @@ class Verify(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot:
-            print("Bot")
             return
 
         if not Cache.get_enabled(message.guild):
-            print("Not enabled")
             return
 
         role = Cache.get_unverified_role(message.guild)
         if role not in message.author.roles:
-            print("No role")
             return
 
         channel: discord.TextChannel = Cache.get_setup_channel(message.guild)
         if channel is None or message.channel is not channel:
-            print("Not channel")
             return
 
         if message.guild.id not in self.verifying:
