@@ -63,7 +63,7 @@ class Verify(commands.Cog):
         channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
         message = f":bell: `{member.display_name}` just went through the verification process!"
         for field in self.verifying[guild.id][member.id]:
-            message = message + f"\n{get_key(field, self.names)}: `{self.verifying[guild.id][member.id][field]}`"
+            message = message + f"\n{get_key(field, self.names)}: `{self.verifying[guild.id][member.id]['fields'][field]}`"
         await channel.send(message)
 
     def is_done(self, member, guild):
@@ -95,7 +95,8 @@ class Verify(commands.Cog):
         else:
             self.verifying[message.guild.id][message.author.id] = {
                 "step": 0,
-                "done": False
+                "done": False,
+                "fields": {}
             }
             current = self.verifying[message.guild.id][message.author.id]
 
@@ -136,9 +137,39 @@ class Verify(commands.Cog):
                 await prompt.delete()
                 await answer.delete()
                 if answer:
-                    self.verifying[message.guild.id][message.author.id][value] = answer.content
+                    self.verifying[message.guild.id][message.author.id]["fields"][value] = answer.content
             except asyncio.TimeoutError:
                 self.verifying[message.guild.id].pop(message.author.id)
+                await prompt.delete()
+                await channel.send("This has been closed due to a timeout", delete_after=15)
+                return
+
+        if self.verifying[message.guild.id][message.author.id] is not None:
+            response = discord.Embed(
+                title="Is this info correct?",
+                description="Respond `yes` or `no`",
+                colour=discord.Colour.purple()
+            )
+            for field in self.verifying[message.guild.id][message.author.id]["fields"]:
+                response.add_field(name=get_key(field, self.names),
+                                   value=self.verifying[message.guild.id][message.author.id]['fields'][field])
+            prompt = await channel.send(embed=response)
+            try:
+                answer = await self.bot.wait_for(
+                    "message",
+                    timeout=60,
+                    check=lambda msg: msg.author == message.author and msg.channel == message.channel
+                )
+                await answer.delete()
+                await prompt.delete()
+                if answer:
+                    if "yes" not in answer.content:
+                        self.verifying[message.guild.id].pop(message.author.id)
+                        await channel.send("Deleting responses! Try again.", delete_after=15)
+                        return
+            except asyncio.TimeoutError:
+                self.verifying[message.guild.id].pop(message.author.id)
+                await prompt.delete()
                 await channel.send("This has been closed due to a timeout", delete_after=15)
                 return
 

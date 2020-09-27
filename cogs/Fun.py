@@ -35,7 +35,7 @@ class Fun(commands.Cog):
     async def fact(self, ctx: commands.Context):
         rand = random.choice(ConfigData.lober.data["facts"])
         embed = discord.Embed(
-            title="Fact",
+            title="**LOBER FACT**",
             description=rand,
             colour=discord.Colour.dark_gray()
         )
