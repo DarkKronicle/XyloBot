@@ -15,10 +15,11 @@ def get_true(guild):
     field: dict = Cache.get_fields(guild)
     if field is None:
         return None
+    true_fields = field
     for f in field:
         if not field[f]:
-            field.pop(f)
-    return field
+            true_fields.pop(f)
+    return true_fields
 
 
 class Verify(commands.Cog):
@@ -58,7 +59,6 @@ class Verify(commands.Cog):
             return
 
         role = Cache.get_unverified_role(message.guild)
-        print(role.name)
         if role not in message.author.roles:
             return
 
