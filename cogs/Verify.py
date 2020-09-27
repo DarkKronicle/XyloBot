@@ -28,6 +28,7 @@ def get_key(val, settings):
 
     return "key doesn't exist"
 
+
 class Verify(commands.Cog):
     names = {
         "First Name": "first",
@@ -50,7 +51,7 @@ class Verify(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-    def verify_queue(self, member: discord.Member, guild: discord.Guild):
+    async def verify_queue(self, member: discord.Member, guild: discord.Guild):
         db = Database()
         settings = db.get_settings(str(guild.id))
         if not check_verification(guild, settings):
@@ -117,7 +118,7 @@ class Verify(commands.Cog):
                 colour=discord.Colour.green()
             )
             await channel.send(embed=done, delete_after=15)
-            self.verify_queue(message.author, message.guild)
+            await self.verify_queue(message.author, message.guild)
             return
 
         await message.delete()
@@ -141,7 +142,7 @@ class Verify(commands.Cog):
         if self.verifying[message.guild.id][message.author.id] is not None:
             self.verifying[message.guild.id][message.author.id]["step"] = 0
             self.verifying[message.guild.id][message.author.id]["done"] = True
-            self.verify_queue(message.author, message.guild)
+            await self.verify_queue(message.author, message.guild)
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
