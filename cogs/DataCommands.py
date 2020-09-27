@@ -162,6 +162,10 @@ class Commands(commands.Cog):
                 await ctx.send(message)
                 return
 
+            if args[0] == "run":
+                await ctx.send("Running command...")
+                db.send_commands([' '.join(args[1:])])
+
             await ctx.send("Unknown command...")
         else:
             await ctx.send("You're not my owner!")

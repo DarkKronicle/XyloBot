@@ -62,12 +62,17 @@ class Verify(commands.Cog):
             return
         channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
         message = f":bell: `{member.display_name}` just went through the verification process!"
-        for field in self.verifying[guild.id][member.id]:
-            message = message + f"\n{get_key(field, self.names)}: `{self.verifying[guild.id][member.id]['fields'][field]}`"
+        for field in self.verifying[guild.id][member.id]['fields']:
+            message = message + f"\n-    {get_key(field, self.names)}: `{self.verifying[guild.id][member.id]['fields'][field]}`"
         await channel.send(message)
 
     def is_done(self, member, guild):
-        return self.verifying[guild.id][member.id]["done"]
+        if guild.id in self.verifying and member.id in self.verifying[guild.id]:
+            return self.verifying[guild.id][member.id]["done"]
+        else:
+            db = Database()
+
+            return False
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -273,7 +278,10 @@ class Verify(commands.Cog):
         settings = db.get_settings(str(ctx.guild.id))
         if "verification" in settings and "fields" in settings["verification"]:
             full_setting = ' '.join(args[0:]).lower()
-            if full_setting in self.names:
+            name = []
+            for sets in self.names:
+                name.append(sets.lower())
+            if full_setting in name:
                 setting = self.names[full_setting]
                 if setting in settings["verification"]["fields"]:
                     enabled = settings["verification"]["fields"][setting]
@@ -287,7 +295,7 @@ class Verify(commands.Cog):
                     await ctx.send(f"Toggling on {args[0]}.")
             else:
                 await ctx.send("No setting found by that name. Look through `>verification info`. `>verification "
-                               "field <SETTING>")
+                               "field <SETTING>`")
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 

@@ -53,6 +53,42 @@ class Database:
                     """]
         self.send_commands(commands)
 
+    def get_unverified(self, guild_id):
+        command = "SELECT guild_id, user_id FROM verify_queue WHERE guild_id = {} ORDER BY user_id;"
+        command = command.format("$$" + guild_id + "$$")
+        conn = None
+        row = None
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(command)
+            row = c.fetchone()
+            c.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if row is None:
+            return None
+        else:
+            return row[0]
+
+    def add_unverified(self, settings, user_id, guild_id):
+        for setting in settings:
+            if settings[setting] is None:
+                settings[setting] = "NULL"
+            else:
+                sett = settings[setting].replace("$$", "")
+                settings[setting] = "$$" + sett + "$$"
+        command = f"INSERT INTO verify_queue(guild_id, user_id, first_name, last_name, school, info, birthday) " \
+                  f"VALUES($${guild_id}$$, $${user_id}$$, {settings['first']}, {settings['last']}, " \
+                  f"{settings['school']}, {settings['extra']}, {settings['birthday']})"
+
     def user_exists(self, user_id):
         user = "$$" + user_id + "$$"
         command = "SELECT id FROM user_storage WHERE id = {} ORDER BY id;"
