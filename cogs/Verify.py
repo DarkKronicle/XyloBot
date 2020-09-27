@@ -344,7 +344,7 @@ class Verify(commands.Cog):
         guild: discord.Guild = ctx.guild
         message = ""
         for unverify in unverified:
-            message = message + "\n    " + guild.get_member(int(unverify[0])).display_name
+            message = message + "\n    " + guild.get_member(int(unverify)).display_name
         embed = discord.Embed(
             title="To Verify",
             description=message,
