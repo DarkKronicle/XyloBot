@@ -26,7 +26,7 @@ def get_setup_channel(guild: discord.Guild):
         db = Database()
         settings = db.get_settings(str(guild.id))
         if "channels" in settings and "setup" in settings["channels"]:
-            channel = guild.get_chanjnel(int(settings["channels"]["setup"]))
+            channel = guild.get_channel(int(settings["channels"]["setup"]))
             setup_channels[guild.id] = channel
             return channel
         else:
