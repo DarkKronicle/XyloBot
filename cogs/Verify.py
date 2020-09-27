@@ -341,10 +341,9 @@ class Verify(commands.Cog):
         if unverified is None or len(unverified) == 0:
             await ctx.send("No people to verify at the moment!")
 
-        guild: discord.Guild = ctx.guild
         message = ""
         for unverify in unverified:
-            member: discord.Member = await guild.get_member(int(unverify[0]))
+            member = ctx.guild.get_member(int(unverify[0]))
             if member is not None:
                 message = message + "\n-    " + member.display_name
             else:
