@@ -165,6 +165,8 @@ class Commands(commands.Cog):
             if args[0] == "run":
                 await ctx.send("Running command...")
                 db.send_commands([' '.join(args[1:])])
+                await ctx.send("Ran!")
+                return
 
             await ctx.send("Unknown command...")
         else:

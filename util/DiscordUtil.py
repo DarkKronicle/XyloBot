@@ -142,8 +142,8 @@ def is_allowed():
     permission = commands.has_permissions(administrator=True).predicate
 
     async def predicate(context: commands.Context):
-        if await context.bot.is_owner(context.author):
-            return True
+        # if await context.bot.is_owner(context.author):
+        #     return True
         if await permission(context):
             return True
         role = get_db_role(context.guild, "botmanager")

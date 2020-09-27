@@ -65,13 +65,16 @@ class Verify(commands.Cog):
         for field in self.verifying[guild.id][member.id]['fields']:
             message = message + f"\n-    {get_key(field, self.names)}: `{self.verifying[guild.id][member.id]['fields'][field]}`"
         await channel.send(message)
+        db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
 
     def is_done(self, member, guild):
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             return self.verifying[guild.id][member.id]["done"]
         else:
             db = Database()
-
+            info = db.get_unverified(str(guild.id), str(member.id))
+            if info is not None:
+                return True
             return False
 
     @commands.Cog.listener()
@@ -195,7 +198,7 @@ class Verify(commands.Cog):
         db = Database()
         settings = db.get_settings(str(member.guild.id))
         if "verification" in settings and "enabled" in settings["verification"] and settings["verification"][
-            "enabled"] == True:
+            "enabled"]:
             if member.dm_channel is None:
                 await member.create_dm()
             dm = member.dm_channel
@@ -318,6 +321,36 @@ class Verify(commands.Cog):
             db.set_settings(str(ctx.guild.id), settings)
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+
+    @commands.group(name="auth")
+    @is_verifier()
+    async def auth(self, ctx: commands.Context):
+        if ctx.invoked_subcommand is None:
+            embed = discord.Embed(
+                title="Auth Help",
+                description="How you can authorize people!",
+                colour=discord.Colour.purple()
+            )
+            embed.add_field(name="`list [<PERSON>]`", value="List the people who need verifying in your server.")
+            await ctx.send(embed=embed)
+
+    @auth.command(name="list")
+    async def auth_list(self, ctx: commands.Context):
+        db = Database()
+        unverified = db.get_all_unverified(str(ctx.guild.id))
+        if unverified is None or len(unverified) == 0:
+            await ctx.send("No people to verify at the moment!")
+
+        guild: discord.Guild = ctx.guild
+        message = ""
+        for unverify in unverified:
+            message = message + "\n    " + guild.get_member(int(unverify[0])).display_name
+        embed = discord.Embed(
+            title="To Verify",
+            description=message,
+            colour=discord.Colour.dark_purple()
+        )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
