@@ -16,7 +16,7 @@ def get_true(guild):
     if field is None:
         return None
     for f in field:
-        if not f:
+        if not field[f]:
             field.pop(f)
     return field
 
@@ -28,6 +28,14 @@ class Verify(commands.Cog):
         "school": "school",
         "extra information": "extra",
         "birthday": "birthday"
+    }
+
+    prompts = {
+        "first": "What's your first name?",
+        "last": "What's your last name?",
+        "school": "What school do you go to?",
+        "birthday": "What's your birthday? (YYYY-MM-DD)",
+        "extra": "What should I know about you?"
     }
 
     verifying = {}
@@ -47,6 +55,9 @@ class Verify(commands.Cog):
             return
 
         if not Cache.get_enabled(message.guild):
+            return
+
+        if not Cache.get_unverified_role(message.guild) in message.author.roles:
             return
 
         channel: discord.TextChannel = Cache.get_setup_channel(message.guild)
@@ -90,9 +101,10 @@ class Verify(commands.Cog):
             self.verify_queue(message.author, message.guild)
             return
 
+        await message.delete()
         self.verifying[message.guild.id][message.author.id]["step"] = 1
         for value in fields:
-            prompt = await channel.send(f"I now need your {value}.", delete_after=15)
+            prompt = await channel.send(self.prompts[value], delete_after=15)
             answer = await self.bot.wait_for(
                 "message",
                 timeout=60,
