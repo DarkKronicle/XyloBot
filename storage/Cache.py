@@ -63,6 +63,8 @@ def get_enabled(guild: discord.Guild):
     else:
         db = Database()
         settings = db.get_settings(str(guild.id))
+        if settings is None:
+            db.default_settings(str(guild.id))
         if "verification" in settings and "enabled" in settings["verification"]:
             channel = settings["verification"]["enabled"]
             verify_enabled[guild.id] = channel
