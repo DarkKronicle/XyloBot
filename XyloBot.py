@@ -33,7 +33,7 @@ def get_prefix(dbot, message: discord.Message):
     return prefixes
 
 
-bot = Bot(command_prefix=get_prefix)
+bot = Bot(command_prefix=get_prefix, intents=intents)
 
 # We create our own in cogs/Help.py
 bot.remove_command('help')
