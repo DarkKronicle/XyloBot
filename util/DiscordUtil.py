@@ -115,9 +115,7 @@ async def get_file_from_image(url: str, name: str):
             return discord.File(data, name)
 
 
-def check_verification(guild: discord.Guild):
-    db = Database()
-    settings: dict = db.get_settings(str(guild.id))
+def check_verification(guild: discord.Guild, settings):
     if "channels" in settings and "setup" in settings["channels"] and "setup-logs" in settings["channels"]:
         if guild.get_channel(int(settings["channels"]["setup"])) is None or guild.get_channel(
                 int(settings["channels"]["setup-logs"])) is None:
@@ -125,12 +123,19 @@ def check_verification(guild: discord.Guild):
     else:
         return False
     if "roles" in settings and "verifier" in settings["roles"] and "unverified" in settings:
-        if guild.get_role(int(settings["roles"]["verifier"])) is None or guild.get_role(int(settings["roles"]["unverified"])):
+        if guild.get_role(int(settings["roles"]["verifier"])) is None or guild.get_role(
+                int(settings["roles"]["unverified"])):
             return False
     else:
         return False
 
     return True
+
+
+def set_check_verification(guild: discord.Guild):
+    db = Database()
+    settings: dict = db.get_settings(str(guild.id))
+    return check_verification(guild, settings)
 
 
 def is_allowed():

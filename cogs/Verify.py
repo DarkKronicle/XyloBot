@@ -21,13 +21,20 @@ def get_true(guild):
     return field
 
 
+def get_key(val, settings):
+    for key, value in settings.items():
+        if val == value:
+            return key
+
+    return "key doesn't exist"
+
 class Verify(commands.Cog):
     names = {
-        "first name": "first",
-        "last name": "last",
-        "school": "school",
-        "extra information": "extra",
-        "birthday": "birthday"
+        "First Name": "first",
+        "Last Name": "last",
+        "School": "school",
+        "Extra Information": "extra",
+        "Birthday": "birthday"
     }
 
     prompts = {
@@ -44,7 +51,17 @@ class Verify(commands.Cog):
         self.bot: commands.Bot = bot
 
     def verify_queue(self, member: discord.Member, guild: discord.Guild):
-        pass
+        db = Database()
+        settings = db.get_settings(str(guild.id))
+        if not check_verification(guild, settings):
+            chan = Cache.get_setup_channel(guild)
+            await chan.send("Error sending information. Contact staff!")
+            return
+        channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
+        message = f":bell: `{member.display_name}` just went through the verification process!"
+        for field in self.verifying[guild.id][member.id]:
+            message = message + f"\n{get_key(field, self.names)}: `{self.verifying[guild.id][member.id][field]}`"
+        await channel.send(message)
 
     def is_done(self, member, guild):
         return self.verifying[guild.id][member.id]["done"]
@@ -88,6 +105,7 @@ class Verify(commands.Cog):
                 description="You're all set! You'll get a DM from me when you get processed.",
                 colour=discord.Colour.green()
             )
+            await message.delete()
             await channel.send(embed=done, delete_after=15)
             return
 
@@ -242,7 +260,7 @@ class Verify(commands.Cog):
     async def toggle(self, ctx: commands.Context):
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
-        if not check_verification(ctx.guild):
+        if not set_check_verification(ctx.guild):
             await ctx.send("You need to setup the channels `setup` and `setup-logs` before you can "
                            "enable! `>settings channel`")
             return
