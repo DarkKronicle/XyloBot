@@ -343,11 +343,12 @@ class Verify(commands.Cog):
 
         message = ""
         for unverify in unverified:
-            member = ctx.guild.get_member(int(unverify[0]))
+            # member = ctx.guild.get_member(int(unverify[0]))
+            member = ctx.guild.get_member(523605852557672449)
             if member is not None:
-                message = message + "\n-    " + member.display_name
+                message = message + "\n- " + member.display_name
             else:
-                message = message + "\n-    " + unverify[0]
+                message = message + "\n- " + unverify[0]
         embed = discord.Embed(
             title="To Verify",
             description=message,
