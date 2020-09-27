@@ -1,7 +1,7 @@
 import argparse
 import logging
 from discord.ext import tasks
-from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole
+from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown
 import traceback
 from util.DiscordUtil import *
 from storage.Database import *
@@ -69,6 +69,10 @@ async def on_command_error(ctx: commands.Context, error):
         return
     if isinstance(error, MissingRole):
         await ctx.send("You don't have permission to do that!", delete_after=15)
+        return
+    if isinstance(error, CommandOnCooldown):
+        message = f"**Hold up** {ctx.author.mention}! You're still on cooldown!"
+        await ctx.send(message)
         return
     raise error
 

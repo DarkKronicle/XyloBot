@@ -11,6 +11,8 @@ verify_enabled = {}
 
 fields = {}
 
+fun = {}
+
 
 def clear_setup_cache(guild):
     if guild in setup_channels:
@@ -24,7 +26,7 @@ def get_setup_channel(guild: discord.Guild):
         db = Database()
         settings = db.get_settings(str(guild.id))
         if "channels" in settings and "setup" in settings["channels"]:
-            channel = guild.get_channel(int(settings["channels"]["setup"]))
+            channel = guild.get_chanjnel(int(settings["channels"]["setup"]))
             setup_channels[guild.id] = channel
             return channel
         else:
@@ -84,5 +86,24 @@ def get_fields(guild: discord.Guild):
             field = settings["verification"]["fields"]
             fields[guild.id] = field
             return field
+        else:
+            return None
+
+
+def clear_fun_cache(guild):
+    if guild in fun:
+        fun.pop(guild.id)
+
+
+def get_fun(guild: discord.Guild):
+    if guild.id in fun:
+        return fun[guild.id]
+    else:
+        db = Database()
+        settings = db.get_settings(str(guild.id))
+        if "fun" in settings:
+            fun_field = settings["fun"]
+            fun[guild.id] = fun_field
+            return fun_field
         else:
             return None

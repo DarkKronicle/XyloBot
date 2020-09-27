@@ -8,6 +8,7 @@ class ConfigData:
     idstorage = JSONReader("data/idstorage.json")
     rolestorage = JSONReader("data/roles.json")
     defaultsettings = JSONReader("data/guildsettings.json")
+    lober = JSONReader("data/lober.json")
 
     def reload(self):
         self.questions.loadfile()
@@ -16,3 +17,4 @@ class ConfigData:
         self.idstorage.loadfile()
         self.rolestorage.loadfile()
         self.defaultsettings.loadfile()
+        self.lober.loadfile()

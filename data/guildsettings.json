@@ -13,5 +13,8 @@
   "channels": {
   },
   "roles": {
+  },
+  "fun": {
+    "lober": true
   }
 }

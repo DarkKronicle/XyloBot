@@ -1,3 +1,5 @@
+import asyncio
+
 from util.DiscordUtil import *
 import discord
 from util.DiscordUtil import *
@@ -55,8 +57,8 @@ class Verify(commands.Cog):
         db = Database()
         settings = db.get_settings(str(guild.id))
         if not check_verification(guild, settings):
-            chan = Cache.get_setup_channel(guild)
-            await chan.send("Error sending information. Contact staff!")
+            chan: discord.TextChannel = Cache.get_setup_channel(guild)
+            await chan.send("Error sending information. Contact staff!", delete_after=15)
             return
         channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
         message = f":bell: `{member.display_name}` just went through the verification process!"
@@ -124,20 +126,21 @@ class Verify(commands.Cog):
         await message.delete()
         self.verifying[message.guild.id][message.author.id]["step"] = 1
         for value in fields:
-            prompt = await channel.send(self.prompts[value], delete_after=15)
-            answer = await self.bot.wait_for(
-                "message",
-                timeout=60,
-                check=lambda msg: msg.author == message.author and msg.channel == message.channel
-            )
-            await prompt.delete()
-            await answer.delete()
-            if answer is None:
+            prompt = await channel.send(self.prompts[value])
+            try:
+                answer = await self.bot.wait_for(
+                    "message",
+                    timeout=60,
+                    check=lambda msg: msg.author == message.author and msg.channel == message.channel
+                )
+                await prompt.delete()
+                await answer.delete()
+                if answer:
+                    self.verifying[message.guild.id][message.author.id][value] = answer.content
+            except asyncio.TimeoutError:
                 self.verifying[message.guild.id].pop(message.author.id)
                 await channel.send("This has been closed due to a timeout", delete_after=15)
-                break
-            else:
-                self.verifying[message.guild.id][message.author.id][value] = answer.content
+                return
 
         if self.verifying[message.guild.id][message.author.id] is not None:
             self.verifying[message.guild.id][message.author.id]["step"] = 0

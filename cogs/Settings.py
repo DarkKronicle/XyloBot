@@ -17,6 +17,10 @@ class Settings(commands.Cog):
         "botmanager": "Can manage the bot"
     }
 
+    fun_list = {
+        "lober": "Random things about lober!"
+    }
+
     @commands.group(name="settings")
     @is_allowed()
     async def settings(self, ctx: commands.Context):
@@ -29,7 +33,30 @@ class Settings(commands.Cog):
             embed.add_field(name="Verification", value="To see verification settings use `>verification`")
             embed.add_field(name="`channel`", value="Configure what channels Xylo uses!")
             embed.add_field(name="`role`", value="Configure what roles Xylo uses!")
+            embed.add_field(name="`reset`", value="Reset certain fields for Xylo.")
+            embed.add_field(name="`fun`", value="Mess around with fun commands!")
             await ctx.send(embed=embed)
+
+    @settings.command(name="reset")
+    async def reset(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            embed = discord.Embed(
+                title="Reset Help",
+                description="To reset settings for a category, type in `>storage reset <CATEGORY>`",
+                colour=discord.Colour.purple()
+            )
+            embed.add_field(name="fun", value="Reset the Fun commands")
+            await ctx.send(embed=embed)
+
+        if args[0] == "fun":
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            settings["fun"] = ConfigData.defaultsettings.data["fun"]
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send("Fun commands has been reset!")
+            return
+
+        await ctx.send("Category not found. Check `>settings reset`.")
 
     @settings.command(name="channel")
     async def channel(self, ctx: commands.Context, *args):
@@ -198,6 +225,66 @@ class Settings(commands.Cog):
         else:
             await ctx.send("Role name is incorrect! see `>settings role list`")
             return
+
+    @settings.group(name="fun")
+    async def fun(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            embed = discord.Embed(
+                title="Fun Help",
+                description="`fun <list/current/[NAME]>",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        if args[0] == "list":
+            embed = discord.Embed(
+                title="Current Fun Commands",
+                description="Toggle with `fun [NAME]`",
+                colour=discord.Colour.purple()
+            )
+            for name in self.fun_list:
+                embed.add_field(name=name, value=self.fun_list[name])
+            await ctx.send(embed=embed)
+            return
+
+        if args[0] == "current":
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            if "fun" not in settings:
+                await ctx.send("No fun commands found! Reset with `>settings reset fun`")
+                return
+            embed = discord.Embed(
+                title="Current Fun Command Settings",
+                description="Toggle with `fun [NAME]`",
+                colour=discord.Colour.purple()
+            )
+            for name in settings["fun"]:
+                embed.add_field(name=name, value=str(settings["fun"][name]))
+
+            await ctx.send(embed=embed)
+            return
+
+        if args[0] in self.fun_list:
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            if "fun" not in settings:
+                settings["fun"] = {}
+            if args[0] in settings["fun"]:
+                enabled = settings["fun"][args[0]]
+            else:
+                enabled = False
+
+            settings["fun"][args[0]] = not enabled
+            db.set_settings(str(ctx.guild.id), settings)
+            if not enabled:
+                await ctx.send(f"Toggled on {args[0]}")
+            else:
+                await ctx.send(f"Toggled off {args[0]}!")
+            Cache.clear_fun_cache(ctx.guild)
+            return
+
+        await ctx.send("Module not found. Check `fun list`")
 
 
 def setup(bot):
