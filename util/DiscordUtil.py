@@ -174,5 +174,5 @@ def get_member(guild: discord.Guild, member_id):
     for member in guild.members:
         if member.id == member_id:
             return member
-
+    # for member in await guild.fetch_members()
     return None
