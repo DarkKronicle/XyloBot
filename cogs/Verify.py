@@ -15,11 +15,10 @@ def get_true(guild):
     field: dict = Cache.get_fields(guild)
     if field is None:
         return None
-    true_fields = field
-    for f in field:
+    for f in list(field):
         if not field[f]:
-            true_fields.pop(f)
-    return true_fields
+            field.pop(f)
+    return field
 
 
 class Verify(commands.Cog):
