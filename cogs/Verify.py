@@ -57,7 +57,8 @@ class Verify(commands.Cog):
         if not Cache.get_enabled(message.guild):
             return
 
-        if not Cache.get_unverified_role(message.guild) in message.author.roles:
+        role = Cache.get_unverified_role(message.guild)
+        if role not in message.author.roles:
             return
 
         channel: discord.TextChannel = Cache.get_setup_channel(message.guild)
