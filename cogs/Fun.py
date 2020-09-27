@@ -18,7 +18,6 @@ def lober():
 class Fun(commands.Cog):
 
     @commands.group(name="lober")
-    @commands.cooldown(1, 30, commands.BucketType.user)
     @lober()
     async def lober(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
@@ -32,6 +31,7 @@ class Fun(commands.Cog):
             await ctx.send(embed=embed)
 
     @lober.command(name="fact")
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def fact(self, ctx: commands.Context):
         rand = random.choice(ConfigData.lober.data["facts"])
         embed = discord.Embed(
@@ -42,9 +42,10 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @lober.command(name="image")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, ctx: commands.Context):
-        await ctx.send(content="**LOBER MOMENT**", file=get_file_from_image("https://media.discordapp.net/attachments/757781442674688041/759604260110598144/i64khd2lbns41.png?width=693&height=687", "lober.png"))
-
+        lobers = await get_file_from_image("https://media.discordapp.net/attachments/757781442674688041/759604260110598144/i64khd2lbns41.png?width=693&height=687", "lober.png")
+        await ctx.send(content="**LOBER MOMENT**", file=lobers)
 
 def setup(bot):
     bot.add_cog(Fun())
