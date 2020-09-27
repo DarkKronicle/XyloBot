@@ -168,3 +168,11 @@ def is_verifier():
         return False
 
     return commands.check(predicate)
+
+
+def get_member(guild: discord.Guild, member_id):
+    for member in guild.members:
+        if member.id == member_id:
+            return member
+
+    return None

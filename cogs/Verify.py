@@ -343,7 +343,8 @@ class Verify(commands.Cog):
 
         message = ""
         for unverify in unverified:
-            member: discord.User = self.bot.get_user(int(unverify[0]))
+            #member: discord.User = self.bot.get_user(int(unverify[0]))
+            member: discord.Member = get_member(ctx.guild, int(unverify[0]))
             if member is not None:
                 message = message + "\n- " + member.name
             else:
