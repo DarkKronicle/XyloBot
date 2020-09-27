@@ -1,7 +1,7 @@
 import argparse
 import logging
 from discord.ext import tasks
-from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown
+from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure
 import traceback
 from util.DiscordUtil import *
 from storage.Database import *
@@ -73,6 +73,8 @@ async def on_command_error(ctx: commands.Context, error):
     if isinstance(error, CommandOnCooldown):
         message = f"**Hold up** {ctx.author.mention}! You're still on cooldown!"
         await ctx.send(message)
+        return
+    if isinstance(error, CheckFailure):
         return
     raise error
 

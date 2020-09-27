@@ -91,7 +91,7 @@ def get_fields(guild: discord.Guild):
 
 
 def clear_fun_cache(guild):
-    if guild in fun:
+    if guild.id in fun:
         fun.pop(guild.id)
 
 
