@@ -38,7 +38,7 @@ class Fun(commands.Cog):
         embed = discord.Embed(
             title="Fact",
             description=rand,
-            colour=discord.Colour.dark_gray
+            colour=discord.Colour.dark_gray()
         )
         await ctx.send(embed=embed)
 
