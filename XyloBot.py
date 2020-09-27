@@ -11,6 +11,9 @@ import discord
 from discord.ext.commands import Bot
 import random
 
+intents = discord.Intents.default()
+intents.members = True
+
 
 def get_prefix(dbot, message: discord.Message):
     user_id = dbot.user.id
