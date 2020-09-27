@@ -42,7 +42,7 @@ def get_unverified_role(guild: discord.Guild):
     else:
         db = Database()
         settings = db.get_settings(str(guild.id))
-        if "roles" in settings and "verified" in settings["roles"]:
+        if "roles" in settings and "unverified" in settings["roles"]:
             role = guild.get_role(int(settings["roles"]["unverified"]))
             unverified_roles[guild.id] = role
             return role
