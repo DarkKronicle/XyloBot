@@ -58,6 +58,7 @@ class Verify(commands.Cog):
             return
 
         role = Cache.get_unverified_role(message.guild)
+        print(role.name)
         if role not in message.author.roles:
             return
 
