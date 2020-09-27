@@ -72,7 +72,8 @@ async def on_command_error(ctx: commands.Context, error):
         return
     if isinstance(error, CommandOnCooldown):
         message = f"**Hold up** {ctx.author.mention}! You're still on cooldown!"
-        await ctx.send(message)
+        await ctx.message.delete()
+        await ctx.send(message, delete_after=15)
         return
     if isinstance(error, CheckFailure):
         return
