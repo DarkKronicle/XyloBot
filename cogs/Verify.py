@@ -98,6 +98,16 @@ class Verify(commands.Cog):
 
         fields = get_true(message.guild)
 
+        if self.is_done(message.author, message.guild):
+            done = discord.Embed(
+                title="Verification Process Complete!",
+                description="You're all set! You'll get a DM from me when you get processed.",
+                colour=discord.Colour.green()
+            )
+            await message.delete()
+            await channel.send(embed=done, delete_after=15)
+            return
+
         if message.author.id in self.verifying[message.guild.id]:
             current = self.verifying[message.guild.id][message.author.id]
         else:
@@ -109,16 +119,6 @@ class Verify(commands.Cog):
             current = self.verifying[message.guild.id][message.author.id]
 
         if current["step"] > 0:
-            return
-
-        if self.is_done(message.author, message.guild):
-            done = discord.Embed(
-                title="Verification Process Complete!",
-                description="You're all set! You'll get a DM from me when you get processed.",
-                colour=discord.Colour.green()
-            )
-            await message.delete()
-            await channel.send(embed=done, delete_after=15)
             return
 
         if len(fields) == 0:
@@ -344,7 +344,7 @@ class Verify(commands.Cog):
         guild: discord.Guild = ctx.guild
         message = ""
         for unverify in unverified:
-            member: discord.Member = guild.get_member(unverify[0])
+            member: discord.Member = guild.get_member(int(unverify[0].replace(" ", "")))
             if member is not None:
                 message = message + "\n    " + member.display_name
             else:
