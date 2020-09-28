@@ -348,7 +348,7 @@ class Verify(commands.Cog):
     async def auth_list(self, ctx: commands.Context, *args):
         db = Database()
         if len(args) >= 1:
-            member = ctx.guild.get_member_named(args[1:])
+            member = ctx.guild.get_member_named(args[0:])
             if member is None:
                 await ctx.send("User not found!")
                 return
@@ -436,7 +436,7 @@ class Verify(commands.Cog):
         if member is None:
             await ctx.send("User not found!")
         db = Database()
-        user = db.get_unverified(guild.id, member.id)
+        user = db.get_unverified(str(guild.id), str(member.id))
         if user is None:
             await ctx.send("User not in verify queue")
             return
@@ -458,7 +458,7 @@ class Verify(commands.Cog):
         if member is None:
             await ctx.send("User not found!")
         db = Database()
-        user = db.get_unverified(guild.id, member.id)
+        user = db.get_unverified(str(guild.id), str(member.id))
         if user is None:
             await ctx.send("User not in verify queue")
             return
