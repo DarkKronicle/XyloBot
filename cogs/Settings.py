@@ -42,6 +42,7 @@ class Settings(commands.Cog):
             embed.add_field(name="`role`", value="Configure what roles Xylo uses!")
             embed.add_field(name="`reset`", value="Reset certain fields for Xylo.")
             embed.add_field(name="`fun`", value="Mess around with fun commands!")
+            embed.add_field(name="`messages`", value="Change messages")
             await ctx.send(embed=embed)
 
     @settings.command(name="reset")
@@ -53,6 +54,7 @@ class Settings(commands.Cog):
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="fun", value="Reset the Fun commands")
+            embed.add_field(name="messages", value="Reset messages")
             await ctx.send(embed=embed)
 
         if args[0] == "fun":
@@ -67,6 +69,7 @@ class Settings(commands.Cog):
             db = Database()
             settings = db.get_settings(str(ctx.guild.id))
             settings["messages"] = ConfigData.defaultsettings.data["messages"]
+            db.set_settings(str(ctx.guild.id), settings)
             await ctx.send("Messages have been reset!")
             return
 
