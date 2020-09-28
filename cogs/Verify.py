@@ -64,6 +64,7 @@ class Verify(commands.Cog):
     async def verify_queue(self, member: discord.Member, guild: discord.Guild):
         db = Database()
         settings = db.get_settings(str(guild.id))
+        db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
         if not check_verification(guild, settings):
             chan: discord.TextChannel = Cache.get_setup_channel(guild)
             await chan.send("Error sending information. Contact staff!", delete_after=15)
@@ -73,7 +74,6 @@ class Verify(commands.Cog):
         for field in self.verifying[guild.id][member.id]['fields']:
             message = message + f"\n-    {get_key(field, self.names)}: `{self.verifying[guild.id][member.id]['fields'][field]}`"
         await channel.send(message)
-        db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
 
     def is_done(self, member, guild):
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:

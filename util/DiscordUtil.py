@@ -118,7 +118,7 @@ async def get_file_from_image(url: str, name: str):
 def check_verification(guild: discord.Guild, settings):
     if "channels" in settings and "setup" in settings["channels"] and "setup-logs" in settings["channels"] and "welcome" in settings["channels"]:
         if guild.get_channel(int(settings["channels"]["setup"])) is None or guild.get_channel(
-                int(settings["channels"]["setup-logs"])) is None or guild.get_channel(int(settings["channels"]["welcome"])):
+                int(settings["channels"]["setup-logs"])) is None or guild.get_channel(int(settings["channels"]["welcome"])) is None:
             return False
     else:
         return False
