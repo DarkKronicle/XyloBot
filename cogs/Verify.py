@@ -403,6 +403,14 @@ class Verify(commands.Cog):
         verify = verify.replace("{server}", guild.name)
         await dm.send(verify)
         await member.remove_roles(Cache.get_unverified_role(guild))
+        if "roles" in settings["verification"]:
+            roles = []
+            for role in settings["verification"]["roles"]:
+                r = guild.get_role(role)
+                if r is not None:
+                    roles.append(r)
+            if len(roles) > 0:
+                await member.add_roles(roles)
 
     async def reject_user(self, member: discord.Member, guild: discord.Guild):
         db = Database()
