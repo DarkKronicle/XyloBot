@@ -8,7 +8,8 @@ class Settings(commands.Cog):
     channel_list = {
         "setup": "Where user's get verified",
         "setup-logs": "Where information about verification goes.",
-        "qotd": "Where the question of the day is posted!"
+        "qotd": "Where the question of the day is posted!",
+        "welcome": "Where Xylo welcomes verified users!"
     }
 
     role_list = {
@@ -19,6 +20,12 @@ class Settings(commands.Cog):
 
     fun_list = {
         "lober": "Random things about lober!"
+    }
+
+    message_list = {
+        "join-message": "The message that gets sent to a user on join.",
+        "verify-message": "The message that gets sent to a user on verification.",
+        "reject-message": "The message that gets sent to a user on rejection."
     }
 
     @commands.group(name="settings")
@@ -54,6 +61,13 @@ class Settings(commands.Cog):
             settings["fun"] = ConfigData.defaultsettings.data["fun"]
             db.set_settings(str(ctx.guild.id), settings)
             await ctx.send("Fun commands has been reset!")
+            return
+
+        if args[0] == "messages":
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            settings["messages"] = ConfigData.defaultsettings.data["messages"]
+            await ctx.send("Messages have been reset!")
             return
 
         await ctx.send("Category not found. Check `>settings reset`.")
@@ -226,7 +240,7 @@ class Settings(commands.Cog):
             await ctx.send("Role name is incorrect! see `>settings role list`")
             return
 
-    @settings.group(name="fun")
+    @settings.command(name="fun")
     async def fun(self, ctx: commands.Context, *args):
         if len(args) == 0:
             embed = discord.Embed(
@@ -285,6 +299,63 @@ class Settings(commands.Cog):
             return
 
         await ctx.send("Module not found. Check `fun list`")
+
+    @settings.command(name="message")
+    async def message(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            embed = discord.Embed(
+                title="Message Editing Help",
+                description="`message <list/current/[NAME]> [<NEW>]",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        if args[0] == "list":
+            embed = discord.Embed(
+                title="Messages",
+                description="`message [NAME] [NEW]`",
+                colour=discord.Colour.dark_green()
+            )
+            for mess in self.message_list:
+                embed.add_field(name=mess, value=self.message_list[mess])
+            await ctx.send(embed=embed)
+            return
+
+        if args[0] == "current":
+            embed = discord.Embed(
+                title="Current Messages",
+                description="What you have set. {server} is server name. {channel} is setup channel (only for join)",
+                colour=discord.Colour.green()
+            )
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            if "messages" not in settings:
+                embed.add_field(name="NONE", value="Reset using `>storage reset`!")
+                await ctx.send(embed=embed)
+                return
+
+            for mess in settings["messages"]:
+                embed.add_field(name=mess, value=settings["messages"][mess])
+
+            await ctx.send(embed=embed)
+            return
+
+        if len(args) < 2:
+            await ctx.send("You need to put in more information! `messages [NAME] [NEW]")
+
+        if args[0] in self.message_list:
+            content = ' '.join(args[1:])
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            if 'messages' not in settings:
+                settings["messages"] = {}
+            settings["messages"][args[0]] = content
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send("Changed message!")
+            return
+
+        await ctx.send("Message not found!")
 
 
 def setup(bot):

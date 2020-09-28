@@ -1,10 +1,18 @@
 import asyncio
+import random
 
 from util.DiscordUtil import *
 import discord
 from util.DiscordUtil import *
 from discord.ext import commands
 from storage import Cache
+
+
+def id_in(id_int, check):
+    for user in check:
+        if user[0] == id_int:
+            return True
+    return False
 
 
 def key_or_false(data: dict, key: str):
@@ -206,7 +214,7 @@ class Verify(commands.Cog):
             setup_channel: discord.TextChannel = member.guild.get_channel(int(settings["channels"]["setup"]))
 
             # Send message. If there is an extra staff message that will be added.
-            content: str = settings["verification"]["join-message"]
+            content: str = settings["verification"]["messages"]["join-message"]
             content = content.replace("{server}", member.guild.name)
             content = content.replace("{channel}", setup_channel.mention)
 
@@ -332,19 +340,33 @@ class Verify(commands.Cog):
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="`list [<PERSON>]`", value="List the people who need verifying in your server.")
+            embed.add_field(name="`accept <NAME>`", value="Accept a user")
+            embed.add_field(name="`reject <NAME>", value="Reject a user.")
             await ctx.send(embed=embed)
 
     @auth.command(name="list")
-    async def auth_list(self, ctx: commands.Context):
+    async def auth_list(self, ctx: commands.Context, *args):
         db = Database()
+        if len(args) >= 1:
+            member = ctx.guild.get_member_named(args[1:])
+            if member is None:
+                await ctx.send("User not found!")
+                return
+            data = db.get_unverified(str(ctx.guild.id), str(member.id))
+            message = f"`{member.display_name}` data:"
+            for d in data:
+                message = message + f"\n{get_key(d, self.names)}: `{data[d]}`"
+            await ctx.send(message)
+            return
+
         unverified = db.get_all_unverified(str(ctx.guild.id))
+
         if unverified is None or len(unverified) == 0:
             await ctx.send("No people to verify at the moment!")
 
         message = ""
         for unverify in unverified:
-            #member: discord.User = self.bot.get_user(int(unverify[0]))
-            member: discord.Member = get_member(ctx.guild, int(unverify[0]))
+            member: discord.Member = ctx.guild.get_member(int(unverify[0]))
             if member is not None:
                 message = message + "\n- " + member.name
             else:
@@ -355,6 +377,93 @@ class Verify(commands.Cog):
             colour=discord.Colour.dark_purple()
         )
         await ctx.send(embed=embed)
+
+    async def verify_user(self, member: discord.Member, guild: discord.Guild, data):
+        db = Database()
+        if guild.id in self.verifying and member.id in self.verifying[guild.id]:
+            self.verifying[guild.id].pop(member.id)
+        info = {"fields": data}
+        db.delete_unverified(str(guild.id), str(member.id))
+        db.add_user(info, str(member.id), str(guild.id))
+        join = ConfigData.join
+        messages = join.data["messages"]
+        message = random.choice(messages)
+        message = message.replace("{user}", member.mention)
+
+        settings = db.get_settings(str(guild.id))
+
+        welcome: discord.TextChannel = guild.get_channel(int(settings["channels"]["welcome"]))
+        await welcome.send(message)
+
+        if member.dm_channel is None:
+            await member.create_dm()
+        dm: discord.DMChannel = member.dm_channel
+
+        verify: str = settings["messages"]["verify-message"]
+        verify = verify.replace("{server}", guild.name)
+        await dm.send(verify)
+        await member.remove_roles(Cache.get_unverified_role(guild))
+
+    async def reject_user(self, member: discord.Member, guild: discord.Guild, message: str):
+        db = Database()
+        if guild.id in self.verifying and member.id in self.verifying[guild.id]:
+            self.verifying[guild.id].pop(member.id)
+        db.delete_unverified(str(guild.id), str(member.id))
+        settings = db.get_settings(str(guild.id))
+
+        if member.dm_channel is None:
+            await member.create_dm()
+        dm: discord.DMChannel = member.dm_channel
+
+        verify: str = settings["messages"]["reject-message"]
+        verify = verify.replace("{server}", guild.name)
+        if message is not None:
+            verify = verify + "\n\nStaff message: " + message
+        await dm.send(verify)
+
+    @auth.command(name="accept")
+    async def accept(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            embed = discord.Embed(
+                title="Auth Accept",
+                description="`>auth accept <NAME>`",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=embed)
+            return
+        guild: discord.Guild = ctx.guild
+        member: discord.Member = guild.get_member_named(' '.join(args[0:]))
+        if member is None:
+            await ctx.send("User not found!")
+        db = Database()
+        user = db.get_unverified(guild.id, member.id)
+        if user is None:
+            await ctx.send("User not in verify queue")
+            return
+        await self.verify_user(member, guild, user)
+        await ctx.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
+
+    @auth.command(name="reject")
+    async def reject(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            embed = discord.Embed(
+                title="Auth Accept",
+                description="`>auth reject <NAME>`",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=embed)
+            return
+        guild: discord.Guild = ctx.guild
+        member: discord.Member = guild.get_member_named(' '.join(args[0:]))
+        if member is None:
+            await ctx.send("User not found!")
+        db = Database()
+        user = db.get_unverified(guild.id, member.id)
+        if user is None:
+            await ctx.send("User not in verify queue")
+            return
+        await self.reject_user(member, guild)
+        await ctx.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
 
 
 def setup(bot):
