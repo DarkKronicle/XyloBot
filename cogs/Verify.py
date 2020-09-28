@@ -348,7 +348,7 @@ class Verify(commands.Cog):
     async def auth_list(self, ctx: commands.Context, *args):
         db = Database()
         if len(args) >= 1:
-            member = ctx.guild.get_member_named(args[0:])
+            member = ctx.guild.get_member_named(' '.join(args[0:]))
             if member is None:
                 await ctx.send("User not found!")
                 return
@@ -404,7 +404,7 @@ class Verify(commands.Cog):
         await dm.send(verify)
         await member.remove_roles(Cache.get_unverified_role(guild))
 
-    async def reject_user(self, member: discord.Member, guild: discord.Guild, message: str):
+    async def reject_user(self, member: discord.Member, guild: discord.Guild):
         db = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
@@ -417,8 +417,8 @@ class Verify(commands.Cog):
 
         verify: str = settings["messages"]["reject-message"]
         verify = verify.replace("{server}", guild.name)
-        if message is not None:
-            verify = verify + "\n\nStaff message: " + message
+        # if message is not None:
+        #     verify = verify + "\n\nStaff message: " + message
         await dm.send(verify)
 
     @auth.command(name="accept")
