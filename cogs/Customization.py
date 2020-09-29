@@ -48,8 +48,8 @@ class Customization(commands.Cog):
             db = Database()
             guild: discord.Guild = ctx.guild
             for user in guild.members:
-                db.add_new_user(str(user.id))
-
+                if not user.bot:
+                    db.add_new_user(str(user.id))
 
         if args[0] == "prefix":
             if len(args) == 1:

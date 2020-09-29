@@ -200,7 +200,8 @@ class Verify(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        print("Joining")
+        if member.bot:
+            return
         db = Database()
         db.add_new_user(str(member.id))
         settings = db.get_settings(str(member.guild.id))
@@ -333,7 +334,7 @@ class Verify(commands.Cog):
             for role in settings["verification"]["roles"]:
                 r = ctx.guild.get_role(role)
                 if r is not None:
-                    message = message + f"-   `{role.name}`"
+                    message = message + f"-   `{r.name}`"
                 else:
                     message = message + f"-   `{str(role)}`"
 
