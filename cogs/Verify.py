@@ -38,12 +38,13 @@ def get_key(val, settings):
 
 
 class Verify(commands.Cog):
+    # TODO get this working with correct capitals.
     names = {
-        "First Name": "first",
-        "Last Name": "last",
-        "School": "school",
-        "Extra Information": "extra",
-        "Birthday": "birthday"
+        "first name": "first",
+        "last name": "last",
+        "school": "school",
+        "extra information": "extra",
+        "birthday": "birthday"
     }
 
     prompts = {
