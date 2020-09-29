@@ -27,7 +27,7 @@ class Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(name="whoami")
+    #@commands.command(name="whoami")
     async def whoami(self, ctx: commands.Context):
         """
         Grabs data stored in the database about the sender.
@@ -56,7 +56,7 @@ class Commands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="whois")
+    #@commands.command(name="whois")
     async def whois(self, ctx: commands.Context, *args):
         """
         Grabs data stored in the database about the specified user.
