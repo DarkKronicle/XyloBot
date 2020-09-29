@@ -1,6 +1,7 @@
 {
   "verification": {
     "enabled": false,
+    "roles": [],
     "fields": {
       "first": true,
       "last": false,
