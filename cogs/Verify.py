@@ -212,7 +212,7 @@ class Verify(commands.Cog):
             setup_channel: discord.TextChannel = member.guild.get_channel(int(settings["channels"]["setup"]))
 
             # Send message. If there is an extra staff message that will be added.
-            content: str = settings["verification"]["messages"]["join-message"]
+            content: str = settings["messages"]["join-message"]
             content = content.replace("{server}", member.guild.name)
             content = content.replace("{channel}", setup_channel.mention)
 
