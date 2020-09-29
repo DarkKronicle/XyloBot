@@ -217,6 +217,7 @@ class Verify(commands.Cog):
             content = content.replace("{channel}", setup_channel.mention)
 
             await dm.send(content)
+            await member.add_roles(Cache.get_unverified_role(member.guild))
 
             log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
             await log.send(f":bell: `{member.display_name}` just joined!")
