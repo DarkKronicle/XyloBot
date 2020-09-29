@@ -5,6 +5,7 @@ from util.DiscordUtil import *
 from storage.Database import *
 from discord.ext.commands import has_permissions
 import json
+from storage import Cache
 
 
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
@@ -28,31 +29,33 @@ class Commands(commands.Cog):
         self.bot = bot
 
     #@commands.command(name="whoami")
+    #@commands.cooldown(1, 30, commands.BucketType.user)
     async def whoami(self, ctx: commands.Context):
         """
         Grabs data stored in the database about the sender.
         """
 
-        if ctx.guild is not get_guild("rivertron", self.bot):
+        if not Cache.get_enabled(ctx.guild):
             return
 
         id = ctx.message.author.id
-        storage = Storage()
-        data = storage.get_user_data(id)
+        db = Database()
+        data = db.get_user(str(ctx.guild.id), str(id))
 
         if data is None:
             embed = discord.Embed(
                 title="Not found...",
-                description="Talk to a dev if you believe this is an error.",
+                description="Talk to a staff member if you believe this is an error.",
                 colour=discord.Colour.red()
             )
 
         else:
-            embed = discord.Embed(
-                title="Who is: `" + str(ctx.message.author.name) + "`",
-                description="Name: `" + data[0] + "` School: `" + data[1] + "`",
-                colour=discord.Colour.blurple()
-            )
+            message = f"`{ctx.author.name}`:"
+            for f in data["fields"]:
+                message = message + f"\n-   {f}: {data['fields'][f]}"
+
+            await ctx.send(message)
+            return
 
         await ctx.send(embed=embed)
 
@@ -61,7 +64,7 @@ class Commands(commands.Cog):
         """
         Grabs data stored in the database about the specified user.
         """
-        if ctx.guild is not get_guild("rivertron", self.bot):
+        if not Cache.get_enabled(ctx.guild):
             return
 
         if len(args) <= 0:
@@ -73,7 +76,7 @@ class Commands(commands.Cog):
             await ctx.send(embed=embed, delete_after=15)
             return
 
-        user = await getuser(' '.join(args), ctx.guild)
+        user = ctx.guild.get_member_named(' '.join(args)) 
 
         if user is None:
             embed = discord.Embed(
@@ -84,8 +87,8 @@ class Commands(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        storage = Storage()
-        data = storage.get_user_data(user.id)
+        db = Database()
+        data = db.get_user(str(ctx.guild.id), str(user.id))
 
         if data is None:
             embed = discord.Embed(
@@ -94,11 +97,11 @@ class Commands(commands.Cog):
                 colour=discord.Colour.red()
             )
         else:
-            embed = discord.Embed(
-                title="Who is: `" + str(user.name) + "`",
-                description="Name: `" + data[0] + "` School: `" + data[1] + "`",
-                colour=discord.Colour.blurple()
-            )
+            message = f"`{user.name}`:`"
+            for f in data["fields"]:
+                message = message + f"\n-   {f}: `{data['fields'][f]}`"
+            await ctx.send(message)
+            return
 
         await ctx.send(embed=embed)
 

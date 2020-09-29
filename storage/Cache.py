@@ -36,7 +36,6 @@ def get_setup_channel(guild: discord.Guild):
         else:
             return None
 
-
 def clear_setup_log_cache(guild):
     if guild.id in setup_log_channels:
         setup_channels.pop(guild.id)
