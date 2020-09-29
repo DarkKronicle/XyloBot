@@ -2,8 +2,6 @@ import asyncio
 import random
 
 from util.DiscordUtil import *
-import discord
-from util.DiscordUtil import *
 from discord.ext import commands
 from storage import Cache
 
@@ -236,6 +234,7 @@ class Verify(commands.Cog):
             embed.add_field(name="`reset`", value="Reset verification information for your server.")
             embed.add_field(name="`fields`", value="Toggle a verification setting.")
             embed.add_field(name="`toggle`", value="Toggle verification on/off")
+            embed.add_field(name="`role`", value="Roles to give when verified")
             await context.send(embed=embed)
 
     @verification.command(name="reset")
@@ -309,6 +308,82 @@ class Verify(commands.Cog):
                                "field <SETTING>`")
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+
+    @verification.group(name="role")
+    async def role(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            error = discord.Embed(
+                title="Role Help",
+                description="`role <current/add/remove/reset> <role>",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=error)
+            return
+        db = Database()
+
+        if args[0] == "current":
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings["verification"] or len(settings["verification"]["roles"]) == 0:
+                await ctx.send("No roles currently setup.")
+                return
+
+            message = "Current roles:"
+            for role in settings["verification"]["roles"]:
+                r = ctx.guild.get_role(role)
+                if r is not None:
+                    message = message + f"-   `{role.name}`"
+                else:
+                    message = message + f"-   `{str(role)}`"
+
+            await ctx.send(message)
+            return
+
+        if args[0] == "reset":
+            settings = db.get_settings(str(ctx.guild.id))
+            settings["verification"]["roles"] = []
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send("Roles cleared!")
+            return
+
+        try:
+            role: discord.Role = ctx.guild.get_role(int(args[1]))
+        except ValueError:
+            await ctx.send("Provide the Role ID for the `<role>` argument.")
+            return
+
+        if role is None:
+            await ctx.send("Role not found.")
+            return
+
+        if args[0] == "add":
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings["verification"]:
+                settings["verification"]["roles"] = []
+            settings["verification"]["roles"].apend(role.id)
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send(f"`{role.name}` added!")
+            return
+
+        if args[0] == "remove":
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings["verification"]:
+                settings["roles"] = []
+            if role.id in settings["verification"]["roles"]:
+                settings["verification"]["roles"].remove(role.id)
+            else:
+                await ctx.send(f"`{role.name}` not found in role settings!")
+                return
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send(f"`{role.name}` removed!")
+            return
+
+        error = discord.Embed(
+            title="Command not found",
+            description="`role <add/remove/reset> <role>",
+            colour=discord.Colour.purple()
+        )
+        await ctx.send(embed=error)
+        return
 
     @verification.group(name="toggle")
     async def toggle(self, ctx: commands.Context):
@@ -403,7 +478,7 @@ class Verify(commands.Cog):
         verify = verify.replace("{server}", guild.name)
         await dm.send(verify)
         await member.remove_roles(Cache.get_unverified_role(guild))
-        if "roles" in settings["verification"]:
+        if "roles" in settings["verification"] and len(settings["verification"]["roles"]) != 0:
             roles = []
             for role in settings["verification"]["roles"]:
                 r = guild.get_role(role)

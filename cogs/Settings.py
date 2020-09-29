@@ -42,7 +42,7 @@ class Settings(commands.Cog):
             embed.add_field(name="`role`", value="Configure what roles Xylo uses!")
             embed.add_field(name="`reset`", value="Reset certain fields for Xylo.")
             embed.add_field(name="`fun`", value="Mess around with fun commands!")
-            embed.add_field(name="`messages`", value="Change messages")
+            embed.add_field(name="`message`", value="Change messages")
             await ctx.send(embed=embed)
 
     @settings.command(name="reset")
