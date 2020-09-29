@@ -441,7 +441,8 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue")
             return
         await self.verify_user(member, guild, user)
-        await ctx.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
+        log = Cache.get_setup_log_channel(ctx.guild)
+        await log.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
 
     @auth.command(name="reject")
     async def reject(self, ctx: commands.Context, *args):
@@ -463,7 +464,8 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue")
             return
         await self.reject_user(member, guild)
-        await ctx.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
+        log = Cache.get_setup_log_channel(ctx.guild)
+        await log.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
 
 
 def setup(bot):
