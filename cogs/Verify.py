@@ -2,8 +2,6 @@ import asyncio
 import random
 
 from util.DiscordUtil import *
-import discord
-from util.DiscordUtil import *
 from discord.ext import commands
 from storage import Cache
 
@@ -40,12 +38,13 @@ def get_key(val, settings):
 
 
 class Verify(commands.Cog):
+    # TODO get this working with correct capitals.
     names = {
-        "First Name": "first",
-        "Last Name": "last",
-        "School": "school",
-        "Extra Information": "extra",
-        "Birthday": "birthday"
+        "first name": "first",
+        "last name": "last",
+        "school": "school",
+        "extra information": "extra",
+        "birthday": "birthday"
     }
 
     prompts = {
@@ -202,8 +201,10 @@ class Verify(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        print("Joining")
+        if member.bot:
+            return
         db = Database()
+        db.add_new_user(str(member.id))
         settings = db.get_settings(str(member.guild.id))
         if "verification" in settings and "enabled" in settings["verification"] and settings["verification"][
             "enabled"]:
@@ -214,11 +215,12 @@ class Verify(commands.Cog):
             setup_channel: discord.TextChannel = member.guild.get_channel(int(settings["channels"]["setup"]))
 
             # Send message. If there is an extra staff message that will be added.
-            content: str = settings["verification"]["messages"]["join-message"]
+            content: str = settings["messages"]["join-message"]
             content = content.replace("{server}", member.guild.name)
             content = content.replace("{channel}", setup_channel.mention)
 
             await dm.send(content)
+            await member.add_roles(Cache.get_unverified_role(member.guild))
 
             log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
             await log.send(f":bell: `{member.display_name}` just joined!")
@@ -236,6 +238,7 @@ class Verify(commands.Cog):
             embed.add_field(name="`reset`", value="Reset verification information for your server.")
             embed.add_field(name="`fields`", value="Toggle a verification setting.")
             embed.add_field(name="`toggle`", value="Toggle verification on/off")
+            embed.add_field(name="`role`", value="Roles to give when verified")
             await context.send(embed=embed)
 
     @verification.command(name="reset")
@@ -309,6 +312,88 @@ class Verify(commands.Cog):
                                "field <SETTING>`")
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
+
+    @verification.group(name="role")
+    async def role(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            error = discord.Embed(
+                title="Role Help",
+                description="`role <current/add/remove/reset> <role>",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=error)
+            return
+        db = Database()
+
+        if args[0] == "current":
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings["verification"] or len(settings["verification"]["roles"]) == 0:
+                await ctx.send("No roles currently setup.")
+                return
+
+            message = "Current roles:"
+            for role in settings["verification"]["roles"]:
+                r = ctx.guild.get_role(role)
+                if r is not None:
+                    message = message + f"-   `{r.name}`"
+                else:
+                    message = message + f"-   `{str(role)}`"
+
+            await ctx.send(message)
+            return
+
+        if args[0] == "reset":
+            settings = db.get_settings(str(ctx.guild.id))
+            settings["verification"]["roles"] = []
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send("Roles cleared!")
+            return
+
+        try:
+            role: discord.Role = ctx.guild.get_role(int(args[1]))
+        except ValueError:
+            await ctx.send("Provide the Role ID for the `<role>` argument.")
+            return
+
+        if role is None:
+            await ctx.send("Role not found.")
+            return
+
+        if args[0] == "add":
+            if len(args) == 1:
+                await ctx.send("Not enough arguments!")
+                return
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings["verification"]:
+                settings["verification"]["roles"] = []
+            settings["verification"]["roles"].append(role.id)
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send(f"`{role.name}` added!")
+            return
+
+        if args[0] == "remove":
+            if len(args) == 1:
+                await ctx.send("Not enough arguments!")
+                return
+            settings = db.get_settings(str(ctx.guild.id))
+            if "roles" not in settings["verification"]:
+                settings["roles"] = []
+            if role.id in settings["verification"]["roles"]:
+                settings["verification"]["roles"].remove(role.id)
+            else:
+                await ctx.send(f"`{role.name}` not found in role settings!")
+                return
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send(f"`{role.name}` removed!")
+            return
+
+        error = discord.Embed(
+            title="Command not found",
+            description="`role <add/remove/reset> <role>",
+            colour=discord.Colour.purple()
+        )
+        await ctx.send(embed=error)
+        return
 
     @verification.group(name="toggle")
     async def toggle(self, ctx: commands.Context):
@@ -403,14 +488,16 @@ class Verify(commands.Cog):
         verify = verify.replace("{server}", guild.name)
         await dm.send(verify)
         await member.remove_roles(Cache.get_unverified_role(guild))
-        if "roles" in settings["verification"]:
+        if "first" in info["fields"]:
+            await member.edit(nick=info["fields"]["first"])
+        if "roles" in settings["verification"] and len(settings["verification"]["roles"]) != 0:
             roles = []
             for role in settings["verification"]["roles"]:
                 r = guild.get_role(role)
                 if r is not None:
                     roles.append(r)
             if len(roles) > 0:
-                await member.add_roles(roles)
+                await member.add_roles(*roles)
 
     async def reject_user(self, member: discord.Member, guild: discord.Guild):
         db = Database()
@@ -449,7 +536,8 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue")
             return
         await self.verify_user(member, guild, user)
-        await ctx.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
+        log = Cache.get_setup_log_channel(ctx.guild)
+        await log.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
 
     @auth.command(name="reject")
     async def reject(self, ctx: commands.Context, *args):
@@ -471,7 +559,8 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue")
             return
         await self.reject_user(member, guild)
-        await ctx.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
+        log = Cache.get_setup_log_channel(ctx.guild)
+        await log.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
 
 
 def setup(bot):

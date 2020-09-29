@@ -44,6 +44,13 @@ class Customization(commands.Cog):
             db.new_guild(str(ctx.guild.id), args[1])
             await ctx.send("Created!")
 
+        if args[0] == "users":
+            db = Database()
+            guild: discord.Guild = ctx.guild
+            for user in guild.members:
+                if not user.bot:
+                    db.add_new_user(str(user.id))
+
         if args[0] == "prefix":
             if len(args) == 1:
                 embed = discord.Embed(

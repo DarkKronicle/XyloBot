@@ -3,6 +3,8 @@ import discord
 
 setup_channels = {}
 
+setup_log_channels = {}
+
 verifier_roles = {}
 
 unverified_roles = {}
@@ -17,7 +19,7 @@ prefixes = {}
 
 
 def clear_setup_cache(guild):
-    if guild in setup_channels:
+    if guild.id in setup_channels:
         setup_channels.pop(guild.id)
 
 
@@ -35,8 +37,27 @@ def get_setup_channel(guild: discord.Guild):
             return None
 
 
+def clear_setup_log_cache(guild):
+    if guild.id in setup_log_channels:
+        setup_channels.pop(guild.id)
+
+
+def get_setup_log_channel(guild: discord.Guild):
+    if guild.id in setup_log_channels:
+        return setup_log_channels[guild.id]
+    else:
+        db = Database()
+        settings = db.get_settings(str(guild.id))
+        if "channels" in settings and "setup-log" in settings["channels"]:
+            channel = guild.get_channel(int(settings["channels"]["setup-log"]))
+            setup_log_channels[guild.id] = channel
+            return channel
+        else:
+            return None
+
+
 def clear_unverified_cache(guild):
-    if guild in unverified_roles:
+    if guild.id in unverified_roles:
         unverified_roles.pop(guild.id)
 
 
@@ -55,7 +76,7 @@ def get_unverified_role(guild: discord.Guild):
 
 
 def clear_enabled_cache(guild):
-    if guild in verify_enabled:
+    if guild.id in verify_enabled:
         verify_enabled.pop(guild.id)
 
 
@@ -77,7 +98,7 @@ def get_enabled(guild: discord.Guild):
 
 
 def clear_fields_cache(guild):
-    if guild in verify_enabled:
+    if guild.id in verify_enabled:
         verify_enabled.pop(guild.id)
 
 

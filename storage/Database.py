@@ -297,3 +297,7 @@ class Database:
         finally:
             if conn is not None:
                 conn.close()
+
+    def add_new_user(self, user_id):
+        command = f"INSERT INTO user_storage(id) VALUES ($${user_id}$$) ON CONFLICT DO NOTHING;"
+        self.send_commands([command])
