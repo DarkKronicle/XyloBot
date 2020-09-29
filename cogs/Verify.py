@@ -202,6 +202,7 @@ class Verify(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         print("Joining")
         db = Database()
+        db.add_new_user(str(member.id))
         settings = db.get_settings(str(member.guild.id))
         if "verification" in settings and "enabled" in settings["verification"] and settings["verification"][
             "enabled"]:
@@ -485,6 +486,8 @@ class Verify(commands.Cog):
         verify = verify.replace("{server}", guild.name)
         await dm.send(verify)
         await member.remove_roles(Cache.get_unverified_role(guild))
+        if "first" in info["fields"]:
+            await member.edit(nick=info["fields"]["first"])
         if "roles" in settings["verification"] and len(settings["verification"]["roles"]) != 0:
             roles = []
             for role in settings["verification"]["roles"]:
@@ -492,7 +495,7 @@ class Verify(commands.Cog):
                 if r is not None:
                     roles.append(r)
             if len(roles) > 0:
-                await member.add_roles(roles)
+                await member.add_roles(*roles)
 
     async def reject_user(self, member: discord.Member, guild: discord.Guild):
         db = Database()
