@@ -356,15 +356,21 @@ class Verify(commands.Cog):
             return
 
         if args[0] == "add":
+            if len(args) == 1:
+                await ctx.send("Not enough arguments!")
+                return
             settings = db.get_settings(str(ctx.guild.id))
             if "roles" not in settings["verification"]:
                 settings["verification"]["roles"] = []
-            settings["verification"]["roles"].apend(role.id)
+            settings["verification"]["roles"].append(role.id)
             db.set_settings(str(ctx.guild.id), settings)
             await ctx.send(f"`{role.name}` added!")
             return
 
         if args[0] == "remove":
+            if len(args) == 1:
+                await ctx.send("Not enough arguments!")
+                return
             settings = db.get_settings(str(ctx.guild.id))
             if "roles" not in settings["verification"]:
                 settings["roles"] = []
