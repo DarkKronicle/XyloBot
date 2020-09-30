@@ -98,7 +98,7 @@ class Commands(commands.Cog):
                 colour=discord.Colour.red()
             )
         else:
-            message = f"`{user.name}`:`"
+            message = f"`{user.name}`:"
             for f in data["fields"]:
                 message = message + f"\n-   {f}: `{data['fields'][f]}`"
             await ctx.send(message)

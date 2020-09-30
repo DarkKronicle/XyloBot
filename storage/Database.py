@@ -144,7 +144,6 @@ class Database:
             data = row[0]
             return data
 
-
     def user_exists(self, user_id):
         user = "$$" + user_id + "$$"
         command = "SELECT id FROM user_storage WHERE id = {} ORDER BY id;"
@@ -281,7 +280,7 @@ class Database:
         self.send_commands([command])
 
     def send_commands(self, commands):
-       # print("Connecting to database...")
+        # print("Connecting to database...")
         conn = None
         try:
             conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
@@ -300,4 +299,22 @@ class Database:
 
     def add_new_user(self, user_id):
         command = f"INSERT INTO user_storage(id) VALUES ($${user_id}$$) ON CONFLICT DO NOTHING;"
+        self.send_commands([command])
+
+    def add_mark(self, guild_id, name, text="", files=None):
+        if files is None:
+            files = []
+
+        data = {}
+        if text is not None and text != "":
+            data["text"] = text
+        else:
+            data["text"] = ""
+
+        if files is not None:
+            data["files"] = files
+        else:
+            data["files"] = []
+
+        command = f"INSERT INTO mark_entries(guild_id, name, data) VALUES ($${guild_id}, $${name}$$, $${data}$$);"
         self.send_commands([command])
