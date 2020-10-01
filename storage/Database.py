@@ -343,3 +343,28 @@ class Database:
             return None
         else:
             return row
+
+    def get_mark(self, guild_id, name):
+        command = f"SELECT data FROM mark_entries WHERE guild_id = {guild_id} AND name = {name};"
+
+        conn = None
+        row = None
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(command)
+            row = c.fetchone()
+            c.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if row is None:
+            return None
+        else:
+            return row[0]

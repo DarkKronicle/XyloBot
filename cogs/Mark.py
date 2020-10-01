@@ -8,6 +8,9 @@ import asyncio
 
 class Mark(commands.Cog):
 
+    def __init__(self, bot):
+        self.bot: commands.Bot = bot
+
     @commands.group(name="marks")
     async def marks(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
@@ -53,9 +56,10 @@ class Mark(commands.Cog):
         await ctx.send(embed=embed)
 
     characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
-    "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_"]
+                  "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_"]
 
     @marks.command(name="add")
+    @is_allowed()
     async def add(self, ctx: commands.Context):
         details = {}
         channel = ctx.channel
@@ -71,7 +75,7 @@ class Mark(commands.Cog):
             if answer:
                 if not all(c in self.characters for c in answer.content):
                     await ctx.send("You're not allowed to use some of those characters! `a-z - _`")
-                    return  
+                    return
                 else:
                     details["name"] = answer.content
             else:
@@ -89,7 +93,8 @@ class Mark(commands.Cog):
                 details["text"] = answer.content
             else:
                 await ctx.send("Message was sent incorrectly!", delete_after=15)
-            prompt = await ctx.send("What files are going to be sent with it? (Use URL's and seperate with `,`)")
+                return
+            prompt = await ctx.send("What files are going to be sent with it? (Type `none` or use URL's and seperate with `,`)")
             answer = await self.bot.wait_for(
                 "message",
                 timeout=60,
@@ -99,18 +104,49 @@ class Mark(commands.Cog):
             await answer.delete()
             if answer:
                 # TODO check for correct urls. Just gonna hope people aren't doofuses for now...
-                details["links"] = answer.content.split(',')
+                if answer.content == "none":
+                    details["links"] = []
+                else:
+                    details["links"] = answer.content.split(',')
             else:
                 await ctx.send("Message was sent incorrectly!")
+                return
+            embed = discord.Embed(
+                title=details["name"],
+                description="Does this information look correct? Type `yes` or `no`",
+                colour=discord.Colour.blue()
+            )
+            embed.add_field(name="Text", value=details["text"])
+            if len(details["links"]) != 0:
+                embed.add_field(name="Files", value=details["text"])
+            prompt = await ctx.send(embed=embed)
+            answer = await self.bot.wait_for(
+                "message",
+                timeout=60,
+                check=lambda msg: msg.author == ctx.author and msg.channel == channel
+            )
+            await prompt.delete()
+            await answer.delete()
+            if answer:
+                if "yes" not in answer.content:
+                    await ctx.send("Start again from the beginning!", delete_after=15)
+                    return
+            else:
+                await ctx.send("message was sent incorrectly!")
+                return
 
-            
+            db = Database()
+            db.add_mark(str(ctx.guild.id), details["name"], details["text"], details["links"])
+            await ctx.send("New mark added!")
+            return
+
         except asyncio.TimeoutError:
             await prompt.delete()
             await channel.send("This has been closed due to a timeout", delete_after=15)
 
-    @commands.group(name="mark")
+    @commands.command(name="mark")
     async def mark(self, ctx: commands.Context, *args):
-        if ctx.invoked_subcommand is None:
+        if len(args) == 0 or args[0] == "help":
             embed = discord.Embed(
                 title="Markconfig Help",
                 description="Config your marks!",
@@ -118,6 +154,26 @@ class Mark(commands.Cog):
             )
             await ctx.send(embed=embed)
 
+        name = ' '.join(args)
+        db = Database()
+        mark = db.get_mark(str(ctx.guild.id), name)
+        if mark is not None:
+            text = mark["text"]
+            files = mark["files"]
+            file = None
+            images = []
+            if len(files) != 0:
+                for url in files:
+                    image = get_file_from_image(url, "content.png")
+                    if image is not None:
+                        images.append(image)
+
+            if len(images) != 0:
+                await ctx.send(content=text, files=images)
+            else:
+                await ctx.send(text)
+                return
+
 
 def setup(bot):
-    bot.add_cog(Mark())
+    bot.add_cog(Mark(bot))
