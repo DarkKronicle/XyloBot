@@ -160,7 +160,6 @@ class Mark(commands.Cog):
         if mark is not None:
             text = mark["text"]
             files = mark["files"]
-            file = None
             images = []
             if len(files) != 0:
                 for url in files:

@@ -345,7 +345,7 @@ class Database:
             return row
 
     def get_mark(self, guild_id, name):
-        command = f"SELECT data FROM mark_entries WHERE guild_id = {guild_id} AND name = {name};"
+        command = f"SELECT data FROM mark_entries WHERE guild_id = $${guild_id}$$ AND name = $${name}$$;"
 
         conn = None
         row = None
