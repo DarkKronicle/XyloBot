@@ -401,7 +401,7 @@ class Settings(commands.Cog):
 
         if args[0] == "invite":
             if len(args) == 1:
-                await ctx.send("`>settings invite <toggle/CHANNELID>`")
+                await ctx.send("`>settings invite <toggle/channel> <channel_id>`")
                 return
 
             if args[1] == "toggle":
@@ -448,7 +448,7 @@ class Settings(commands.Cog):
                 if "invite" not in data["utility"]:
                     data["utility"]["invite"] = {}
 
-                data["utility"]["invite"] = channel.id
+                data["utility"]["invite"]["channel"] = channel.id
                 db.set_settings(str(ctx.guild.id), data)
                 await ctx.send(f"Invite channel set to {channel.mention}!")
 
