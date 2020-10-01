@@ -60,3 +60,7 @@ class Mark(commands.Cog):
                 colour=discord.Colour.purple()
             )
             await ctx.send(embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(Mark())
