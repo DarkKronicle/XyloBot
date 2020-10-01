@@ -448,6 +448,7 @@ class Verify(commands.Cog):
 
         if unverified is None or len(unverified) == 0:
             await ctx.send("No people to verify at the moment!")
+            return
 
         message = ""
         for unverify in unverified:

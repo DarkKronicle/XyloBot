@@ -15,9 +15,9 @@
       "aliases": [],
       "case": false
     },
-    "cat": {
+    " cat ": {
       "emojis": ["\uD83D\uDC31"],
-      "aliases": [],
+      "aliases": ["kitty"],
       "case": false
     },
     "dog": {
@@ -43,6 +43,11 @@
     "gotem": {
       "emojis": ["\uD83D\uDC4C"],
       "aliases": ["goteem", "goteeem"],
+      "case": false
+    },
+    "thank you": {
+      "emojis": ["\uD83D\uDE4F"],
+      "aliases": ["thx"],
       "case": false
     }
   },

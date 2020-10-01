@@ -41,7 +41,7 @@ bot.remove_command('help')
 # Command Extensions
 # Setup
 startup_extensions = ["DataCommands", "Help", "AutoReactions", "QOTD", "Roles", "Customization", "Verify",
-                      "Settings", "Fun", "Utility"]
+                      "Settings", "Fun", "Utility", "Mark"]
 
 # Extension directory
 cogs_dir = "cogs"
