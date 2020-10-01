@@ -3,10 +3,21 @@ from storage import Cache
 from storage.Database import Database
 from util.DiscordUtil import *
 from discord.ext import commands
+from datetime import datetime, timedelta
+from pytz import timezone
+
+
+def get_time():
+    zone = timezone('US/Mountain')
+    utc = timezone('UTC')
+    now = utc.localize(datetime.now())
+    curtime = now.astimezone(zone)
+    return curtime
+
 
 class Utility(commands.Cog):
     
-    @commands.commane(name="invite")
+    @commands.command(name="invite")
     @commands.cooldown(1, 600, commands.BucketType.member)
     async def invite(self, ctx: commands.Context):
         db = Database()
@@ -25,6 +36,15 @@ class Utility(commands.Cog):
                 
                 else:
                     await ctx.send(f"Here's your invite link!\n\n{str(invite)}")
+                    log = Cache.get_log_channel(ctx.guild)
+                    if log is not None:
+                        embed = discord.Embed(
+                            title=f"New Invite Created {str(ctx.author)}: {str(invite)}",
+                            description="",
+                            timestamp=get_time()
+                        )
+                        await log.send(embed=embed)
+                        # embed.set_footer(text=f"Today at {get_time().strftime('%I:%M $p')}")
                     return
 
 

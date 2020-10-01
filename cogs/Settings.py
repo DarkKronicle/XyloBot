@@ -9,7 +9,8 @@ class Settings(commands.Cog):
         "setup": "Where user's get verified",
         "setup-logs": "Where information about verification goes.",
         "qotd": "Where the question of the day is posted!",
-        "welcome": "Where Xylo welcomes verified users!"
+        "welcome": "Where Xylo welcomes verified users!",
+        "logs": "Misc logs"
     }
 
     role_list = {
@@ -153,6 +154,8 @@ class Settings(commands.Cog):
                 settings["channels"][args[0]] = str(channel.id)
                 db.set_settings(str(ctx.guild.id), settings)
                 Cache.clear_setup_cache(ctx.guild)
+                Cache.clear_setup_log_cache(ctx.guild)
+                Cache.clear_setup_log_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
 
             else:
@@ -163,6 +166,8 @@ class Settings(commands.Cog):
                 settings["channels"][args[0]] = ""
                 db.set_settings(str(ctx.guild.id), settings)
                 Cache.clear_setup_cache(ctx.guild)
+                Cache.clear_setup_log_cache(ctx.guild)
+                Cache.clear_setup_log_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been removed!")
 
         else:
@@ -370,9 +375,9 @@ class Settings(commands.Cog):
 
         await ctx.send("Message not found!")
 
-    @settings.group(name="util", pass_context=True)
+    @settings.command(name="util")
     async def util(self, ctx: commands.Context, *args):
-        if ctx.invoked_subcommand is None:
+        if len(args) == 0:
             embed = discord.Embed(
                 title="Util Help",
                 description="`util <list/current/[NAME]>`",
@@ -383,9 +388,7 @@ class Settings(commands.Cog):
                 await ctx.send(' '.join(args))
             return
 
-    @util.command(name="list")
-    async def util_list(self, ctx: commands.Context, *args):
-        if len(args) == 0:
+        if args[0] == "list":
             embed = discord.Embed(
                 title="Utility commands!",
                 description="Edit what commands people have access to.",
@@ -396,32 +399,60 @@ class Settings(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-    @util.command(name="invite")
-    async def invite(self, ctx: commands.Context, *args):
-        if len(args) == 0:
-            await ctx.send("`>settings invite <toggle/CHANNELID>`")
-            return
-
-        if args[0] == "toggle":
-            db = Database()
-            data = db.get_settings(str(ctx.guild.id))
-            if "utility" not in data or "invite" not in data["utility"]:
-                await ctx.send("No data found for utility! Use `>settings reset util`")
-                return
-            if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(
-                    data["utility"]["invite"]["channel"]) is None:
-                await ctx.send("Can't turn on invite if no channel is set!")
+        if args[0] == "invite":
+            if len(args) == 1:
+                await ctx.send("`>settings invite <toggle/CHANNELID>`")
                 return
 
-            on = not data["utility"]["invite"]["enabled"]
-            data["utility"]["invite"]["enabled"] = on
-            db.set_settings(str(ctx.guild.id), data)
-            if on:
-                await ctx.send("Invite enabled!")
-                return
-            else:
-                await ctx.send("Invite disabled!")
-                return
+            if args[1] == "toggle":
+                db = Database()
+                data = db.get_settings(str(ctx.guild.id))
+                if "utility" not in data or "invite" not in data["utility"]:
+                    await ctx.send("No data found for utility! Use `>settings reset util`")
+                    return
+                if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(
+                        data["utility"]["invite"]["channel"]) is None:
+                    await ctx.send("Can't turn on invite if no channel is set!")
+                    return
+
+                on = not data["utility"]["invite"]["enabled"]
+                data["utility"]["invite"]["enabled"] = on
+                db.set_settings(str(ctx.guild.id), data)
+                if on:
+                    await ctx.send("Invite enabled!")
+                    return
+                else:
+                    await ctx.send("Invite disabled!")
+                    return
+
+            if args[1] == "channel":
+                if len(args) == 2:
+                    await ctx.send("You need to specify a channel id.")
+                    return
+
+                try:
+                    chanid = int(args[2])
+                except ValueError:
+                    await ctx.send("You need to specify an int for channel id.")
+                    return
+
+                channel = ctx.guild.get_channel(chanid)
+                if channel is None:
+                    await ctx.send("Channel not found!")
+                    return
+
+                db = Database()
+                data = db.get_settings(str(ctx.guild.id))
+                if "utility" not in data:
+                    data["utility"] = {}
+                if "invite" not in data["utility"]:
+                    data["utility"]["invite"] = {}
+
+                data["utility"]["invite"] = channel.id
+                db.set_settings(str(ctx.guild.id), data)
+                await ctx.send(f"Invite channel set to {channel.mention}!")
+
+
 
 
 def setup(bot):
