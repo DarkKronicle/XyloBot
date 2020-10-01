@@ -3,22 +3,23 @@ from storage.Database import *
 from storage import Cache
 import discord
 from discord.ext import commands
+import asyncio
 
 
 class Mark(commands.Cog):
 
-    @commands.group(name="markconfig")
-    async def config(self, ctx: commands.Context):
+    @commands.group(name="marks")
+    async def marks(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
-                title="Markconfig Help",
+                title="Marks Help",
                 description="Config your marks!",
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="`list <page>`", value="List what marks are for your server.")
             await ctx.send(embed=embed)
 
-    @config.command(name="list")
+    @marks.command(name="list")
     async def mark_list(self, ctx: commands.Context, *args):
         db = Database()
         rows = db.get_marks(str(ctx.guild.id))
@@ -50,6 +51,62 @@ class Mark(commands.Cog):
             embed.add_field(name=f"{str(current)}.", value=name)
             current = current + 1
         await ctx.send(embed=embed)
+
+    characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+    "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_"]
+
+    @marks.command(name="add")
+    async def add(self, ctx: commands.Context):
+        details = {}
+        channel = ctx.channel
+        prompt = await channel.send("What name is the mark going to have? You may use `a-z - _`")
+        try:
+            answer = await self.bot.wait_for(
+                "message",
+                timeout=60,
+                check=lambda msg: msg.author == ctx.author and msg.channel == channel
+            )
+            await prompt.delete()
+            await answer.delete()
+            if answer:
+                if not all(c in self.characters for c in answer.content):
+                    await ctx.send("You're not allowed to use some of those characters! `a-z - _`")
+                    return  
+                else:
+                    details["name"] = answer.content
+            else:
+                await ctx.send("Message was sent incorrectly!", delete_after=15)
+                return
+            prompt = await ctx.send("What is the mark going to say?")
+            answer = await self.bot.wait_for(
+                "message",
+                timeout=60,
+                check=lambda msg: msg.author == ctx.author and msg.channel == channel
+            )
+            await prompt.delete()
+            await answer.delete()
+            if answer:
+                details["text"] = answer.content
+            else:
+                await ctx.send("Message was sent incorrectly!", delete_after=15)
+            prompt = await ctx.send("What files are going to be sent with it? (Use URL's and seperate with `,`)")
+            answer = await self.bot.wait_for(
+                "message",
+                timeout=60,
+                check=lambda msg: msg.author == ctx.author and msg.channel == channel
+            )
+            await prompt.delete()
+            await answer.delete()
+            if answer:
+                # TODO check for correct urls. Just gonna hope people aren't doofuses for now...
+                details["links"] = answer.content.split(',')
+            else:
+                await ctx.send("Message was sent incorrectly!")
+
+            
+        except asyncio.TimeoutError:
+            await prompt.delete()
+            await channel.send("This has been closed due to a timeout", delete_after=15)
 
     @commands.group(name="mark")
     async def mark(self, ctx: commands.Context, *args):
