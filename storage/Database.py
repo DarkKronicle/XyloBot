@@ -320,7 +320,7 @@ class Database:
         self.send_commands([command])
 
     def get_marks(self, guild_id):
-        command = "SELECT name, data FROM mark_entries WHERE guild_id = {};"
+        command = "SELECT name, data FROM mark_entries WHERE guild_id IN ({}, $$global$$);"
         command = command.format("$$" + guild_id + "$$")
         conn = None
         row = None
@@ -345,7 +345,7 @@ class Database:
             return row
 
     def get_mark(self, guild_id, name):
-        command = f"SELECT data FROM mark_entries WHERE guild_id = $${guild_id}$$ AND name = $${name}$$;"
+        command = f"SELECT data FROM mark_entries WHERE guild_id IN ($${guild_id}$$, $$global$$) AND name = $${name}$$;"
 
         conn = None
         row = None
@@ -368,3 +368,31 @@ class Database:
             return None
         else:
             return row[0]
+
+    def get_mark_named(self, name):
+        command = f"SELECT name FROM mark_entries WHERE name = $${name}$$;"
+        conn = None
+        row = None
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(command)
+            row = c.fetchone()
+            c.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if row is None:
+            return None
+        else:
+            return row[0]
+
+    def remove_mark(self, guild_id, name):
+        command = f"DELETE FROM mark_entries WHERE guild_id = $${guild_id}$$ AND name = $${name}$$;"
+        self.send_commands([command])
