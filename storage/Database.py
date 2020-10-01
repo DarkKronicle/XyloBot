@@ -316,7 +316,7 @@ class Database:
         else:
             data["files"] = []
 
-        command = f"INSERT INTO mark_entries(guild_id, name, data) VALUES ($${guild_id}, $${name}$$, $${data}$$);"
+        command = f"INSERT INTO mark_entries(guild_id, name, data) VALUES ($${guild_id}$$, $${name}$$, $${data}$$);"
         self.send_commands([command])
 
     def get_marks(self, guild_id):
