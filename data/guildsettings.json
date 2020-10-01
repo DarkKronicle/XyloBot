@@ -21,5 +21,11 @@
   },
   "fun": {
     "lober": false
+  },
+  "utility": {
+    "invite": {
+        "enabled": false,
+        "channel": 0
+    }
   }
 }

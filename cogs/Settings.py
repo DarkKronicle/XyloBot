@@ -43,6 +43,7 @@ class Settings(commands.Cog):
             embed.add_field(name="`reset`", value="Reset certain fields for Xylo.")
             embed.add_field(name="`fun`", value="Mess around with fun commands!")
             embed.add_field(name="`message`", value="Change messages")
+            embed.add_field(name="`util`", value="Configure utilities")
             await ctx.send(embed=embed)
 
     @settings.command(name="reset")
@@ -55,6 +56,7 @@ class Settings(commands.Cog):
             )
             embed.add_field(name="fun", value="Reset the Fun commands")
             embed.add_field(name="messages", value="Reset messages")
+            embed.add_field(name="util", value="Reset util storage")
             await ctx.send(embed=embed)
 
         if args[0] == "fun":
@@ -71,6 +73,14 @@ class Settings(commands.Cog):
             settings["messages"] = ConfigData.defaultsettings.data["messages"]
             db.set_settings(str(ctx.guild.id), settings)
             await ctx.send("Messages have been reset!")
+            return
+
+        if args[0] == "util":
+            db = Database()
+            settings = db.get_settings(str(ctx.guild.id))
+            settings["utility"] = ConfigData.defaultsettings.data["utility"]
+            db.set_settings(str(ctx.guild.id), settings)
+            await ctx.send("Utility has been reset!")
             return
 
         await ctx.send("Category not found. Check `>settings reset`.")
@@ -303,6 +313,8 @@ class Settings(commands.Cog):
 
         await ctx.send("Module not found. Check `fun list`")
 
+
+
     @settings.command(name="message")
     async def message(self, ctx: commands.Context, *args):
         if len(args) == 0:
@@ -360,6 +372,54 @@ class Settings(commands.Cog):
 
         await ctx.send("Message not found!")
 
+    @settings.group(name="util")
+    async def util(self, ctx: commands.Context, *args):
+        if ctx.invoked_subcommand is None:
+            embed = discord.Embed(
+                title="Util Help",
+                description="`util <list/current/[NAME]>",
+                colour=discord.Colour.purple()
+            )
+            await ctx.send(embed=embed)
+            return
+
+    @util.command(name="list") 
+    async def util_list(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            embed = discord.Embed(
+                title="Utility commands!",
+                description="Edit what commands people have access to.",
+                colour=discord.Colour.purple()
+            )
+            embed.add_field(name="`invite <toggle/CHANNELID>`", value="Allow for Xylo to create tempory invites for quick use.")
+            await ctx.send(embed=embed)
+            return
+
+    @util.command(name="invite")
+    async def invite(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            await ctx.send("`>settings invite <toggle/CHANNELID>`")
+            return
+
+        if args[0] == "toggle":
+            db = Database()
+            data = db.get_settings(str(ctx.guild.id))
+            if "utility" not in data or "invite" not in data["utility"]:
+                await ctx.send("No data found for utility! Use `>settings reset util`") 
+                return
+            if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(data["utility"]["invite"]["channel"]) is None:
+                await ctx.send("Can't turn on invite if no channel is set!")
+                return  
+
+            on = not data["utility"]["invite"]["enabled"]
+            data["utility"]["invite"]["enabled"] = on
+            db.set_settings(str(ctx.guild.id), data)
+            if on:
+                await ctx.send("Invite enabled!")
+                return
+            else:
+                await ctx.send("Invite disabled!")
+                return
 
 def setup(bot):
     bot.add_cog(Settings())
