@@ -56,10 +56,6 @@ class Mark(commands.Cog):
             current = current + 1
         await ctx.send(embed=embed)
 
-    characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
-                  "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_", "!", "/", "1", "2",
-                  "3", "4", "5", "6", "7", "8", "9", "@", "#"]
-
     @marks.command(name="remove")
     @is_allowed()
     async def remove(self, ctx: commands.Context):
@@ -103,6 +99,10 @@ class Mark(commands.Cog):
         except asyncio.TimeoutError:
             await prompt.delete()
             await channel.send("This has been closed due to a timeout", delete_after=15)
+
+    characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+                  "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_", "!", "/", "1", "2",
+                  "3", "4", "5", "6", "7", "8", "9", "0", "@", "#"]
 
     @marks.command(name="add")
     @is_allowed()
