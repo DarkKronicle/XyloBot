@@ -118,7 +118,7 @@ class Mark(commands.Cog):
             )
             embed.add_field(name="Text", value=details["text"])
             if len(details["links"]) != 0:
-                embed.add_field(name="Files", value=details["text"])
+                embed.add_field(name="Files", value=details["links"])
             prompt = await ctx.send(embed=embed)
             answer = await self.bot.wait_for(
                 "message",
@@ -163,7 +163,7 @@ class Mark(commands.Cog):
             images = []
             if len(files) != 0:
                 for url in files:
-                    image = get_file_from_image(url, "content.png")
+                    image = await get_file_from_image(url, "content.png")
                     if image is not None:
                         images.append(image)
 
