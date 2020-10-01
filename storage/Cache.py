@@ -36,6 +36,7 @@ def get_setup_channel(guild: discord.Guild):
         else:
             return None
 
+
 def clear_setup_log_cache(guild):
     if guild.id in setup_log_channels:
         setup_channels.pop(guild.id)
@@ -48,7 +49,7 @@ def get_setup_log_channel(guild: discord.Guild):
         db = Database()
         settings = db.get_settings(str(guild.id))
         if "channels" in settings and "setup-log" in settings["channels"]:
-            channel = guild.get_channel(int(settings["channels"]["setup-log"]))
+            channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
             setup_log_channels[guild.id] = channel
             return channel
         else:

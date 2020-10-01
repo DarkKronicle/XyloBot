@@ -313,8 +313,6 @@ class Settings(commands.Cog):
 
         await ctx.send("Module not found. Check `fun list`")
 
-
-
     @settings.command(name="message")
     async def message(self, ctx: commands.Context, *args):
         if len(args) == 0:
@@ -372,18 +370,20 @@ class Settings(commands.Cog):
 
         await ctx.send("Message not found!")
 
-    @settings.group(name="util")
+    @settings.group(name="util", pass_context=True)
     async def util(self, ctx: commands.Context, *args):
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Util Help",
-                description="`util <list/current/[NAME]>",
+                description="`util <list/current/[NAME]>`",
                 colour=discord.Colour.purple()
             )
             await ctx.send(embed=embed)
+            if len(args) > 0:
+                await ctx.send(' '.join(args))
             return
 
-    @util.command(name="list") 
+    @util.command(name="list")
     async def util_list(self, ctx: commands.Context, *args):
         if len(args) == 0:
             embed = discord.Embed(
@@ -391,7 +391,8 @@ class Settings(commands.Cog):
                 description="Edit what commands people have access to.",
                 colour=discord.Colour.purple()
             )
-            embed.add_field(name="`invite <toggle/CHANNELID>`", value="Allow for Xylo to create tempory invites for quick use.")
+            embed.add_field(name="`invite <toggle/CHANNELID>`",
+                            value="Allow for Xylo to create tempory invites for quick use.")
             await ctx.send(embed=embed)
             return
 
@@ -405,11 +406,12 @@ class Settings(commands.Cog):
             db = Database()
             data = db.get_settings(str(ctx.guild.id))
             if "utility" not in data or "invite" not in data["utility"]:
-                await ctx.send("No data found for utility! Use `>settings reset util`") 
+                await ctx.send("No data found for utility! Use `>settings reset util`")
                 return
-            if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(data["utility"]["invite"]["channel"]) is None:
+            if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(
+                    data["utility"]["invite"]["channel"]) is None:
                 await ctx.send("Can't turn on invite if no channel is set!")
-                return  
+                return
 
             on = not data["utility"]["invite"]["enabled"]
             data["utility"]["invite"]["enabled"] = on
@@ -420,6 +422,7 @@ class Settings(commands.Cog):
             else:
                 await ctx.send("Invite disabled!")
                 return
+
 
 def setup(bot):
     bot.add_cog(Settings())
