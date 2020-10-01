@@ -8,7 +8,7 @@ from discord.ext import commands
 class Mark(commands.Cog):
 
     @commands.group(name="markconfig")
-    async def config(self, ctx: commands.Context, *args):
+    async def config(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Markconfig Help",
