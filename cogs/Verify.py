@@ -501,6 +501,11 @@ class Verify(commands.Cog):
                 await member.add_roles(*roles)
 
     async def reject_user(self, member: discord.Member, guild: discord.Guild):
+        """
+        Rejects a member and sends them DM
+        :param member: Member to reject
+        :param guild:  Guild that is rejecting
+        """
         db = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
@@ -542,6 +547,9 @@ class Verify(commands.Cog):
 
     @auth.command(name="reject")
     async def reject(self, ctx: commands.Context, *args):
+        """
+        Rejects a user and sends DM
+        """
         if len(args) == 0:
             embed = discord.Embed(
                 title="Auth Accept",

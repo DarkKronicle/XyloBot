@@ -1,6 +1,5 @@
 from util.DiscordUtil import *
 from storage.Database import *
-from storage import Cache
 import discord
 from discord.ext import commands
 import asyncio
@@ -20,6 +19,8 @@ class Mark(commands.Cog):
                 colour=discord.Colour.purple()
             )
             embed.add_field(name="`list <page>`", value="List what marks are for your server.")
+            embed.add_field(name="`add`", value="Starts a mark setup wizard.")
+            embed.add_field(name="`remove`", value="Starts a mark remove wizard.")
             await ctx.send(embed=embed)
 
     @marks.command(name="list")
@@ -73,7 +74,7 @@ class Mark(commands.Cog):
                     check=lambda msg: msg.author == ctx.author and msg.channel == channel
                 )
                 if answer:
-                    if "yes" in answer:
+                    if "yes" in answer.content:
                         guild = "global"
                 else:
                     await ctx.send("Error in sending information")
@@ -244,10 +245,11 @@ class Mark(commands.Cog):
 
             if len(images) != 0:
                 await ctx.send(content=text, files=images)
+                return
             else:
                 await ctx.send(text)
                 return
-
+        await ctx.send("Mark not found!")
 
 def setup(bot):
     bot.add_cog(Mark(bot))
