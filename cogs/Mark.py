@@ -52,12 +52,13 @@ class Mark(commands.Cog):
         current = start + 1
         for row in newrows:
             name = row[0]
-            embed.add_field(name=f"{str(current)}.", value=name)
+            embed.add_field(name=f"{str(current)}.", value=name, inline=True)
             current = current + 1
         await ctx.send(embed=embed)
 
     characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
-                  "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_"]
+                  "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_", "!", "/", "1", "2",
+                  "3", "4", "5", "6", "7", "8", "9", "@", "#"]
 
     @marks.command(name="remove")
     @is_allowed()
@@ -110,7 +111,6 @@ class Mark(commands.Cog):
         details = {}
         channel = ctx.channel
         try:
-
             prompt = await channel.send("What name is the mark going to have? You may use `a-z - _`")
             answer = await self.bot.wait_for(
                 "message",
@@ -144,7 +144,8 @@ class Mark(commands.Cog):
             else:
                 await ctx.send("Message was sent incorrectly!", delete_after=15)
                 return
-            prompt = await ctx.send("What files are going to be sent with it? (Type `none` or use URL's and seperate with `,`)")
+            prompt = await ctx.send(
+                "What files are going to be sent with it? (Type `none` or use URL's and seperate with `,`)")
             answer = await self.bot.wait_for(
                 "message",
                 timeout=60,
@@ -250,6 +251,7 @@ class Mark(commands.Cog):
                 await ctx.send(text)
                 return
         await ctx.send("Mark not found!")
+
 
 def setup(bot):
     bot.add_cog(Mark(bot))
