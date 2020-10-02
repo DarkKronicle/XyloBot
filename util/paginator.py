@@ -31,7 +31,7 @@ from discord.ext.commands import Paginator as CommandPaginator
 from discord.ext import menus
 
 
-class Pages(menus.menuPages):
+class Pages(menus.MenuPages):
 
     def __init__(self, source):
         super().__init__(source=source, check_embeds=True)
