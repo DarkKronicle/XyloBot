@@ -44,7 +44,6 @@ class Context(commands.Context):
                 answer = False
                 return True
 
-            await self.send("Reply with `yes` or `no`!", delete_after=10)
             return False
 
         try:
