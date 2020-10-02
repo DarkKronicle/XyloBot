@@ -27,6 +27,9 @@ def get_roles(guild: discord.Guild):
 
 
 class Roles(commands.Cog):
+    """
+    Roles that Xylo can assign.
+    """
 
     def __init__(self, bot: Bot):
         self.bot = bot

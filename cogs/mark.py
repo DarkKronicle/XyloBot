@@ -6,12 +6,18 @@ from util.context import Context
 
 
 class Mark(commands.Cog):
+    """
+    Mess around with marks!
+    """
 
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
     @commands.group(name="marks")
     async def marks(self, ctx: commands.Context):
+        """
+        Configure and view marks
+        """
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Marks Help",
@@ -25,6 +31,9 @@ class Mark(commands.Cog):
 
     @marks.command(name="list")
     async def mark_list(self, ctx: commands.Context, *args):
+        """
+        List the current marks.
+        """
         db = Database()
         rows = db.get_marks(str(ctx.guild.id))
         page = 1

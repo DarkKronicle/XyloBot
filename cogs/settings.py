@@ -5,6 +5,10 @@ from discord.ext import commands
 
 
 class Settings(commands.Cog):
+    """
+    Settings for how Xylo works.
+    """
+
     channel_list = {
         "setup": "Where user's get verified",
         "setup-logs": "Where information about verification goes.",
@@ -452,7 +456,73 @@ class Settings(commands.Cog):
                 db.set_settings(str(ctx.guild.id), data)
                 await ctx.send(f"Invite channel set to {channel.mention}!")
 
+    @commands.command(name="storage")
+    @commands.has_permissions(administrator=True)
+    async def storage(self, ctx: commands.Context, *args):
+        if len(args) == 0:
+            help_message = discord.Embed(
+                title="Storage Commands",
+                description="Keep useful info and settings.",
+                colour=discord.Colour.purple()
+            )
+            help_message.add_field(name="`start`", value="Create an entry for your server.")
+            help_message.add_field(name="`prefix`", value="Configure the server prefix!")
+            await ctx.send(embed=help_message)
+            return
 
+        if args[0] == "start":
+            if len(args) == 1 or len(args) >= 3:
+                embed = discord.Embed(
+                    title="Incorrect Usage",
+                    description="`storage start <PREFIX>`",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=embed)
+                return
+
+            db = Database()
+            if db.guild_exists(str(ctx.guild.id)):
+                await ctx.send("Guild already has data!")
+                return
+
+            db.new_guild(str(ctx.guild.id), args[1])
+            await ctx.send("Created!")
+
+        if args[0] == "users":
+            db = Database()
+            guild: discord.Guild = ctx.guild
+            for user in guild.members:
+                if not user.bot:
+                    db.add_new_user(str(user.id))
+
+        if args[0] == "prefix":
+            if len(args) == 1:
+                embed = discord.Embed(
+                    title="Incorrect Usage",
+                    description="`storage prefix <PREFIX>`",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=embed)
+                return
+
+            prefix = ' '.join(args[1:])
+            if len(prefix) > 15:
+                await ctx.send("Prefix too large!")
+                return
+
+            if "$" in prefix:
+                prefix = prefix.replace("$", "\\$")
+
+            db = Database()
+            db.set_prefix(str(ctx.guild.id), prefix)
+            success = discord.Embed(
+                title="Xylo prefix changed!",
+                description=f"Prefix changed to `{prefix}`!",
+                colour=discord.Colour.green()
+            )
+            cache.clear_prefix_cache(ctx.guild)
+            await ctx.send(embed=success)
+            return
 
 
 def setup(bot):

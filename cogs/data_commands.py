@@ -24,6 +24,9 @@ async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
 
 
 class Commands(commands.Cog):
+    """
+    Commands to view stored data on people.
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot

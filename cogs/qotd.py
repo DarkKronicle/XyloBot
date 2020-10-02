@@ -17,6 +17,9 @@ def get_time_until():
 
 
 class QOTD(commands.Cog):
+    """
+    Question of the Day
+    """
     file = ConfigData.questions
     questions: list = file.data["questions"]
     next_question: str = random.choice(questions)

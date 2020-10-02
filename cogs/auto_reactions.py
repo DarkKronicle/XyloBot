@@ -49,6 +49,9 @@ class AutoText:
 
 
 class AutoReactions(commands.Cog):
+    """
+    Emojis Xylo automatically reacts to.
+    """
 
     def __init__(self, bot):
         self.bot = bot

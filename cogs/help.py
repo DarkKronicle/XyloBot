@@ -124,6 +124,20 @@ class Help(commands.HelpCommand):
         menu = HelpMenu(BotHelpPageSource(self, all_commands))
         await menu.start(self.context)
 
+    def common_command_formatting(self, embed_like, command):
+        embed_like.title = self.get_command_signature(command)
+        if command.description:
+            embed_like.description = f'{command.description}\n\n{command.help}'
+        else:
+            embed_like.description = command.help or 'No help found...'
+
+    async def send_command_help(self, command):
+        # No pagination necessary for a single command.
+        embed = discord.Embed(colour=discord.Colour.blue())
+        self.common_command_formatting(embed, command)
+        await self.context.send(embed=embed)
+
+
 
 def setup(bot):
     bot.add_cog(Help(bot=bot))

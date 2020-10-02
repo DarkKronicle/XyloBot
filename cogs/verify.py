@@ -38,6 +38,10 @@ def get_key(val, settings):
 
 
 class Verify(commands.Cog):
+    """
+    Verify new members.
+    """
+
     # TODO get this working with correct capitals.
     names = {
         "first name": "first",

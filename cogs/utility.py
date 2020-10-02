@@ -16,6 +16,9 @@ def get_time():
 
 
 class Utility(commands.Cog):
+    """
+    Commands to make life easier.
+    """
     
     @commands.command(name="invite")
     @commands.cooldown(1, 600, commands.BucketType.member)
