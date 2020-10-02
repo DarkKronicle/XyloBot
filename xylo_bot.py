@@ -34,7 +34,7 @@ def get_prefix(dbot, message: discord.Message):
 # Command Extensions
 # Setup
 cogs_dir = "cogs"
-startup_extensions = ["data_commands", "help", "auto_reactions", "qotd", "roles", "customization", "verify",
+startup_extensions = ["data_commands", "auto_reactions", "qotd", "roles", "customization", "verify",
                       "settings", "fun", "utility", "mark"]
 
 # bot.remove_command('help')
