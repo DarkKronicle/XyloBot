@@ -25,14 +25,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+from abc import ABC
+
+from discord.ext import menus
 
 from util.discord_util import *
 from storage import cache
+import math
+
+from util.paginator import Pages
 
 
-class FullHelpMessage:
+class BotHelpPageSource(menus.ListPageSource, ABC):
 
     def __init__(self, help_command, cogs_commands):
+        super().__init__(entries=sorted(cogs_commands.keys(), key=lambda c: c.qualified_name), per_page=6)
         self.help_command: Help = help_command
         self.cogs_commands: dict = cogs_commands
 
@@ -66,21 +73,15 @@ class FullHelpMessage:
         left = len(cogs_commands) - len(page)
         return description + ' '.join(page) + "\n" + end_note.format(str(left))
 
-    async def send_help(self, page=1):
-        top = f"Prefixes you can use: {cache.get_prefix(self.help_command.context.guild)}\nUse `help [command]` for " \
+    async def format_page(self, menu, cogs):
+        top = f"Prefixes you can use: `{cache.get_prefix(self.help_command.context.guild)}`, `x>`\nUse `help [" \
+              f"command]` for " \
               f"specific info on a command.\nUse `help [category]` for specific info in a category.\nYou can also " \
               f"view other pages with `help page [num]`"
 
         embed = discord.Embed(title="Xylo Help - Categories", description=top, colour=discord.Colour.blue())
-        start = page * 6 - 6
-        end = page * 6 - 1
-        page_cmds = list(self.cogs_commands)[start:end]
 
-        if len(page_cmds) == 0:
-            self.help_command.context.send(f"Page number `{page}` is too big!", delete_after=15)
-            return
-
-        for cog in self.cogs_commands:
+        for cog in cogs:
             cmds = self.cogs_commands.get(cog)
             if cmds:
                 val = self.short_cog(cog, cmds)
@@ -88,7 +89,14 @@ class FullHelpMessage:
 
         pfp = self.help_command.context.bot.user.avatar_url
         embed.set_thumbnail(url=pfp)
+        embed.set_footer(text=f"{page}/{page_max}")
         await self.help_command.context.send(embed=embed)
+
+
+class HelpMenu(Pages):
+
+    def __init__(self, source):
+        super().__init__(source)
 
 
 # Why is Rapptz so amazing? https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/meta.py
@@ -114,62 +122,8 @@ class Help(commands.HelpCommand):
             except KeyError:
                 all_commands[command.cog] = [command]
 
-        command = FullHelpMessage(self, all_commands)
-        await command.send_help(page)
-
-    async def command_callback(self, ctx, *, command=None):
-        await self.prepare_help_command(ctx, command)
-        bot = ctx.bot
-
-        if command is None:
-            mapping = self.get_bot_mapping()
-            return await self.send_bot_help(mapping)
-
-        if command.split(' ')[0] == "page":
-            if len(command.split(' ') != 2):
-                await self.context.send("`help page <num>`")
-                return
-            try:
-                num = int(command.split(' ')[1])
-                mapping = self.get_bot_mapping()
-                return await self.send_bot_help(mapping, page=num)
-            except ValueError:
-                await self.context.send("Incorrect page inputted!")
-                return
-
-        # Check if it's a cog
-        cog = bot.get_cog(command)
-        if cog is not None:
-            return await self.send_cog_help(cog)
-
-        maybe_coro = discord.utils.maybe_coroutine
-
-        # If it's not a cog then it's a command.
-        # Since we want to have detailed errors when someone
-        # passes an invalid subcommand, we need to walk through
-        # the command group chain ourselves.
-        keys = command.split(' ')
-        cmd = bot.all_commands.get(keys[0])
-        if cmd is None:
-            string = await maybe_coro(self.command_not_found, self.remove_mentions(keys[0]))
-            return await self.send_error_message(string)
-
-        for key in keys[1:]:
-            try:
-                found = cmd.all_commands.get(key)
-            except AttributeError:
-                string = await maybe_coro(self.subcommand_not_found, cmd, self.remove_mentions(key))
-                return await self.send_error_message(string)
-            else:
-                if found is None:
-                    string = await maybe_coro(self.subcommand_not_found, cmd, self.remove_mentions(key))
-                    return await self.send_error_message(string)
-                cmd = found
-
-        if isinstance(cmd, commands.Group):
-            return await self.send_group_help(cmd)
-        else:
-            return await self.send_command_help(cmd)
+        menu = HelpMenu(BotHelpPageSource(self, all_commands))
+        await menu.start(self.context)
 
 
 def setup(bot):
