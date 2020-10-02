@@ -61,13 +61,13 @@ class Mark(commands.Cog):
     async def remove(self, ctx: Context):
         guild = str(ctx.guild.id)
         if await self.bot.is_owner(ctx.author):
-            g = ctx.prompt(embed=discord.Embed(title="Is this a global mark?", description="`yes` or `no`"))
+            g = await ctx.prompt(embed=discord.Embed(title="Is this a global mark?", description="`yes` or `no`"))
             if g is None:
                 await ctx.timeout()
                 return
             if g:
                 guild = "global"
-        answer = await ctx.ask(embed=discord.Embed(title="What name is the mark?",description="You may use `a-z - _`"))
+        answer = await ctx.ask(embed=discord.Embed(title="What name is the mark?", description="You may use `a-z - _`"))
         if answer is None:
             await ctx.timeout()
             return

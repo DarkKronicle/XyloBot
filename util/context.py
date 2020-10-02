@@ -101,9 +101,10 @@ class Context(commands.Context):
             return True
 
         try:
-            answer = await self.bot.wait_for('message', timeout=timeout, check=check)
+            answermsg = await self.bot.wait_for('message', timeout=timeout, check=check)
+            answer = answermsg.content()
             if delete_after:
-                await answer.delete()
+                await answermsg.delete()
         except asyncio.TimeoutError:
             answer = None
 
