@@ -123,8 +123,8 @@ class XyloBot(commands.Bot):
         if ctx.command is None:
             return
 
-        bucket = self.spam.get_bucket(message)
-        bucket.update_rate_limit(message)
+        # bucket = self.spam.get_bucket(message)
+        # bucket.update_rate_limit(message)
 
         await self.invoke(ctx)
 
