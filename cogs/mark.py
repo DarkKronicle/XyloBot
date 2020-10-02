@@ -2,7 +2,6 @@ from util.discord_util import *
 from storage.database import *
 import discord
 from discord.ext import commands
-import asyncio
 from util.context import Context
 
 
@@ -60,18 +59,17 @@ class Mark(commands.Cog):
     @marks.command(name="remove")
     @is_allowed()
     async def remove(self, ctx: Context):
-        channel = ctx.channel
         guild = str(ctx.guild.id)
         if await self.bot.is_owner(ctx.author):
-            g = ctx.prompt("Is this a global mark? Answer `yes` or `no`")
+            g = ctx.prompt(embed=discord.Embed(title="Is this a global mark?", description="`yes` or `no`"))
             if g is None:
-                await channel.send("This has been closed due to a timeout", delete_after=15)
+                await ctx.timeout()
                 return
             if g:
                 guild = "global"
-        answer = await ctx.ask("What name is the mark you are going to remove? You may use `a-z - _`")
+        answer = await ctx.ask(embed=discord.Embed(title="What name is the mark?",description="You may use `a-z - _`"))
         if answer is None:
-            await channel.send("This has been closed due to a timeout", delete_after=15)
+            await ctx.timeout()
             return
 
         db = Database()
@@ -82,127 +80,89 @@ class Mark(commands.Cog):
         await ctx.send(f"`{answer.content}` mark removed!")
         return
 
-
     characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
                   "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_", "!", "/", "1", "2",
                   "3", "4", "5", "6", "7", "8", "9", "0", "@", "#"]
 
     @marks.command(name="add")
     @is_allowed()
-    async def add(self, ctx: commands.Context):
-        prompt = None
+    async def add(self, ctx: Context):
         details = {}
         channel = ctx.channel
-        try:
-            prompt = await channel.send("What name is the mark going to have? You may use `a-z - _`")
-            answer = await self.bot.wait_for(
-                "message",
-                timeout=60,
-                check=lambda msg: msg.author == ctx.author and msg.channel == channel
-            )
-            await prompt.delete()
-            await answer.delete()
-            if answer:
-                if not all(c in self.characters for c in answer.content):
-                    await ctx.send("You're not allowed to use some of those characters! `a-z - _`")
-                    return
-                elif Database().get_mark(str(ctx.guild.id), answer.content):
-                    await ctx.send("That mark already exists!")
-                    return
-                else:
-                    details["name"] = answer.content
-            else:
-                await ctx.send("Message was sent incorrectly!", delete_after=15)
-                return
-            prompt = await ctx.send("What is the mark going to say?")
-            answer = await self.bot.wait_for(
-                "message",
-                timeout=60,
-                check=lambda msg: msg.author == ctx.author and msg.channel == channel
-            )
-            await prompt.delete()
-            await answer.delete()
-            if answer:
-                details["text"] = answer.content
-            else:
-                await ctx.send("Message was sent incorrectly!", delete_after=15)
-                return
-            prompt = await ctx.send(
-                "What files are going to be sent with it? (Type `none` or use URL's and seperate with `,`)")
-            answer = await self.bot.wait_for(
-                "message",
-                timeout=60,
-                check=lambda msg: msg.author == ctx.author and msg.channel == channel
-            )
-            await prompt.delete()
-            await answer.delete()
-            if answer:
-                # TODO check for correct urls. Just gonna hope people aren't doofuses for now...
-                if answer.content == "none":
-                    details["links"] = []
-                else:
-                    details["links"] = answer.content.split(',')
-            else:
-                await ctx.send("Message was sent incorrectly!")
-                return
+        prompt = await channel.send("What name is the mark going to have? You may use `a-z - _`")
+        answer = await ctx.ask(embed=discord.Embed(title="What is the mark name?", description="You can use `a-z "
+                                                                                               "0-9 - _ /`"))
+        if answer is None:
+            await ctx.timeout()
+            return
 
-            if await self.bot.is_owner(ctx.author):
-                prompt = await channel.send("Is this going to be a global mark? `yes` or `no`")
-                answer = await self.bot.wait_for(
-                    "message",
-                    timeout=60,
-                    check=lambda msg: msg.author == ctx.author and msg.channel == channel
-                )
-                await prompt.delete()
-                await answer.delete()
-                if answer:
-                    if "yes" in answer.content:
-                        details["guild"] = "global"
-                        db = Database()
-                        if db.get_mark_named(details["name"]) is not None:
-                            await ctx.send("There is already a mark in other servers named that.")
-                            return
-                    else:
-                        details["guild"] = str(ctx.guild.id)
-                else:
-                    await ctx.send("Error sending information!")
-                    return
+        if not all(c in self.characters for c in answer):
+            await ctx.send("You're not allowed to use some of those characters! `a-z - _`")
+            return
+        elif Database().get_mark(str(ctx.guild.id), answer):
+            await ctx.send("That mark already exists!")
+            return
+        else:
+            details["name"] = answer
+        answer = await ctx.ask(embed=discord.Embed(title="What is the mark going to say?"))
+        if answer is None:
+            await ctx.timeout()
+            return
+        details["text"] = answer
+        answer = await ctx.ask(embed=discord.Embed(title="What files are going to be sent?",
+                                                   description="Type `none` or use URL's and separate with `,`"),
+                               allow_none=True)
+        if answer is None:
+            await ctx.timeout()
+            return
+        # TODO check for correct urls. Just gonna hope people aren't doofuses for now...
+        if answer == False:
+            details["links"] = []
+        else:
+            details["links"] = answer.split(',')
 
+        if await self.bot.is_owner(ctx.author):
+            answer = await ctx.prompt(
+                embed=discord.Embed(title="Is this going to be a global mark?", description="`yes` or `no`"))
+            await prompt.delete()
+            await answer.delete()
+            if answer is None:
+                await ctx.timeout()
+                return
+            if answer:
+                details["guild"] = "global"
+                db = Database()
+                if db.get_mark_named(details["name"]) is not None:
+                    await ctx.send("There is already a mark in other servers named that.")
+                    return
             else:
                 details["guild"] = str(ctx.guild.id)
 
-            embed = discord.Embed(
-                title=details["name"],
-                description="Does this information look correct? Type `yes` or `no`",
-                colour=discord.Colour.blue()
-            )
-            embed.add_field(name="Text", value=details["text"])
-            if len(details["links"]) != 0:
-                embed.add_field(name="Files", value=details["links"])
-            prompt = await ctx.send(embed=embed)
-            answer = await self.bot.wait_for(
-                "message",
-                timeout=60,
-                check=lambda msg: msg.author == ctx.author and msg.channel == channel
-            )
-            await prompt.delete()
-            await answer.delete()
-            if answer:
-                if "yes" not in answer.content:
-                    await ctx.send("Start again from the beginning!", delete_after=15)
-                    return
-            else:
-                await ctx.send("message was sent incorrectly!")
-                return
+        else:
+            details["guild"] = str(ctx.guild.id)
 
-            db = Database()
-            db.add_mark(details["guild"], details["name"], details["text"], details["links"])
-            await ctx.send("New mark added!")
+        embed = discord.Embed(
+            title="Does this information look correct?",
+            description="Type `yes` or `no`",
+            colour=discord.Colour.blue()
+        )
+        embed.add_field(name="Name", value=details["name"])
+        embed.add_field(name="Text", value=details["text"])
+        if len(details["links"]) != 0:
+            embed.add_field(name="Files", value=details["links"])
+        answer = await ctx.prompt(embed=embed)
+
+        if answer is None:
+            await ctx.timeout()
+            return
+        if not answer:
+            await ctx.send("Start again from the beginning!", delete_after=15)
             return
 
-        except asyncio.TimeoutError:
-            await prompt.delete()
-            await channel.send("This has been closed due to a timeout", delete_after=15)
+        db = Database()
+        db.add_mark(details["guild"], details["name"], details["text"], details["links"])
+        await ctx.send("New mark added!")
+        return
 
     @commands.command(name="mark")
     async def mark(self, ctx: commands.Context, *args):
