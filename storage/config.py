@@ -1,4 +1,4 @@
-from storage.JSONReader import *
+from storage.json_reader import *
 
 
 class ConfigData:

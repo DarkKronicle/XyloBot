@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
-from storage.DatabaseHelper import *
-from util.DiscordUtil import *
-from storage.Database import *
+from storage.database_helper import *
+from util.discord_util import *
+from storage.database import *
 from discord.ext.commands import has_permissions
 import json
-from storage import Cache
+from storage import cache
 
 
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
@@ -35,7 +35,7 @@ class Commands(commands.Cog):
         Grabs data stored in the database about the sender.
         """
 
-        if not Cache.get_enabled(ctx.guild):
+        if not cache.get_enabled(ctx.guild):
             return
 
         id = ctx.message.author.id
@@ -65,7 +65,7 @@ class Commands(commands.Cog):
         """
         Grabs data stored in the database about the specified user.
         """
-        if not Cache.get_enabled(ctx.guild):
+        if not cache.get_enabled(ctx.guild):
             return
 
         if len(args) <= 0:

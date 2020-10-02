@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Bot
 import random
 from datetime import datetime, timedelta
-from util.DiscordUtil import *
+from util.discord_util import *
 
 
 def get_time_until():

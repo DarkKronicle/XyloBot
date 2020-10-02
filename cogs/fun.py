@@ -1,13 +1,13 @@
 import random
 
-from util.DiscordUtil import *
-from storage import Cache
-from storage.Config import *
+from util.discord_util import *
+from storage import cache
+from storage.config import *
 
 
 def lober():
     async def predicate(context: commands.Context):
-        fields = Cache.get_fun(context.guild)
+        fields = cache.get_fun(context.guild)
         if fields is not None and fields["lober"]:
             return True
         return False

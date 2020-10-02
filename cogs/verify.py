@@ -1,9 +1,9 @@
 import asyncio
 import random
 
-from util.DiscordUtil import *
+from util.discord_util import *
 from discord.ext import commands
-from storage import Cache
+from storage import cache
 
 
 def id_in(id_int, check):
@@ -20,7 +20,7 @@ def key_or_false(data: dict, key: str):
 
 
 def get_true(guild):
-    field: dict = Cache.get_fields(guild)
+    field: dict = cache.get_fields(guild)
     if field is None:
         return None
     for f in list(field):
@@ -65,7 +65,7 @@ class Verify(commands.Cog):
         settings = db.get_settings(str(guild.id))
         db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
         if not check_verification(guild, settings):
-            chan: discord.TextChannel = Cache.get_setup_channel(guild)
+            chan: discord.TextChannel = cache.get_setup_channel(guild)
             await chan.send("Error sending information. Contact staff!", delete_after=15)
             return
         channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
@@ -89,14 +89,14 @@ class Verify(commands.Cog):
         if message.author.bot:
             return
 
-        if not Cache.get_enabled(message.guild):
+        if not cache.get_enabled(message.guild):
             return
 
-        role = Cache.get_unverified_role(message.guild)
+        role = cache.get_unverified_role(message.guild)
         if role not in message.author.roles:
             return
 
-        channel: discord.TextChannel = Cache.get_setup_channel(message.guild)
+        channel: discord.TextChannel = cache.get_setup_channel(message.guild)
         if channel is None or message.channel is not channel:
             return
 
@@ -220,7 +220,7 @@ class Verify(commands.Cog):
             content = content.replace("{channel}", setup_channel.mention)
 
             await dm.send(content)
-            await member.add_roles(Cache.get_unverified_role(member.guild))
+            await member.add_roles(cache.get_unverified_role(member.guild))
 
             log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
             await log.send(f":bell: `{member.display_name}` just joined!")
@@ -488,7 +488,7 @@ class Verify(commands.Cog):
         verify: str = settings["messages"]["verify-message"]
         verify = verify.replace("{server}", guild.name)
         await dm.send(verify)
-        await member.remove_roles(Cache.get_unverified_role(guild))
+        await member.remove_roles(cache.get_unverified_role(guild))
         if "first" in info["fields"]:
             await member.edit(nick=info["fields"]["first"])
         if "roles" in settings["verification"] and len(settings["verification"]["roles"]) != 0:
@@ -542,7 +542,7 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue")
             return
         await self.verify_user(member, guild, user)
-        log = Cache.get_setup_log_channel(ctx.guild)
+        log = cache.get_setup_log_channel(ctx.guild)
         await log.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
 
     @auth.command(name="reject")
@@ -568,7 +568,7 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue")
             return
         await self.reject_user(member, guild)
-        log = Cache.get_setup_log_channel(ctx.guild)
+        log = cache.get_setup_log_channel(ctx.guild)
         await log.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
 
 

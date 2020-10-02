@@ -1,4 +1,4 @@
-from storage.Database import *
+from storage.database import *
 import discord
 
 setup_channels = {}

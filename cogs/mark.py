@@ -1,5 +1,5 @@
-from util.DiscordUtil import *
-from storage.Database import *
+from util.discord_util import *
+from storage.database import *
 import discord
 from discord.ext import commands
 import asyncio

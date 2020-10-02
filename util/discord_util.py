@@ -1,9 +1,9 @@
 import discord
-from storage.Config import *
+from storage.config import *
 import io
 import aiohttp
 from discord.ext import commands
-from storage.Database import *
+from storage.database import *
 
 
 def get_role(role, guild, bot):

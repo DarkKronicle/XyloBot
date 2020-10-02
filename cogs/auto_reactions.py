@@ -1,8 +1,8 @@
 from discord.ext import commands
 import discord
 import enum
-from storage.Config import ConfigData
-from util.DiscordUtil import *
+from storage.config import ConfigData
+from util.discord_util import *
 
 
 class TextType(enum.Enum):

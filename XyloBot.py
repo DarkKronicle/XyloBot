@@ -3,9 +3,9 @@ import logging
 from discord.ext import tasks
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure
 import traceback
-from util.DiscordUtil import *
-from storage.Database import *
-from storage import Cache
+from util.discord_util import *
+from storage.database import *
+from storage import cache
 
 import discord
 from discord.ext.commands import Bot
@@ -21,7 +21,7 @@ def get_prefix(dbot, message: discord.Message):
     space = ["x> ", f"<@{user_id}> "]
     if message.guild is None:
         return prefixes
-    prefix = Cache.get_prefix(message.guild)
+    prefix = cache.get_prefix(message.guild)
     if prefix is not None:
         content: str = message.content
         if content.startswith("x> "):
@@ -35,13 +35,13 @@ def get_prefix(dbot, message: discord.Message):
 
 bot = Bot(command_prefix=get_prefix, intents=intents)
 
-# We create our own in cogs/Help.py
+# We create our own in cogs/help.py
 bot.remove_command('help')
 
 # Command Extensions
 # Setup
-startup_extensions = ["DataCommands", "Help", "AutoReactions", "QOTD", "Roles", "Customization", "Verify",
-                      "Settings", "Fun", "Utility", "Mark"]
+startup_extensions = ["data_commands", "help", "auto_reactions", "qotd", "roles", "customization", "verify",
+                      "settings", "fun", "utility", "mark"]
 
 # Extension directory
 cogs_dir = "cogs"

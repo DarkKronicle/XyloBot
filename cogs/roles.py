@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord.ext.commands import Bot
-from util.DiscordUtil import *
-from storage.Config import *
+from util.discord_util import *
+from storage.config import *
 
 
 class Role:

@@ -59,47 +59,12 @@
       "type": "only",
       "files": []
     },
-    "xylo": {
-      "text": "My name is Xylo. PROTECTOR OF ***RIVERTRON***!!!!!!",
-      "aliases": [],
-      "case": false,
-      "type": "command",
-      "files": []
-    },
     "(╯°□°）╯︵ ┻━┻": {
       "text": "┬─┬ノ( º _ ºノ)",
       "aliases": [],
       "case": true,
       "type": "only",
       "files": []
-    },
-    "stop": {
-      "text": "Hey guys! Please stop.",
-      "aliases": ["no"],
-      "case": false,
-      "type": "command",
-      "files": ["https://media.discordapp.net/attachments/757781442674688041/757782434506080376/https_images-ext-1.png"]
-    },
-    "nerd": {
-      "text": "Heh, nerd.",
-      "aliases": [],
-      "case": false,
-      "type": "command",
-      "files": ["https://i.imgur.com/b3yD9SR.png"]
-    },
-    "github": {
-      "text": "You can look at how I work! https://github.com/DarkKronicle/XyloBot",
-      "aliases": ["repo"],
-      "case": false,
-      "type": "command",
-      "files": []
-    },
-    "nice": {
-      "text": "10/10 would *highly* recommend.",
-      "aliases": ["10/10"],
-      "case": false,
-      "type": "command",
-      "files": ["https://media.discordapp.net/attachments/757781442674688041/757785729177747467/aKpmqdT.png?width=535&height=687"]
     }
   }
 }

@@ -1,7 +1,7 @@
 import discord
-from storage import Cache
-from storage.Database import Database
-from util.DiscordUtil import *
+from storage import cache
+from storage.database import Database
+from util.discord_util import *
 from discord.ext import commands
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -36,7 +36,7 @@ class Utility(commands.Cog):
                 
                 else:
                     await ctx.send(f"Here's your invite link!\n\n{str(invite)}")
-                    log = Cache.get_log_channel(ctx.guild)
+                    log = cache.get_log_channel(ctx.guild)
                     if log is not None:
                         embed = discord.Embed(
                             title=f"New Invite Created {str(ctx.author)}: {str(invite)}",

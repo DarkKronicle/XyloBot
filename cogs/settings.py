@@ -1,5 +1,5 @@
-from storage import Cache
-from util.DiscordUtil import *
+from storage import cache
+from util.discord_util import *
 import discord
 from discord.ext import commands
 
@@ -153,9 +153,9 @@ class Settings(commands.Cog):
                     settings["channels"] = {}
                 settings["channels"][args[0]] = str(channel.id)
                 db.set_settings(str(ctx.guild.id), settings)
-                Cache.clear_setup_cache(ctx.guild)
-                Cache.clear_setup_log_cache(ctx.guild)
-                Cache.clear_setup_log_cache(ctx.guild)
+                cache.clear_setup_cache(ctx.guild)
+                cache.clear_setup_log_cache(ctx.guild)
+                cache.clear_setup_log_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
 
             else:
@@ -165,9 +165,9 @@ class Settings(commands.Cog):
                     settings["channels"] = {}
                 settings["channels"][args[0]] = ""
                 db.set_settings(str(ctx.guild.id), settings)
-                Cache.clear_setup_cache(ctx.guild)
-                Cache.clear_setup_log_cache(ctx.guild)
-                Cache.clear_setup_log_cache(ctx.guild)
+                cache.clear_setup_cache(ctx.guild)
+                cache.clear_setup_log_cache(ctx.guild)
+                cache.clear_setup_log_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been removed!")
 
         else:
@@ -241,7 +241,7 @@ class Settings(commands.Cog):
                     settings["roles"] = {}
                 settings["roles"][args[0]] = str(role.id)
                 db.set_settings(str(ctx.guild.id), settings)
-                Cache.clear_unverified_cache(ctx.guild)
+                cache.clear_unverified_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` role has been set to {role.name}")
 
             else:
@@ -251,7 +251,7 @@ class Settings(commands.Cog):
                     settings["roles"] = {}
                 settings["roles"][args[0]] = ""
                 db.set_settings(str(ctx.guild.id), settings)
-                Cache.clear_unverified_cache(ctx.guild)
+                cache.clear_unverified_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` role has been removed!")
 
         else:
@@ -313,7 +313,7 @@ class Settings(commands.Cog):
                 await ctx.send(f"Toggled on {args[0]}")
             else:
                 await ctx.send(f"Toggled off {args[0]}!")
-            Cache.clear_fun_cache(ctx.guild)
+            cache.clear_fun_cache(ctx.guild)
             return
 
         await ctx.send("Module not found. Check `fun list`")

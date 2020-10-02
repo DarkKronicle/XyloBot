@@ -1,7 +1,7 @@
 import psycopg2
 import os
 import json
-from storage.Config import *
+from storage.config import *
 
 
 class Database:

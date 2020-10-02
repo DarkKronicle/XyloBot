@@ -1,9 +1,9 @@
 import discord
-from util.DiscordUtil import *
-from storage.Database import *
+from util.discord_util import *
+from storage.database import *
 from discord.ext import commands
-from discord.ext.commands import bot, has_permissions
-from storage import Cache
+from discord.ext.commands import has_permissions
+from storage import cache
 
 
 class Customization(commands.Cog):
@@ -14,7 +14,6 @@ class Customization(commands.Cog):
     @commands.command(name="storage")
     @has_permissions(administrator=True)
     async def storage(self, ctx: commands.Context, *args):
-        author: discord.Member = ctx.author
         if len(args) == 0:
             help_message = discord.Embed(
                 title="Storage Commands",
@@ -76,7 +75,7 @@ class Customization(commands.Cog):
                 description=f"Prefix changed to `{prefix}`!",
                 colour=discord.Colour.green()
             )
-            Cache.clear_prefix_cache(ctx.guild)
+            cache.clear_prefix_cache(ctx.guild)
             await ctx.send(embed=success)
             return
 
