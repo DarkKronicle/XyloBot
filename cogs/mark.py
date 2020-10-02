@@ -61,50 +61,27 @@ class Mark(commands.Cog):
     @is_allowed()
     async def remove(self, ctx: Context):
         channel = ctx.channel
-        prompt = None
-        try:
-            guild = str(ctx.guild.id)
-            if await self.bot.is_owner(ctx.author):
-                prompt = await channel.send("Is this a global mark? Answer `yes` or `no`")
-                answer = await self.bot.wait_for(
-                    "message",
-                    timeout=60,
-                    check=lambda msg: msg.author == ctx.author and msg.channel == channel
-                )
-                if answer:
-                    if "yes" in answer.content:
-                        guild = "global"
-                else:
-                    await ctx.send("Error in sending information")
-                    return
-            # prompt = await channel.send("What name is the mark you are going to remove? You may use `a-z - _`")
-            # answer = await self.bot.wait_for(
-            #     "message",
-            #     timeout=60,
-            #     check=lambda msg: msg.author == ctx.author and msg.channel == channel
-            # )
-            # await prompt.delete()
-            # await answer.delete()
-            answer = await ctx.ask("What name is the mark you are going to remove? You may use `a-z - _`")
-            if answer is None:
+        guild = str(ctx.guild.id)
+        if await self.bot.is_owner(ctx.author):
+            g = ctx.prompt("Is this a global mark? Answer `yes` or `no`")
+            if g is None:
                 await channel.send("This has been closed due to a timeout", delete_after=15)
                 return
-
-            db = Database()
-            if answer:
-                if db.get_mark(guild, answer.content) is None:
-                    await ctx.send("That mark doesn't exist!")
-                    return
-                db.remove_mark(guild, answer.content)
-                await ctx.send(f"`{answer.content}` mark removed!")
-                return
-            else:
-                await ctx.send("Error sending information")
-                return
-
-        except asyncio.TimeoutError:
-            await prompt.delete()
+            if g:
+                guild = "global"
+        answer = await ctx.ask("What name is the mark you are going to remove? You may use `a-z - _`")
+        if answer is None:
             await channel.send("This has been closed due to a timeout", delete_after=15)
+            return
+
+        db = Database()
+        if db.get_mark(guild, answer) is None:
+            await ctx.send("That mark doesn't exist!")
+            return
+        db.remove_mark(guild, answer)
+        await ctx.send(f"`{answer.content}` mark removed!")
+        return
+
 
     characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
                   "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_", "!", "/", "1", "2",

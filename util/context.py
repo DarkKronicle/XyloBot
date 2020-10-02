@@ -47,7 +47,9 @@ class Context(commands.Context):
             return False
 
         try:
-            await self.bot.wait_for('message', timeout=timeout, check=check)
+            message = await self.bot.wait_for('message', timeout=timeout, check=check)
+            if delete_after:
+                await message.delete()
         except asyncio.TimeoutError:
             answer = None
 
@@ -89,7 +91,9 @@ class Context(commands.Context):
             return True
 
         try:
-            await self.bot.wait_for('message', timeout=timeout, check=check)
+            message = await self.bot.wait_for('message', timeout=timeout, check=check)
+            if delete_after:
+                await message.delete()
         except asyncio.TimeoutError:
             answer = None
 
