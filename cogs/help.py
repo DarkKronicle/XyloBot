@@ -1,5 +1,3 @@
-import discord
-from discord.ext import commands
 from util.discord_util import *
 
 
@@ -22,11 +20,13 @@ class Help(commands.Cog):
         Help command for Xylo!
         """
         await ctx.message.delete()
+        pfp = ctx.bot.user.avatar_url
         embed = discord.Embed(
             title="Xylo Help",
             description="All of the commands for Xylo!",
             colour=discord.Colour.blue()
         )
+        embed.set_thumbnail(url=pfp)
         if ctx.guild is get_guild("rivertron", self.bot):
             embed.add_field(name="`>whoami`", value="Sends back data about you!")
             embed.add_field(name="`>whois <name>`", value="Sends you data about a specified user.")

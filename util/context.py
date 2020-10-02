@@ -32,7 +32,7 @@ class Context(commands.Context):
         if message is None and embed is None:
             raise ValueError("Message and embed can't be NoneType!")
 
-        message = await self.send(message)
+        message = await self.send(content=message,embed=embed)
 
         answer = None
 

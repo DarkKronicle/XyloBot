@@ -15,11 +15,17 @@ def lober():
     return commands.check(predicate)
 
 
-class Fun(commands.Cog):
+class Fun(commands.Cog, name="Fun"):
+    """
+    Fun commands for Xylo. These each may be disabled by staff.
+    """
 
     @commands.group(name="lober")
     @lober()
     async def lober(self, ctx: commands.Context):
+        """
+        Lober command. Send's lober information for
+        """
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Lober Help",
@@ -44,8 +50,11 @@ class Fun(commands.Cog):
     @lober.command(name="image")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, ctx: commands.Context):
-        lobers = await get_file_from_image("https://media.discordapp.net/attachments/757781442674688041/759604260110598144/i64khd2lbns41.png?width=693&height=687", "lober.png")
+        lobers = await get_file_from_image(
+            "https://media.discordapp.net/attachments/757781442674688041/759604260110598144/i64khd2lbns41.png?width=693&height=687",
+            "lober.png")
         await ctx.send(content="**LOBER MOMENT**", file=lobers)
+
 
 def setup(bot):
     bot.add_cog(Fun())
