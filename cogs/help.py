@@ -74,7 +74,7 @@ class FullHelpMessage:
         embed = discord.Embed(title="Xylo Help - Categories", description=top, colour=discord.Colour.blue())
         start = page * 6 - 6
         end = page * 6 - 1
-        page_cmds = self.cogs_commands.keys()[start:end]
+        page_cmds = list(self.cogs_commands)[start:end]
 
         if len(page_cmds) == 0:
             self.help_command.context.send(f"Page number `{page}` is too big!", delete_after=15)
