@@ -1,1 +1,1 @@
-worker: python XyloBot.py
+worker: python start.py

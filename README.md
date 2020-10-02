@@ -8,9 +8,9 @@ Mainly just some fun random crap, QOTD, verification system, and AutoReactions.
 
 ## Credits
 
-No code was copied directly, but some features of other bots inspired some of the features of Xylo.
+Open source bots that are extremely cool and helped me understand some really cool stuff.
 
-- [RoboDanny](https://github.com/Rapptz/RoboDanny)
+- [RoboDanny](https://github.com/Rapptz/RoboDanny) - An *awesome* Discord bot. If you haven't looked at this, check it out. (MIT License)
 
 
 ## Contributing

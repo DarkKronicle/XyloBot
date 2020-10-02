@@ -52,7 +52,7 @@ class Mark(commands.Cog):
         current = start + 1
         for row in newrows:
             name = row[0]
-            embed.add_field(name=f"{str(current)}.", value=name, inline=True)
+            embed.add_field(name=f"{str(current)}.", value=name, inline=False)
             current = current + 1
         await ctx.send(embed=embed)
 
