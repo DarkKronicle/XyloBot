@@ -89,8 +89,7 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
 
         pfp = self.help_command.context.bot.user.avatar_url
         embed.set_thumbnail(url=pfp)
-        embed.set_footer(text=f"{page}/{page_max}")
-        await self.help_command.context.send(embed=embed)
+        return embed
 
 
 class HelpMenu(Pages):
