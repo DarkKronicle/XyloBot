@@ -47,7 +47,7 @@ class Context(commands.Context):
             return False
 
         try:
-            await self.bot.wait_for(message=message, timeout=timeout, check=check)
+            await self.bot.wait_for('message', timeout=timeout, check=check)
         except asyncio.TimeoutError:
             answer = None
 
@@ -89,7 +89,7 @@ class Context(commands.Context):
             return True
 
         try:
-            await self.bot.wait_for(message=message, timeout=timeout, check=check)
+            await self.bot.wait_for('message', timeout=timeout, check=check)
         except asyncio.TimeoutError:
             answer = None
 
