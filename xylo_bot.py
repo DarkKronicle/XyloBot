@@ -9,6 +9,7 @@ import discord
 from discord.ext.commands import Bot
 import random
 from util.context import Context
+from cogs.help import Help
 
 
 def get_prefix(dbot, message: discord.Message):
@@ -48,7 +49,8 @@ class XyloBot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(command_prefix=get_prefix, intents=intents, description=description)
-        self.remove_command('help')
+        # self.remove_command('help')
+        self.help_command = Help()
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
         for extension in startup_extensions:
             try:
