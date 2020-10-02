@@ -3,6 +3,7 @@ from storage.database import *
 import discord
 from discord.ext import commands
 import asyncio
+from util.context import Context
 
 
 class Mark(commands.Cog):
@@ -58,7 +59,7 @@ class Mark(commands.Cog):
 
     @marks.command(name="remove")
     @is_allowed()
-    async def remove(self, ctx: commands.Context):
+    async def remove(self, ctx: Context):
         channel = ctx.channel
         prompt = None
         try:
@@ -76,14 +77,19 @@ class Mark(commands.Cog):
                 else:
                     await ctx.send("Error in sending information")
                     return
-            prompt = await channel.send("What name is the mark you are going to remove? You may use `a-z - _`")
-            answer = await self.bot.wait_for(
-                "message",
-                timeout=60,
-                check=lambda msg: msg.author == ctx.author and msg.channel == channel
-            )
-            await prompt.delete()
-            await answer.delete()
+            # prompt = await channel.send("What name is the mark you are going to remove? You may use `a-z - _`")
+            # answer = await self.bot.wait_for(
+            #     "message",
+            #     timeout=60,
+            #     check=lambda msg: msg.author == ctx.author and msg.channel == channel
+            # )
+            # await prompt.delete()
+            # await answer.delete()
+            answer = await ctx.ask("What name is the mark you are going to remove? You may use `a-z - _`")
+            if answer is None:
+                await channel.send("This has been closed due to a timeout", delete_after=15)
+                return
+
             db = Database()
             if answer:
                 if db.get_mark(guild, answer.content) is None:
