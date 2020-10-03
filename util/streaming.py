@@ -10,7 +10,7 @@ API_HEADERS = {
 
 
 async def check_twitch_online(channel_name):
-    r = requests.get(url=TWITCH_URL.format(channel_name), params=API_HEADERS)
+    r = requests.get(url=TWITCH_URL.format(channel_name), headers={API_HEADERS})
     data = r.json()["data"]
     if "is_live" not in data or not data["is_live"]:
         return None
