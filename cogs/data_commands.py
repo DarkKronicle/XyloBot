@@ -64,7 +64,7 @@ class Commands(commands.Cog):
 
     @commands.command(name="whois")
     @commands.cooldown(1, 30, commands.BucketType.user)
-    async def whois(self, ctx: commands.Context, user: discord.Member):
+    async def whois(self, ctx: commands.Context, user: discord.Member = None):
         """
         Grabs data stored in the database about the specified user.
         """
@@ -83,7 +83,7 @@ class Commands(commands.Cog):
         # user = ctx.guild.get_member_named(' '.join(args))
 
         if user is None:
-            await ctx.show_help()
+            await ctx.send_help('whois')
             return
 
         db = Database()

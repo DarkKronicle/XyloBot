@@ -433,7 +433,7 @@ class Settings(commands.Cog):
         Configure the invite command
         """
         if ctx.invoked_subcommand is None:
-            await ctx.show_help()
+            await ctx.send_help('settings invite')
 
     @invite.command(name="toggle")
     async def invite_toggle(self, ctx):
@@ -461,7 +461,7 @@ class Settings(commands.Cog):
             return
 
     @invite.command(name="channel")
-    async def invite_channel(self, ctx, channel: discord.TextChannel):
+    async def invite_channel(self, ctx, channel: discord.TextChannel = None):
         """
         Set the channel for settings invite.
         """
@@ -483,7 +483,7 @@ class Settings(commands.Cog):
     @settings.command(name="prefix", usage="<new_prefix>")
     async def prefix(self, ctx: commands.Context, *args):
         if len(args) == 1:
-            await ctx.show_help()
+            await ctx.send_help('settings prefix')
             return
 
         prefix = ' '.join(args[1:])
