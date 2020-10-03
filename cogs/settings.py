@@ -171,7 +171,7 @@ class Settings(commands.Cog):
                 db.set_settings(str(ctx.guild.id), settings)
                 cache.clear_setup_cache(ctx.guild)
                 cache.clear_setup_log_cache(ctx.guild)
-                cache.clear_setup_log_cache(ctx.guild)
+                cache.clear_game_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been set to {channel.mention}")
 
             else:
@@ -183,7 +183,7 @@ class Settings(commands.Cog):
                 db.set_settings(str(ctx.guild.id), settings)
                 cache.clear_setup_cache(ctx.guild)
                 cache.clear_setup_log_cache(ctx.guild)
-                cache.clear_setup_log_cache(ctx.guild)
+                cache.clear_game_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` channel has been removed!")
 
         else:
