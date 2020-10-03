@@ -25,7 +25,7 @@ class FireDrawGame(Game):
         def check(msg: discord.Message):
             if msg.author not in self.users:
                 return False
-            if msg.author in self.users and msg.channel is self.channel:
+            if msg.author in self.users and msg.channel == self.channel:
                 return True
             return False
 

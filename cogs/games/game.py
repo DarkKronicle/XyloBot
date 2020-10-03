@@ -19,7 +19,7 @@ class Games(commands.Cog):
 
         answer = await ctx.prompt(
             f"{ctx.author.mention} has challenged {user.mention} to a duel! Do you accept? Respond with "
-            f"`yes` or `no`", delete_after=False)
+            f"`yes` or `no`")
         if answer is None or not answer:
             await ctx.send("Just when it was about to get spicy, everyone left.")
 
