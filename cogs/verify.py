@@ -553,7 +553,7 @@ class Verify(commands.Cog):
         #     verify = verify + "\n\nStaff message: " + message
         await dm.send(verify)
 
-    @auth.command(name="accept", "<user>")
+    @auth.command(name="accept", usage="<user>")
     async def accept(self, ctx: commands.Context, *args):
         """
         Accepts a user into the server.
