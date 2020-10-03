@@ -173,8 +173,11 @@ class Mark(commands.Cog):
         await ctx.send("New mark added!")
         return
 
-    @commands.command(name="mark")
+    @commands.command(name="mark", usage="mark <name>")
     async def mark(self, ctx: commands.Context, *args):
+        """
+        Gets a mark from 'mark list' and prints it out into the current channel.
+        """
         if len(args) == 0 or args[0] == "help":
             embed = discord.Embed(
                 title="Markconfig Help",
@@ -182,7 +185,7 @@ class Mark(commands.Cog):
                 colour=discord.Colour.purple()
             )
             await ctx.send(embed=embed)
-
+            return
         name = ' '.join(args)
         db = Database()
         mark = db.get_mark(str(ctx.guild.id), name)

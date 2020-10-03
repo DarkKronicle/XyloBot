@@ -20,7 +20,7 @@ class Fun(commands.Cog, name="Fun"):
     Fun commands for Xylo. These each may be disabled by staff.
     """
 
-    @commands.group(name="lober")
+    @commands.group(name="lober", usage="<fact|image>")
     @lober()
     async def lober(self, ctx: commands.Context):
         """
@@ -39,6 +39,9 @@ class Fun(commands.Cog, name="Fun"):
     @lober.command(name="fact")
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def fact(self, ctx: commands.Context):
+        """
+        Sends a lober fact
+        """
         rand = random.choice(ConfigData.lober.data["facts"])
         embed = discord.Embed(
             title="**LOBER FACT**",
@@ -50,6 +53,9 @@ class Fun(commands.Cog, name="Fun"):
     @lober.command(name="image")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, ctx: commands.Context):
+        """
+        Sends a lober image.
+        """
         lobers = await get_file_from_image(
             "https://media.discordapp.net/attachments/757781442674688041/759604260110598144/i64khd2lbns41.png?width=693&height=687",
             "lober.png")

@@ -112,3 +112,9 @@ class Context(commands.Context):
             await message.delete()
 
         return answer
+
+    async def show_help(self, command=None):
+        cmd = self.bot.get_command('help')
+        command = command or self.command.qualified_name
+        await self.invoke(cmd, command=command)
+

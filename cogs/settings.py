@@ -36,6 +36,9 @@ class Settings(commands.Cog):
     @commands.group(name="settings")
     @is_allowed()
     async def settings(self, ctx: commands.Context):
+        """
+        Settings for Xylo.
+        """
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Settings Help",
@@ -51,8 +54,11 @@ class Settings(commands.Cog):
             embed.add_field(name="`util`", value="Configure utilities")
             await ctx.send(embed=embed)
 
-    @settings.command(name="reset")
+    @settings.command(name="reset", usage="<category>")
     async def reset(self, ctx: commands.Context, *args):
+        """
+        Resets a category of settings for Xylo.
+        """
         if len(args) == 0:
             embed = discord.Embed(
                 title="Reset Help",
@@ -90,8 +96,11 @@ class Settings(commands.Cog):
 
         await ctx.send("Category not found. Check `>settings reset`.")
 
-    @settings.command(name="channel")
+    @settings.command(name="channel", usage="<list|current|<channel>>")
     async def channel(self, ctx: commands.Context, *args):
+        """
+        Configure what channels Xylo will use.
+        """
         if len(args) == 0:
             error = discord.Embed(
                 title="Incorrect Usage",
@@ -178,8 +187,11 @@ class Settings(commands.Cog):
             await ctx.send("Channel name is incorrect! see `>settings channel list`")
             return
 
-    @settings.command(name="role")
+    @settings.command(name="role", usage="<list|current|<role>>")
     async def role(self, ctx: commands.Context, *args):
+        """
+        Configure's what roles Xylo uses.
+        """
         if len(args) == 0:
             error = discord.Embed(
                 title="Incorrect Usage",
@@ -262,8 +274,11 @@ class Settings(commands.Cog):
             await ctx.send("Role name is incorrect! see `>settings role list`")
             return
 
-    @settings.command(name="fun")
+    @settings.command(name="fun", usage="<list|current|<name>>")
     async def fun(self, ctx: commands.Context, *args):
+        """
+        Toggle and configure fun commands.
+        """
         if len(args) == 0:
             embed = discord.Embed(
                 title="Fun Help",
@@ -322,7 +337,7 @@ class Settings(commands.Cog):
 
         await ctx.send("Module not found. Check `fun list`")
 
-    @settings.command(name="message")
+    @settings.command(name="message", usage="<list|current|<name>> [new_message]")
     async def message(self, ctx: commands.Context, *args):
         if len(args) == 0:
             embed = discord.Embed(
@@ -379,8 +394,11 @@ class Settings(commands.Cog):
 
         await ctx.send("Message not found!")
 
-    @settings.command(name="util")
+    @settings.command(name="util", usage="<list|current|<name>> [setting]")
     async def util(self, ctx: commands.Context, *args):
+        """
+        Configure utility commands.
+        """
         if len(args) == 0:
             embed = discord.Embed(
                 title="Util Help",
@@ -456,9 +474,13 @@ class Settings(commands.Cog):
                 db.set_settings(str(ctx.guild.id), data)
                 await ctx.send(f"Invite channel set to {channel.mention}!")
 
-    @commands.command(name="storage")
+    @commands.command(name="storage", usage="<start|prefix>")
     @commands.has_permissions(administrator=True)
     async def storage(self, ctx: commands.Context, *args):
+        """
+        Specific stored settings for the server. Like the prefix.
+        """
+        # TODO Why not prefix as own command?
         if len(args) == 0:
             help_message = discord.Embed(
                 title="Storage Commands",

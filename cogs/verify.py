@@ -232,6 +232,9 @@ class Verify(commands.Cog):
     @commands.group(name="verification")
     @is_allowed()
     async def verification(self, context):
+        """
+        Customizes verification on the server.
+        """
         if context.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Verification Help",
@@ -247,6 +250,9 @@ class Verify(commands.Cog):
 
     @verification.command(name="reset")
     async def reset(self, ctx: commands.Context):
+        """
+        Reset current verification settings to default.
+        """
         db = Database()
         if db.guild_exists(str(ctx.guild.id)):
             settings = db.get_settings(str(ctx.guild.id))
@@ -258,6 +264,11 @@ class Verify(commands.Cog):
 
     @verification.command(name="info")
     async def info(self, ctx: commands.Context):
+        """
+        Gets current information on the verification process.
+
+        Shows what is enabled and what is not. If no settings are there, it is created.
+        """
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
         if settings is None:
@@ -282,7 +293,7 @@ class Verify(commands.Cog):
             await ctx.send(
                 "No verification settings found. Please use `verification reset` to reset verification info.")
 
-    @verification.command(name="fields")
+    @verification.command(name="fields", usage="<setting> <value>")
     async def fields(self, ctx: commands.Context, *args):
         if len(args) == 0:
             error = discord.Embed(
@@ -317,8 +328,13 @@ class Verify(commands.Cog):
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 
-    @verification.group(name="role")
+    @verification.group(name="role", usage="<current|reset|add|remove>")
     async def role(self, ctx: commands.Context, *args):
+        """
+        Configure what roles will be added on verify.
+
+        Make sure that the roles are BELOW Xylo's role.
+        """
         if len(args) == 0:
             error = discord.Embed(
                 title="Role Help",
@@ -399,8 +415,11 @@ class Verify(commands.Cog):
         await ctx.send(embed=error)
         return
 
-    @verification.group(name="toggle")
+    @verification.group(name="toggle", usage="<field>")
     async def toggle(self, ctx: commands.Context):
+        """
+        Toggles a specific verification field.
+        """
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
         if not set_check_verification(ctx.guild):
@@ -422,6 +441,9 @@ class Verify(commands.Cog):
     @commands.group(name="auth")
     @is_verifier()
     async def auth(self, ctx: commands.Context):
+        """
+        Allows staff to verify/authorize users.
+        """
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Auth Help",
@@ -433,8 +455,13 @@ class Verify(commands.Cog):
             embed.add_field(name="`reject <NAME>", value="Reject a user.")
             await ctx.send(embed=embed)
 
-    @auth.command(name="list")
+    @auth.command(name="list", usage="[user]")
     async def auth_list(self, ctx: commands.Context, *args):
+        """
+        Lists current users needed to be verified in guild.
+
+        Additionally you can lookup a specific user's ifo using 'list [user]'
+        """
         db = Database()
         if len(args) >= 1:
             member = ctx.guild.get_member_named(' '.join(args[0:]))
@@ -526,8 +553,11 @@ class Verify(commands.Cog):
         #     verify = verify + "\n\nStaff message: " + message
         await dm.send(verify)
 
-    @auth.command(name="accept")
+    @auth.command(name="accept", "<user>")
     async def accept(self, ctx: commands.Context, *args):
+        """
+        Accepts a user into the server.
+        """
         if len(args) == 0:
             embed = discord.Embed(
                 title="Auth Accept",
@@ -549,7 +579,7 @@ class Verify(commands.Cog):
         log = cache.get_setup_log_channel(ctx.guild)
         await log.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
 
-    @auth.command(name="reject")
+    @auth.command(name="reject", usage="<user>")
     async def reject(self, ctx: commands.Context, *args):
         """
         Rejects a user and sends DM

@@ -133,6 +133,9 @@ class AutoReactions(commands.Cog):
 
     @commands.command(name="autoreactions")
     async def autoreaction(self, ctx: commands.Context):
+        """
+        View current AutoReactions
+        """
         embed = discord.Embed(
             title="Xylo Auto Reactions",
             colour=discord.Colour.green()

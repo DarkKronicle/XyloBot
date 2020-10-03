@@ -23,6 +23,9 @@ class Utility(commands.Cog):
     @commands.command(name="invite")
     @commands.cooldown(1, 600, commands.BucketType.member)
     async def invite(self, ctx: commands.Context):
+        """
+        Creates an invite to the server using specific staff settings.
+        """
         db = Database()
         settings = db.get_settings(str(ctx.guild.id))
         if "utility" in settings and "invite" in settings["utility"]:

@@ -64,31 +64,26 @@ class Commands(commands.Cog):
 
     @commands.command(name="whois")
     @commands.cooldown(1, 30, commands.BucketType.user)
-    async def whois(self, ctx: commands.Context, *args):
+    async def whois(self, ctx: commands.Context, user: discord.Member):
         """
         Grabs data stored in the database about the specified user.
         """
         if not cache.get_enabled(ctx.guild):
             return
 
-        if len(args) <= 0:
-            embed = discord.Embed(
-                title="Not Enough Arguments",
-                description="`>whois <user>`",
-                colour=discord.Colour.red()
-            )
-            await ctx.send(embed=embed, delete_after=15)
-            return
+        # if len(args) <= 0:
+        #     embed = discord.Embed(
+        #         title="Not Enough Arguments",
+        #         description="`>whois <user>`",
+        #         colour=discord.Colour.red()
+        #     )
+        #     await ctx.send(embed=embed, delete_after=15)
+        #     return
 
-        user = ctx.guild.get_member_named(' '.join(args)) 
+        # user = ctx.guild.get_member_named(' '.join(args))
 
         if user is None:
-            embed = discord.Embed(
-                title="Not found!",
-                description="Talk to a staff member if you believe this is an error.",
-                colour=discord.Colour.red()
-            )
-            await ctx.send(embed=embed)
+            await ctx.send_help()
             return
 
         db = Database()
