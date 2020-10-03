@@ -1,11 +1,11 @@
 import discord
-from cogs.games.game import *
+from cogs.games import game
 import random
 import asyncio
 from discord.ext import commands
 
 
-class FireDrawGame(Game):
+class FireDrawGame(game.Game):
     def __init__(self, channel, owner):
         super().__init__(channel, owner)
 
