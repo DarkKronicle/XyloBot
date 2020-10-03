@@ -337,7 +337,7 @@ class Settings(commands.Cog):
 
         await ctx.send("Module not found. Check `fun list`")
 
-    @settings.command(name="message", usage="<list|current|<name>> [new_message]")
+    @settings.group(name="message", usage="<list|current|<name>>", invoke_without_command=True)
     async def message(self, ctx: commands.Context, *args):
         if len(args) == 0:
             embed = discord.Embed(
@@ -410,6 +410,9 @@ class Settings(commands.Cog):
 
     @util.command(name="list")
     async def util_list(self, ctx):
+        """
+        Lists currently active util commands
+        """
         embed = discord.Embed(
             title="Utility commands!",
             description="Edit what commands people have access to.",
@@ -420,17 +423,19 @@ class Settings(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @util.group(name="invite", invoke_without_command=True)
+    @util.group(name="invite", invoke_without_command=True, usage="<toggle|channel>")
     async def invite(self, ctx):
+        """
+        Configure the invite command
+        """
         if ctx.invoked_subcommand is None:
-            await ctx.send_help()
+            await ctx.show_help()
 
     @invite.command(name="toggle")
-    async def invite_toggle(self, ctx, *args):
-        if len(args) == 0:
-            await ctx.send_help()
-            return
-
+    async def invite_toggle(self, ctx):
+        """
+        Toggle the invite command.
+        """
         db = Database()
         data = db.get_settings(str(ctx.guild.id))
         if "utility" not in data or "invite" not in data["utility"]:
@@ -453,6 +458,9 @@ class Settings(commands.Cog):
 
     @invite.command(name="channel")
     async def invite_channel(self, ctx, channel: discord.TextChannel):
+        """
+        Set the channel for settings invite.
+        """
         if channel is None:
             await ctx.send("You need to specify a proper channel.")
             return
@@ -468,10 +476,10 @@ class Settings(commands.Cog):
         db.set_settings(str(ctx.guild.id), data)
         await ctx.send(f"Invite channel set to {channel.mention}!")
 
-    @commands.command(name="prefix", usage="<new_prefix>")
+    @settings.command(name="prefix", usage="<new_prefix>")
     async def prefix(self, ctx: commands.Context, *args):
         if len(args) == 1:
-            await ctx.send_help()
+            await ctx.show_help()
             return
 
         prefix = ' '.join(args[1:])

@@ -101,22 +101,22 @@ class XyloBot(commands.Bot):
         num = random.randint(1, 6)
         if num == 1:
             act = discord.Activity(name="the world burn.", type=discord.ActivityType.watching)
-            await self.change_presence(status=discord.Status.dnd, activity=act)
+            await self.change_presence(status=discord.Status.online, activity=act)
         elif num == 2:
             act = discord.Activity(name="the Marimba.", type=discord.ActivityType.listening)
-            await self.change_presence(status=discord.Status.dnd, activity=act)
+            await self.change_presence(status=discord.Status.online, activity=act)
         elif num == 3:
             act = discord.Activity(name="lets bully Elcinor.", type=discord.ActivityType.playing)
-            await self.change_presence(status=discord.Status.dnd, activity=act)
+            await self.change_presence(status=discord.Status.online, activity=act)
         elif num == 4:
             act = discord.Activity(name="the Terminator.", type=discord.ActivityType.watching)
-            await self.change_presence(status=discord.Status.dnd, activity=act)
+            await self.change_presence(status=discord.Status.online, activity=act)
         elif num == 5:
             act = discord.Activity(name="with flesh bodies.", type=discord.ActivityType.playing)
-            await self.change_presence(status=discord.Status.dnd, activity=act)
+            await self.change_presence(status=discord.Status.online, activity=act)
         elif num == 6:
             act = discord.Activity(name="Elcinor being murdered", type=discord.ActivityType.watching)
-            await self.change_presence(status=discord.Status.dnd, activity=act)
+            await self.change_presence(status=discord.Status.online, activity=act)
 
     # https://github.com/Rapptz/RoboDanny/blob/7cd472ca021e9e166959e91a7ff64036474ea46c/bot.py#L190
     # Wow, amazing

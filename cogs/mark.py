@@ -28,7 +28,7 @@ class Mark(commands.Cog):
             # embed.add_field(name="`add`", value="Starts a mark setup wizard.")
             # embed.add_field(name="`remove`", value="Starts a mark remove wizard.")
             # await ctx.send(embed=embed)
-            await ctx.send_help()
+            await ctx.show_help()
 
     @marks.command(name="list", usage="<page>")
     async def mark_list(self, ctx: commands.Context, page: int):

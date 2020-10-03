@@ -83,7 +83,7 @@ class Commands(commands.Cog):
         # user = ctx.guild.get_member_named(' '.join(args))
 
         if user is None:
-            await ctx.send_help()
+            await ctx.show_help()
             return
 
         db = Database()
