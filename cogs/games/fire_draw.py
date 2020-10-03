@@ -19,16 +19,18 @@ class FireDrawGame(Game):
         super().__init__(channel, owner)
 
     async def start(self, bot: commands.Bot):
-        answer = get_random_string(5)
+        answer = get_random_string(random.randint(4, 10))
         message = await self.channel.send("Ready?")
+        emoji1 = random.choice(self.emojis)
+        emoji2 = random.choice(self.emojis)
         await asyncio.sleep(2)
-        await message.edit(content="     {} \u200b {}")
+        await message.edit(content="         {}\u200b{}".format(emoji1, emoji2))
         await asyncio.sleep(0.5)
-        await message.edit(content="    {}   \u200b   {}")
+        await message.edit(content="      {}\u200b      {}".format(emoji1, emoji2))
         await asyncio.sleep(0.5)
-        await message.edit(content="   {}   \u200b      {}")
+        await message.edit(content="   {}\u200b            {}".format(emoji1, emoji2))
         await asyncio.sleep(0.5)
-        await message.edit(content="  {}     \u200b       {}")
+        await message.edit(content="{}\u200b                  {}".format(emoji1, emoji2))
         await asyncio.sleep(random.randint(1, 8))
         await message.edit(content=f"Type in `{answer}` as quickly as possible!")
 
@@ -47,7 +49,7 @@ class FireDrawGame(Game):
             await self.timeout()
 
     async def end(self, user):
-        await self.channel.send(f"{user.mention} wins!")
+        await self.channel.send(f"{user.mention} emerges victorious!")
 
     async def timeout(self):
         await self.channel.send("Right before the duel was about to take place, everyone left and no one shot...")
