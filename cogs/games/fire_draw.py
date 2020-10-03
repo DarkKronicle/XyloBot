@@ -32,7 +32,7 @@ class FireDrawGame(Game):
         await asyncio.sleep(0.5)
         await message.edit(content="\u200b{}                  {}".format(emoji1, emoji2))
         await asyncio.sleep(random.randint(1, 8))
-        await message.edit(content=f"Type in `{answer}` as quickly as possible!")
+        await message.edit(contnt=f"Type in `{answer}` as quickly as possible!")
         channel = self.channel
         users = self.users
 
@@ -42,8 +42,9 @@ class FireDrawGame(Game):
             nonlocal users
             if msg.author not in users or msg.channel != channel:
                 return False
-            if msg.content.lower() in answer.lower():
-                return True
+            else:
+                if msg.content.lower() in answer.lower():
+                    return True
             return False
 
         try:
