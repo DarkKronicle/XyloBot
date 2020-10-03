@@ -56,9 +56,9 @@ class Context(commands.Context):
             return False
 
         try:
-            answer = await self.bot.wait_for('message', timeout=timeout, check=check)
+            answermsg = await self.bot.wait_for('message', timeout=timeout, check=check)
             if delete_after:
-                await answer.delete()
+                await answermsg.delete()
         except asyncio.TimeoutError:
             answer = None
 
@@ -79,6 +79,7 @@ class Context(commands.Context):
         :param allow_none: If they can respond with 'none'.
         :return: The author's answer. Returns None if timeout, and False if allow_none is on.
         """
+        answer = None
         if message is None and embed is None:
             raise ValueError("Message and embed can't be NoneType!")
 
@@ -102,7 +103,6 @@ class Context(commands.Context):
 
         try:
             answermsg = await self.bot.wait_for('message', timeout=timeout, check=check)
-            answer = answermsg.content
             if delete_after:
                 await answermsg.delete()
         except asyncio.TimeoutError:

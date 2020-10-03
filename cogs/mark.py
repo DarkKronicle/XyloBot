@@ -31,7 +31,7 @@ class Mark(commands.Cog):
             await ctx.show_help()
 
     @marks.command(name="list", usage="<page>")
-    async def mark_list(self, ctx: commands.Context, page: int):
+    async def mark_list(self, ctx: commands.Context, page: int = 1):
         """
         List the current marks.
         """
@@ -82,7 +82,7 @@ class Mark(commands.Cog):
             await ctx.send("That mark doesn't exist!")
             return
         db.remove_mark(guild, answer)
-        await ctx.send(f"`{answer.content}` mark removed!")
+        await ctx.send(f"`{answer}` mark removed!")
         return
 
     characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
@@ -94,7 +94,6 @@ class Mark(commands.Cog):
     async def add(self, ctx: Context):
         details = {}
         channel = ctx.channel
-        prompt = await channel.send("What name is the mark going to have? You may use `a-z - _`")
         answer = await ctx.ask(embed=discord.Embed(title="What is the mark name?", description="You can use `a-z "
                                                                                                "0-9 - _ /`"))
         if answer is None:
