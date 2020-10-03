@@ -48,7 +48,7 @@ class FireDrawGame(Game):
             return False
 
         try:
-            go = await bot.wait_for("message", timeout=10, check=check)
+            go = await bot.wait_for("message", timeout=30, check=check)
             await asyncio.sleep(3)
             await self.end(go.author)
         except asyncio.TimeoutError:

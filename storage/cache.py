@@ -7,6 +7,8 @@ setup_log_channels = {}
 
 log_channels = {}
 
+game_channels = {}
+
 verifier_roles = {}
 
 unverified_roles = {}
@@ -57,6 +59,26 @@ def get_setup_log_channel(guild: discord.Guild):
             setup_log_channels[guild.id] = channel
             return channel
         else:
+            return None
+
+
+def clear_game_cache(guild):
+    if guild.id in setup_log_channels:
+        setup_channels.pop(guild.id)
+
+
+def get_game_channel(guild: discord.Guild):
+    if guild.id in game_channels:
+        return setup_log_channels[guild.id]
+    else:
+        db = Database()
+        settings = db.get_settings(str(guild.id))
+        if "channels" in settings and "games" in settings["channels"]:
+            channel = guild.get_channel(int(settings["channels"]["games"]))
+            game_channels[guild.id] = channel
+            return channel
+        else:
+            game_channels[guild.id] = None
             return None
 
 

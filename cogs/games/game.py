@@ -2,12 +2,24 @@ import discord
 from discord.ext import commands
 from cogs.games.fire_draw import FireDrawGame
 from util.context import Context
+from storage import cache
+
+
+def is_game_channel():
+    async def predicate(context: commands.Context):
+        channel = cache.get_game_channel(context.guild)
+        if channel is not None:
+            return context.channel is channel
+        return False
+
+    return commands.check(predicate)
 
 
 class Games(commands.Cog):
     current_games = {}
 
     @commands.group(name="play", usage="<game>", invoke_without_command=True)
+    @is_game_channel()
     async def play(self, ctx: Context):
         """
         Play a game.
