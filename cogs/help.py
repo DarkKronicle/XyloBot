@@ -89,7 +89,7 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
 
         maximum = self.get_max_pages()
         if maximum > 1:
-            embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} commands)')
+            embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} categories)')
 
         pfp = self.help_command.context.bot.user.avatar_url
         embed.set_thumbnail(url=pfp)
@@ -193,7 +193,6 @@ class Help(commands.HelpCommand):
         source = GroupHelpPageSource(group, entries, prefix=self.clean_prefix)
         self.common_command_formatting(source, group)
         menu = HelpMenu(source)
-        await self.context.release()
         await menu.start(self.context)
 
 
