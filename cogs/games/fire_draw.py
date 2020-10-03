@@ -1,5 +1,5 @@
 import discord
-from util.Game import Game
+from util.game import Game
 import random
 import asyncio
 from discord.ext import commands

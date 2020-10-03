@@ -7,6 +7,7 @@ class Game:
     def __init__(self, channel, owner):
         self.channel: discord.TextChannel = channel
         self.owner: discord.User = owner
+        self.users.append(owner)
 
     def add_user(self, user):
         self.users.append(user)

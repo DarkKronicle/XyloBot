@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from cogs.games.fire_draw import FireDrawGame
 from util.context import Context
-from util.Game import Game
+from util.game import Game
 
 
 class Games(commands.Cog):
