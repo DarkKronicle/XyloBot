@@ -13,6 +13,8 @@ unverified_roles = {}
 
 verify_enabled = {}
 
+creator_roles = {}
+
 fields = {}
 
 fun = {}
@@ -91,6 +93,25 @@ def get_unverified_role(guild: discord.Guild):
         if "roles" in settings and "unverified" in settings["roles"]:
             role = guild.get_role(int(settings["roles"]["unverified"]))
             unverified_roles[guild.id] = role
+            return role
+        else:
+            return None
+
+
+def clear_content_cache(guild):
+    if guild.id in unverified_roles:
+        unverified_roles.pop(guild.id)
+
+
+def get_content_role(guild: discord.Guild):
+    if guild.id in creator_roles:
+        return creator_roles[guild.id]
+    else:
+        db = Database()
+        settings = db.get_settings(str(guild.id))
+        if "roles" in settings and "content-creator" in settings["roles"]:
+            role = guild.get_role(int(settings["roles"]["content-creator"]))
+            creator_roles[guild.id] = role
             return role
         else:
             return None

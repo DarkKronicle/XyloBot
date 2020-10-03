@@ -14,13 +14,15 @@ class Settings(commands.Cog):
         "setup-logs": "Where information about verification goes.",
         "qotd": "Where the question of the day is posted!",
         "welcome": "Where Xylo welcomes verified users!",
-        "logs": "Misc logs"
+        "logs": "Misc logs",
+        "content-creator": "Channel where content creator notifications will be sent."
     }
 
     role_list = {
         "verifier": "Verifies users",
         "unverified": "Someone who is not verified",
-        "botmanager": "Can manage the bot"
+        "botmanager": "Can manage the bot",
+        "content-creator": "Notifications will get sent in feed channel."
     }
 
     fun_list = {
@@ -258,6 +260,7 @@ class Settings(commands.Cog):
                 settings["roles"][args[0]] = str(role.id)
                 db.set_settings(str(ctx.guild.id), settings)
                 cache.clear_unverified_cache(ctx.guild)
+                cache.clear_content_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` role has been set to {role.name}")
 
             else:
@@ -268,6 +271,7 @@ class Settings(commands.Cog):
                 settings["roles"][args[0]] = ""
                 db.set_settings(str(ctx.guild.id), settings)
                 cache.clear_unverified_cache(ctx.guild)
+                cache.clear_content_cache(ctx.guild)
                 await ctx.send(f"The `{args[0]}` role has been removed!")
 
         else:

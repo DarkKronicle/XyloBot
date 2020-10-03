@@ -396,3 +396,35 @@ class Database:
     def remove_mark(self, guild_id, name):
         command = f"DELETE FROM mark_entries WHERE guild_id = $${guild_id}$$ AND name = $${name}$$;"
         self.send_commands([command])
+
+    def get_user_social(self, user_id):
+        command = f"SELECT social FROM user_storage WHERE id = $${user_id}$$;"
+        conn = None
+        row = None
+        try:
+            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
+
+            c = conn.cursor()
+
+            c.execute(command)
+            row = c.fetchone()
+            c.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if row is None:
+            return None
+        else:
+            return row[0]
+
+    def set_user_social(self, user_id, settings: dict):
+        user_id = "$$" + user_id + "$$"
+        command = """
+                   UPDATE user_storage SET social = {} WHERE id = {}; 
+                   """
+        command = command.format("$$" + json.dumps(settings) + "$$", user_id)
+        self.send_commands([command])
