@@ -129,8 +129,6 @@ class Mark(commands.Cog):
         if await self.bot.is_owner(ctx.author):
             answer = await ctx.prompt(
                 embed=discord.Embed(title="Is this going to be a global mark?", description="`yes` or `no`"))
-            await prompt.delete()
-            await answer.delete()
             if answer is None:
                 await ctx.timeout()
                 return
