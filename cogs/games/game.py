@@ -9,11 +9,17 @@ class Games(commands.Cog):
 
     @commands.group(name="play", usage="<game>", invoke_without_command=True)
     async def play(self, ctx: Context):
+        """
+        Play a game.
+        """
         if ctx.invoked_subcommand is None:
             await ctx.send_help('play')
 
     @play.command(name="duel", usage="<user>")
     async def fire_draw(self, ctx: Context, user: discord.Member = None):
+        """
+        First person to type out a random set of characters.
+        """
         if user is None:
             await ctx.send("Specify a correct user!")
 
