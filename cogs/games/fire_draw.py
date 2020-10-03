@@ -24,26 +24,28 @@ class FireDrawGame(Game):
         emoji1 = random.choice(self.emojis)
         emoji2 = random.choice(self.emojis)
         await asyncio.sleep(2)
-        await message.edit(content="         {}\u200b{}".format(emoji1, emoji2))
+        await message.edit(content="\u200b         {}{}".format(emoji1, emoji2))
         await asyncio.sleep(0.5)
-        await message.edit(content="      {}\u200b      {}".format(emoji1, emoji2))
+        await message.edit(content="\u200b      {}      {}".format(emoji1, emoji2))
         await asyncio.sleep(0.5)
-        await message.edit(content="   {}\u200b            {}".format(emoji1, emoji2))
+        await message.edit(content="\u200b   {}            {}".format(emoji1, emoji2))
         await asyncio.sleep(0.5)
-        await message.edit(content="{}\u200b                  {}".format(emoji1, emoji2))
+        await message.edit(content="\u200b{}                  {}".format(emoji1, emoji2))
         await asyncio.sleep(random.randint(1, 8))
         await message.edit(content=f"Type in `{answer}` as quickly as possible!")
 
         def check(msg: discord.Message):
+            nonlocal self
+            nonlocal answer
             if msg.author not in self.users:
                 return False
-            if msg.author in self.users and msg.channel == self.channel and msg.content.lower() == answer.lower():
+            if msg.author in self.users and msg.channel == self.channel and msg.content.lower() in answer.lower():
                 return True
             return False
 
         try:
             go = await bot.wait_for("message", timeout=10, check=check)
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
             await self.end(go.author)
         except asyncio.TimeoutError:
             await self.timeout()
