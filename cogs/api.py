@@ -11,7 +11,7 @@ class API(commands.Cog):
         if ctx.invoked_subcommand is None:
             return await ctx.send_help('twitch')
 
-    @twitch.command(name="info", usage="<channelname>")
+    # @twitch.command(name="info", usage="<channelname>")
     async def twitch_info(self, ctx: context.Context, *args):
         if len(args) == 0:
             await ctx.send_help('twitch info')

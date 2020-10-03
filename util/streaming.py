@@ -8,7 +8,7 @@ twich_token = os.getenv('TWITCH_TOKEN')
 
 
 async def check_twitch_online(channel_name):
-    headers = {"client-id": twitch_id}
+    headers = {"client-id": twitch_id, "Authorization": f"Bearer {twich_token}"}
     r = requests.get(url=TWITCH_URL.format(channel_name), headers=headers)
     data = r.json()
     print(data)

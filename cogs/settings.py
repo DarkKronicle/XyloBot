@@ -15,7 +15,8 @@ class Settings(commands.Cog):
         "qotd": "Where the question of the day is posted!",
         "welcome": "Where Xylo welcomes verified users!",
         "logs": "Misc logs",
-        "content-creator": "Channel where content creator notifications will be sent."
+        "content-creator": "Channel where content creator notifications will be sent.",
+        "games": "Where Xylo games will be played in."
     }
 
     role_list = {
