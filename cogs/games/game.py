@@ -19,9 +19,10 @@ class Games(commands.Cog):
 
         answer = await ctx.prompt(
             f"{ctx.author.mention} has challenged {user.mention} to a duel! Do you accept? Respond with "
-            f"`yes` or `no`")
-        if answer is None or not answer:
+            f"`yes` or `no`", author_id=user.id)
+        if answer is None or answer == False:
             await ctx.send("Just when it was about to get spicy, everyone left.")
+            return
 
         duel = FireDrawGame(ctx.channel, ctx.author)
 
