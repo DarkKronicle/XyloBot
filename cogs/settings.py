@@ -394,157 +394,104 @@ class Settings(commands.Cog):
 
         await ctx.send("Message not found!")
 
-    @settings.command(name="util", usage="<list|current|<name>> [setting]")
-    async def util(self, ctx: commands.Context, *args):
+    @settings.group(name="util", invoke_without_command=True)
+    async def util(self, ctx: commands.Context):
         """
         Configure utility commands.
         """
-        if len(args) == 0:
+        if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Util Help",
                 description="`util <list/current/[NAME]>`",
                 colour=discord.Colour.purple()
             )
             await ctx.send(embed=embed)
-            if len(args) > 0:
-                await ctx.send(' '.join(args))
             return
 
-        if args[0] == "list":
-            embed = discord.Embed(
-                title="Utility commands!",
-                description="Edit what commands people have access to.",
-                colour=discord.Colour.purple()
-            )
-            embed.add_field(name="`invite <toggle/CHANNELID>`",
-                            value="Allow for Xylo to create tempory invites for quick use.")
-            await ctx.send(embed=embed)
-            return
+    @util.command(name="list")
+    async def util_list(self, ctx):
+        embed = discord.Embed(
+            title="Utility commands!",
+            description="Edit what commands people have access to.",
+            colour=discord.Colour.purple()
+        )
+        embed.add_field(name="`invite <toggle/CHANNELID>`",
+                        value="Allow for Xylo to create tempory invites for quick use.")
+        await ctx.send(embed=embed)
+        return
 
-        if args[0] == "invite":
-            if len(args) == 1:
-                await ctx.send("`>settings invite <toggle/channel> <channel_id>`")
-                return
+    @util.group(name="invite", invoke_without_command=True)
+    async def invite(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help()
 
-            if args[1] == "toggle":
-                db = Database()
-                data = db.get_settings(str(ctx.guild.id))
-                if "utility" not in data or "invite" not in data["utility"]:
-                    await ctx.send("No data found for utility! Use `>settings reset util`")
-                    return
-                if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(
-                        data["utility"]["invite"]["channel"]) is None:
-                    await ctx.send("Can't turn on invite if no channel is set!")
-                    return
-
-                on = not data["utility"]["invite"]["enabled"]
-                data["utility"]["invite"]["enabled"] = on
-                db.set_settings(str(ctx.guild.id), data)
-                if on:
-                    await ctx.send("Invite enabled!")
-                    return
-                else:
-                    await ctx.send("Invite disabled!")
-                    return
-
-            if args[1] == "channel":
-                if len(args) == 2:
-                    await ctx.send("You need to specify a channel id.")
-                    return
-
-                try:
-                    chanid = int(args[2])
-                except ValueError:
-                    await ctx.send("You need to specify an int for channel id.")
-                    return
-
-                channel = ctx.guild.get_channel(chanid)
-                if channel is None:
-                    await ctx.send("Channel not found!")
-                    return
-
-                db = Database()
-                data = db.get_settings(str(ctx.guild.id))
-                if "utility" not in data:
-                    data["utility"] = {}
-                if "invite" not in data["utility"]:
-                    data["utility"]["invite"] = {}
-
-                data["utility"]["invite"]["channel"] = channel.id
-                db.set_settings(str(ctx.guild.id), data)
-                await ctx.send(f"Invite channel set to {channel.mention}!")
-
-    @commands.command(name="storage", usage="<start|prefix>")
-    @commands.has_permissions(administrator=True)
-    async def storage(self, ctx: commands.Context, *args):
-        """
-        Specific stored settings for the server. Like the prefix.
-        """
-        # TODO Why not prefix as own command?
+    @invite.command(name="toggle")
+    async def invite_toggle(self, ctx, *args):
         if len(args) == 0:
-            help_message = discord.Embed(
-                title="Storage Commands",
-                description="Keep useful info and settings.",
-                colour=discord.Colour.purple()
-            )
-            help_message.add_field(name="`start`", value="Create an entry for your server.")
-            help_message.add_field(name="`prefix`", value="Configure the server prefix!")
-            await ctx.send(embed=help_message)
+            await ctx.send_help()
             return
 
-        if args[0] == "start":
-            if len(args) == 1 or len(args) >= 3:
-                embed = discord.Embed(
-                    title="Incorrect Usage",
-                    description="`storage start <PREFIX>`",
-                    colour=discord.Colour.red()
-                )
-                await ctx.send(embed=embed)
-                return
-
-            db = Database()
-            if db.guild_exists(str(ctx.guild.id)):
-                await ctx.send("Guild already has data!")
-                return
-
-            db.new_guild(str(ctx.guild.id), args[1])
-            await ctx.send("Created!")
-
-        if args[0] == "users":
-            db = Database()
-            guild: discord.Guild = ctx.guild
-            for user in guild.members:
-                if not user.bot:
-                    db.add_new_user(str(user.id))
-
-        if args[0] == "prefix":
-            if len(args) == 1:
-                embed = discord.Embed(
-                    title="Incorrect Usage",
-                    description="`storage prefix <PREFIX>`",
-                    colour=discord.Colour.red()
-                )
-                await ctx.send(embed=embed)
-                return
-
-            prefix = ' '.join(args[1:])
-            if len(prefix) > 15:
-                await ctx.send("Prefix too large!")
-                return
-
-            if "$" in prefix:
-                prefix = prefix.replace("$", "\\$")
-
-            db = Database()
-            db.set_prefix(str(ctx.guild.id), prefix)
-            success = discord.Embed(
-                title="Xylo prefix changed!",
-                description=f"Prefix changed to `{prefix}`!",
-                colour=discord.Colour.green()
-            )
-            cache.clear_prefix_cache(ctx.guild)
-            await ctx.send(embed=success)
+        db = Database()
+        data = db.get_settings(str(ctx.guild.id))
+        if "utility" not in data or "invite" not in data["utility"]:
+            await ctx.send("No data found for utility! Use `>settings reset util`")
             return
+        if "channel" not in data["utility"]["invite"] or ctx.guild.get_channel(
+                data["utility"]["invite"]["channel"]) is None:
+            await ctx.send("Can't turn on invite if no channel is set!")
+            return
+
+        on = not data["utility"]["invite"]["enabled"]
+        data["utility"]["invite"]["enabled"] = on
+        db.set_settings(str(ctx.guild.id), data)
+        if on:
+            await ctx.send("Invite enabled!")
+            return
+        else:
+            await ctx.send("Invite disabled!")
+            return
+
+    @invite.command(name="channel")
+    async def invite_channel(self, ctx, channel: discord.TextChannel):
+        if channel is None:
+            await ctx.send("You need to specify a proper channel.")
+            return
+
+        db = Database()
+        data = db.get_settings(str(ctx.guild.id))
+        if "utility" not in data:
+            data["utility"] = {}
+        if "invite" not in data["utility"]:
+            data["utility"]["invite"] = {}
+
+        data["utility"]["invite"]["channel"] = channel.id
+        db.set_settings(str(ctx.guild.id), data)
+        await ctx.send(f"Invite channel set to {channel.mention}!")
+
+    @commands.command(name="prefix", usage="<new_prefix>")
+    async def prefix(self, ctx: commands.Context, *args):
+        if len(args) == 1:
+            await ctx.send_help()
+            return
+
+        prefix = ' '.join(args[1:])
+        if len(prefix) > 10:
+            await ctx.send("Prefix too large!")
+            return
+
+        if "$" in prefix:
+            prefix = prefix.replace("$", "\\$")
+
+        db = Database()
+        db.set_prefix(str(ctx.guild.id), prefix)
+        success = discord.Embed(
+            title="Xylo prefix changed!",
+            description=f"Prefix changed to `{prefix}`!",
+            colour=discord.Colour.green()
+        )
+        cache.clear_prefix_cache(ctx.guild)
+        await ctx.send(embed=success)
+        return
 
 
 def setup(bot):

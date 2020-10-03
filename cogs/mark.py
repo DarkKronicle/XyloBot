@@ -19,30 +19,26 @@ class Mark(commands.Cog):
         Configure and view marks
         """
         if ctx.invoked_subcommand is None:
-            embed = discord.Embed(
-                title="Marks Help",
-                description="Config your marks!",
-                colour=discord.Colour.purple()
-            )
-            embed.add_field(name="`list <page>`", value="List what marks are for your server.")
-            embed.add_field(name="`add`", value="Starts a mark setup wizard.")
-            embed.add_field(name="`remove`", value="Starts a mark remove wizard.")
-            await ctx.send(embed=embed)
+            # embed = discord.Embed(
+            #     title="Marks Help",
+            #     description="Config your marks!",
+            #     colour=discord.Colour.purple()
+            # )
+            # embed.add_field(name="`list <page>`", value="List what marks are for your server.")
+            # embed.add_field(name="`add`", value="Starts a mark setup wizard.")
+            # embed.add_field(name="`remove`", value="Starts a mark remove wizard.")
+            # await ctx.send(embed=embed)
+            await ctx.send_help()
 
-    @marks.command(name="list")
-    async def mark_list(self, ctx: commands.Context, *args):
+    @marks.command(name="list", "<page>")
+    async def mark_list(self, ctx: commands.Context, page: int):
         """
         List the current marks.
         """
         db = Database()
         rows = db.get_marks(str(ctx.guild.id))
-        page = 1
-        if len(args) > 0:
-            try:
-                page = int(args[0])
-            except ValueError:
-                await ctx.send("You didn't enter a proper page number!")
-                return
+        if page < 1:
+            page = 1
 
         # 28 entries, page 2. start = 21, end = 30
         end = page * 10 - 1

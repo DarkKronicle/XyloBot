@@ -48,6 +48,7 @@ class XyloBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.members = True
+        intents.guilds = True
         super().__init__(command_prefix=get_prefix, intents=intents, description=description)
         # self.remove_command('help')
         self.help_command = Help()
