@@ -1,11 +1,11 @@
 import discord
-from cogs.games import game
+from util.Game import Game
 import random
 import asyncio
 from discord.ext import commands
 
 
-class FireDrawGame(game.Game):
+class FireDrawGame(Game):
     def __init__(self, channel, owner):
         super().__init__(channel, owner)
 
@@ -38,7 +38,6 @@ class FireDrawGame(game.Game):
 
     async def end(self, user):
         await self.channel.send(f"{user.mention} wins!")
-        guild_games.remove(user.guild)
 
     async def timeout(self):
         await self.channel.send("Right before the duel was about to take place, everyone left and no one shot...")
