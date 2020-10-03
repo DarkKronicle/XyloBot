@@ -52,6 +52,21 @@ class UserSettings(commands.Cog):
                                "channel.")
                 return
 
+    @social.group(name="who", usage="<user>")
+    async def who(self, ctx, member: discord.Member):
+        if member is None:
+            await ctx.send("You need to specify a correct user.")
+            return
+        db = Database()
+        data = db.get_user_social(str(member.id))
+        if data is None:
+            await ctx.send("This user has not set any social data on them.")
+            return
+        message = f"Socials for {member.display_name}:\n"
+        for d in data:
+            message = message + f"{d}: {data[d]}"
+        await ctx.send(embed=discord.Embed(title=f"Socials for {member.display_name}", description=message))
+        return
 
 def setup(bot):
     bot.add_cog(UserSettings())
