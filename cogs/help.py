@@ -87,8 +87,35 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
                 val = self.short_cog(cog, cmds)
                 embed.add_field(name=cog.qualified_name, value=val, inline=True)
 
+        maximum = self.get_max_pages()
+        if maximum > 1:
+            embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} commands)')
+
         pfp = self.help_command.context.bot.user.avatar_url
         embed.set_thumbnail(url=pfp)
+        return embed
+
+
+class GroupHelpPageSource(menus.ListPageSource):
+    def __init__(self, group, commands, *, prefix):
+        super().__init__(entries=commands, per_page=6)
+        self.group = group
+        self.prefix = prefix
+        self.title = f'{self.group.qualified_name} Commands'
+        self.description = self.group.description
+
+    async def format_page(self, menu, commands):
+        embed = discord.Embed(title=self.title, description=self.description, colour=discord.Colour.blue())
+
+        for command in commands:
+            signature = f'{command.qualified_name} {command.signature}'
+            embed.add_field(name=signature, value=command.short_doc or 'No help given...', inline=False)
+
+        maximum = self.get_max_pages()
+        if maximum > 1:
+            embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} commands)')
+
+        embed.set_footer(text=f'Use `help [command]` for more information on a specific command.')
         return embed
 
 
@@ -107,6 +134,18 @@ class Help(commands.HelpCommand):
             'cooldown': commands.Cooldown(2, 9, commands.BucketType.user),
             'help': 'Shows help information for specific commands.'
         })
+
+    def get_command_signature(self, command):
+        parent = command.full_parent_name
+        if len(command.aliases) > 0:
+            aliases = '|'.join(command.aliases)
+            fmt = f'[{command.name}|{aliases}]'
+            if parent:
+                fmt = f'{parent} {fmt}'
+            alias = fmt
+        else:
+            alias = command.name if not parent else f'{parent} {command.name}'
+        return f'{alias} {command.signature}'
 
     async def send_bot_help(self, mapping, page=1):
         bot = self.context.bot
@@ -137,6 +176,25 @@ class Help(commands.HelpCommand):
         self.common_command_formatting(embed, command)
         await self.context.send(embed=embed)
 
+    async def send_cog_help(self, cog):
+        entries = await self.filter_commands(cog.get_commands(), sort=True)
+        menu = HelpMenu(GroupHelpPageSource(cog, entries, prefix=self.clean_prefix))
+        await menu.start(self.context)
+
+    async def send_group_help(self, group):
+        subcommands = group.commands
+        if len(subcommands) == 0:
+            return await self.send_command_help(group)
+
+        entries = await self.filter_commands(subcommands, sort=True)
+        if len(entries) == 0:
+            return await self.send_command_help(group)
+
+        source = GroupHelpPageSource(group, entries, prefix=self.clean_prefix)
+        self.common_command_formatting(source, group)
+        menu = HelpMenu(source)
+        await self.context.release()
+        await menu.start(self.context)
 
 
 def setup(bot):
