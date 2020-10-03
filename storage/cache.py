@@ -63,13 +63,13 @@ def get_setup_log_channel(guild: discord.Guild):
 
 
 def clear_game_cache(guild):
-    if guild.id in setup_log_channels:
-        setup_channels.pop(guild.id)
+    if guild.id in game_channels:
+        game_channels.pop(guild.id)
 
 
 def get_game_channel(guild: discord.Guild):
     if guild.id in game_channels:
-        return setup_log_channels[guild.id]
+        return game_channels[guild.id]
     else:
         db = Database()
         settings = db.get_settings(str(guild.id))
