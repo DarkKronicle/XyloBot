@@ -30,7 +30,7 @@ class Mark(commands.Cog):
             # await ctx.send(embed=embed)
             await ctx.send_help()
 
-    @marks.command(name="list", "<page>")
+    @marks.command(name="list", usage="<page>")
     async def mark_list(self, ctx: commands.Context, page: int):
         """
         List the current marks.
