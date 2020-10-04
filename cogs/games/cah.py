@@ -60,7 +60,7 @@ def black_card(blackcard):
 
     draw = ImageDraw.Draw(image)
 
-    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 20)
+    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 120)
 
     line_height = font.getsize('hg')[1]
     lines = text_wrap(blackcard, font, 500)
