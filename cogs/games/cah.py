@@ -71,6 +71,7 @@ class CAHGameInstance(Game):
         self.black_cards = self.get_black_cards()
         self.time = False
         self.answers = {}
+        self.instances[owner] = CAHUserInstance(owner, self.white_cards)
 
     async def start(self, bot):
         await self.next_round(winner=None)
@@ -141,7 +142,7 @@ class CAHGameInstance(Game):
         j = 0
         for user in self.answers:
             j = j + 1
-            message = message + f"(**{j}:** {self.answers[user]}"
+            message = message + f"**{j}:** {self.answers[user]}"
         await self.channel.send(message)
         self.answering = None
         i = 0
@@ -190,7 +191,7 @@ class CAHGameInstance(Game):
                     self.answers[message.author] = game.get_card_and_remove(card_num)
                     await self.set_answering()
         else:
-            if self.get_czar() is message.author and self.czar_answer is None:
+            if message.author is self.get_czar() and self.czar_answer is None:
                 if card_num >= len(self.answers):
                     card_num = len(self.answers)
                 if card_num < 1:
