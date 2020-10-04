@@ -152,7 +152,7 @@ class CAHGameInstance(Game):
         if self.czar_answer is None:
             await self.timeout()
             return
-        user = list(self.answers)[self.czar_answer]
+        user = list(self.answers)[self.czar_answer-1]
         await self.channel.send(f"The czar enjoyed {user.mention}'s answer, which was: `{self.answers[user]}`")
         await self.next_round(user)
 
