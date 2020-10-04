@@ -75,6 +75,26 @@ def black_card(blackcard):
     return discord.File(fp=buffer, filename="blackcard.png")
 
 
+def white_card(whitecard):
+    image = Image.open("assets/cah/whitecard.png")
+
+    draw = ImageDraw.Draw(image)
+
+    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 180)
+
+    line_height = font.getsize('hg')[1]
+    lines = text_wrap(whitecard, font, 1950)
+    y = 60
+    for line in lines:
+        draw.text((60, y), line, fill="black", font=font, align="left")
+        y = y + line_height
+
+    buffer = BytesIO()
+    image.save(buffer, "png")
+    buffer.seek(0)
+    return discord.File(fp=buffer, filename="whitecard.png")
+
+
 class CAHUserInstance:
     """
     Handles player information.
@@ -204,10 +224,10 @@ class CAHGameInstance(Game):
         # Discord will format it to use underscores, we just want the default.
         await asyncio.sleep(3)
         embed = discord.Embed(
-                title="New round!",
-                description=f"The new card czar is {self.get_czar().mention}. The new black card is:\n\n`{black}`",
-                colour=discord.Colour.purple()
-            )
+            title="New round!",
+            description=f"The new card czar is {self.get_czar().mention}. The new black card is:\n\n`{black}`",
+            colour=discord.Colour.purple()
+        )
         file = black_card(black)
         embed.set_image(url="attachment://blackcard.png")
         await self.channel.send(
@@ -269,13 +289,14 @@ class CAHGameInstance(Game):
 
         # Get winner through number
         winner = list(self.answers)[self.czar_answer - 1]
-
+        file = white_card(self.answers[winner])
         winner_embed = discord.Embed(
             title=f"The czar chose!",
             description=f"The winner was {winner.mention}!\n\nBlack card: `{black}`\n\nAnswer: `{self.answers[winner]}`",
             colour=discord.Colour.magenta()
         )
-        await self.channel.send(embed=winner_embed)
+        winner_embed.set_image(url="attachment://whitecard.png")
+        await self.channel.send(embed=winner_embed, file=file)
         self.instances[winner].add_point()
 
         points_embed = discord.Embed(
