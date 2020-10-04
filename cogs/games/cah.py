@@ -21,15 +21,19 @@ class CAHUserInstance:
         self.all_white_cards = white_cards
         self.white_cards = white_cards
         self.current_cards = random.sample(self.white_cards, max_cards)
-        self.all_white_cards = list(set(self.all_white_cards) ^ set(self.current_cards))
+        self.white_cards = list(set(self.white_cards) ^ set(self.current_cards))
         self.points = 0
 
     def add_point(self):
         self.points = self.points + 1
 
     def fill_cards(self):
-        while len(self.current_cards) < self.max_cards:
-            self.current_cards.append(random.choice(self.current_cards))
+        while len(self.current_cards) < self.max_cards + 1:
+            new_card = random.choice(self.white_cards)
+            self.white_cards.remove(new_card)
+            if len(self.white_cards) < 1:
+                self.white_cards = self.all_white_cards
+            self.current_cards.append(new_card)
 
     def get_card_and_remove(self, num):
         self.fill_cards()
@@ -107,7 +111,7 @@ class CAHGameInstance(Game):
         if self.czar_num >= len(self.users) - 1:
             self.czar_num = 0
             return
-        self.czar_num = 0
+        self.czar_num = self.czar_num + 1
 
     async def next_round(self, winner):
         if winner is not None:
