@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 from cogs.games.fire_draw import FireDrawGame
-from cogs.games.cah import *
+from cogs.games.cah import CAHUserInstance, CAHGameInstance
 from util.context import Context
 from storage import cache
 
@@ -19,6 +19,9 @@ def is_game_channel():
 
 
 class Games(commands.Cog):
+    """
+    Games that users can play.
+    """
     current_games = {}
 
     @commands.Cog.listener()
@@ -30,7 +33,8 @@ class Games(commands.Cog):
                     if message.author in game.users:
                         await game.process_message(message)
 
-    @commands.command(name="duel", usage="<user>")
+    @commands.command(name="duel", usage="<user>", aliases=["gun", "wordduel"])
+    @commands.guild_only()
     @is_game_channel()
     async def fire_draw(self, ctx: Context, user: discord.Member = None):
         """
@@ -58,24 +62,38 @@ class Games(commands.Cog):
         self.current_games[ctx.guild].pop("duel")
 
     @commands.group(name="cah", usage="<start|join>")
-    async def cah(self, ctx):
-        pass
+    async def cah(self, ctx: Context):
+        """
+        Cards Against Humanity
+        """
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help('cah')
 
     @cah.command(name="start")
+    @commands.guild_only()
     @is_game_channel()
     async def cah_start(self, ctx):
+        """
+        Start a game of Cards Against Humanity. You can send it again to force it to start.
+        """
         if ctx.guild in self.current_games and "cah" in self.current_games[ctx.guild]:
-            wait = discord.Embed(
-                title="Game already going on!",
-                description="There is already a *Cards Against Humanity* game going on in your server. Please wait.",
-                colour=discord.Colour.red()
-            )
-            await ctx.send(embed=wait)
+            game = self.current_games[ctx.guild]["cah"]
+            if game.started:
+                wait = discord.Embed(
+                    title="Game already going on!",
+                    description="There is already a *Cards Against Humanity* game going on in your server. Please wait.",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=wait)
+            else:
+                if ctx.author is game.owner:
+                    await self.cah_force(game, ctx)
             return
         started = discord.Embed(
             title="Cards Against Humanity - Setting up...",
             description=f"The game is being setup, get people to join using `{cache.get_prefix(ctx.guild)}cah join`. "
-                        f"The game will start in **one minute**.",
+                        f"When everyone is you can `{cache.get_prefix(ctx.guild)}cah start` again to force start. The "
+                        f"game will start in **one minute**.",
             colour=discord.Colour.green()
         )
         await ctx.send(embed=started)
@@ -84,6 +102,9 @@ class Games(commands.Cog):
         game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, ["default"], ctx.bot)
         self.current_games[ctx.guild]["cah"] = game
         await asyncio.sleep(60)
+        await self.cah_force(game, ctx)
+
+    async def cah_force(self, game, ctx):
         if len(game.users) < 2:
             await ctx.send(embed=discord.Embed(
                 title="Cards Against Humanity - Not enough people!",
@@ -99,12 +120,12 @@ class Games(commands.Cog):
         )
         await ctx.send(embed=start)
         await asyncio.sleep(2)
-        await game.start(ctx.bot)
 
     async def cah_done(self, guild):
         self.current_games[guild].pop("cah")
 
     @cah.command(name="join")
+    @commands.guild_only()
     @is_game_channel()
     async def cah_join(self, ctx):
         if ctx.guild not in self.current_games or "cah" not in self.current_games[ctx.guild]:

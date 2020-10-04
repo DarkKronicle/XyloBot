@@ -249,6 +249,7 @@ class Verify(commands.Cog):
             await context.send(embed=embed)
 
     @verification.command(name="reset")
+    @commands.guild_only()
     async def reset(self, ctx: commands.Context):
         """
         Reset current verification settings to default.
@@ -263,6 +264,7 @@ class Verify(commands.Cog):
         await ctx.send("Reset verification information!")
 
     @verification.command(name="info")
+    @commands.guild_only()
     async def info(self, ctx: commands.Context):
         """
         Gets current information on the verification process.
@@ -294,6 +296,7 @@ class Verify(commands.Cog):
                 "No verification settings found. Please use `verification reset` to reset verification info.")
 
     @verification.command(name="fields", usage="<setting> <value>")
+    @commands.guild_only()
     async def fields(self, ctx: commands.Context, *args):
         if len(args) == 0:
             error = discord.Embed(
@@ -456,6 +459,7 @@ class Verify(commands.Cog):
             await ctx.send(embed=embed)
 
     @auth.command(name="list", usage="[user]")
+    @commands.guild_only()
     async def auth_list(self, ctx: commands.Context, *args):
         """
         Lists current users needed to be verified in guild.
@@ -554,6 +558,7 @@ class Verify(commands.Cog):
         await dm.send(verify)
 
     @auth.command(name="accept", usage="<user>")
+    @commands.guild_only()
     async def accept(self, ctx: commands.Context, *args):
         """
         Accepts a user into the server.
@@ -580,6 +585,7 @@ class Verify(commands.Cog):
         await log.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
 
     @auth.command(name="reject", usage="<user>")
+    @commands.guild_only()
     async def reject(self, ctx: commands.Context, *args):
         """
         Rejects a user and sends DM

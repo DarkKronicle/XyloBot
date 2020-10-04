@@ -84,6 +84,7 @@ class CAHGameInstance(Game):
     async def start(self, bot):
         # Randomize card czar somewhat.
         random.shuffle(self.users)
+        self.started = True
         await self.next_round()
 
     def get_white_cards(self):

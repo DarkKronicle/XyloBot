@@ -37,6 +37,7 @@ class Fun(commands.Cog, name="Fun"):
             await ctx.send(embed=embed)
 
     @lober.command(name="fact")
+    @commands.guild_only()
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def fact(self, ctx: commands.Context):
         """
@@ -51,6 +52,7 @@ class Fun(commands.Cog, name="Fun"):
         await ctx.send(embed=embed)
 
     @lober.command(name="image")
+    @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, ctx: commands.Context):
         """

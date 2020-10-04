@@ -58,6 +58,7 @@ class Settings(commands.Cog):
             await ctx.send(embed=embed)
 
     @settings.command(name="reset", usage="<category>")
+    @commands.guild_only()
     async def reset(self, ctx: commands.Context, *args):
         """
         Resets a category of settings for Xylo.
@@ -100,6 +101,7 @@ class Settings(commands.Cog):
         await ctx.send("Category not found. Check `>settings reset`.")
 
     @settings.command(name="channel", usage="<list|current|<channel>>")
+    @commands.guild_only()
     async def channel(self, ctx: commands.Context, *args):
         """
         Configure what channels Xylo will use.
@@ -191,6 +193,7 @@ class Settings(commands.Cog):
             return
 
     @settings.command(name="role", usage="<list|current|<role>>")
+    @commands.guild_only()
     async def role(self, ctx: commands.Context, *args):
         """
         Configure's what roles Xylo uses.
@@ -280,6 +283,7 @@ class Settings(commands.Cog):
             return
 
     @settings.command(name="fun", usage="<list|current|<name>>")
+    @commands.guild_only()
     async def fun(self, ctx: commands.Context, *args):
         """
         Toggle and configure fun commands.
@@ -414,6 +418,7 @@ class Settings(commands.Cog):
             return
 
     @util.command(name="list")
+    @commands.guild_only()
     async def util_list(self, ctx):
         """
         Lists currently active util commands
@@ -437,6 +442,7 @@ class Settings(commands.Cog):
             await ctx.send_help('settings invite')
 
     @invite.command(name="toggle")
+    @commands.guild_only()
     async def invite_toggle(self, ctx):
         """
         Toggle the invite command.
@@ -462,6 +468,7 @@ class Settings(commands.Cog):
             return
 
     @invite.command(name="channel")
+    @commands.guild_only()
     async def invite_channel(self, ctx, channel: discord.TextChannel = None):
         """
         Set the channel for settings invite.
@@ -482,6 +489,7 @@ class Settings(commands.Cog):
         await ctx.send(f"Invite channel set to {channel.mention}!")
 
     @settings.command(name="prefix", usage="<new_prefix>")
+    @commands.guild_only()
     async def prefix(self, ctx: commands.Context, *args):
         if len(args) == 1:
             await ctx.send_help('settings prefix')

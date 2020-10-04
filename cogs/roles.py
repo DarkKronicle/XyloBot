@@ -35,6 +35,7 @@ class Roles(commands.Cog):
         self.bot = bot
 
     @commands.command(name="role")
+    @commands.guild_only()
     async def role_command(self, ctx: commands.Context, *args):
         guild: discord.Guild = ctx.guild
         roles = get_roles(guild)

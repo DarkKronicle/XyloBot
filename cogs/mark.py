@@ -31,6 +31,7 @@ class Mark(commands.Cog):
             await ctx.send_help('marks')
 
     @marks.command(name="list", usage="<page>")
+    @commands.guild_only()
     async def mark_list(self, ctx: commands.Context, page: int = 1):
         """
         List the current marks.
@@ -62,6 +63,7 @@ class Mark(commands.Cog):
         await ctx.send(embed=embed)
 
     @marks.command(name="remove")
+    @commands.guild_only()
     @is_allowed()
     async def remove(self, ctx: Context):
         guild = str(ctx.guild.id)
@@ -90,6 +92,7 @@ class Mark(commands.Cog):
                   "3", "4", "5", "6", "7", "8", "9", "0", "@", "#"]
 
     @marks.command(name="add")
+    @commands.guild_only()
     @is_allowed()
     async def add(self, ctx: Context):
         details = {}
@@ -167,6 +170,7 @@ class Mark(commands.Cog):
         return
 
     @commands.command(name="mark", usage="mark <name>")
+    @commands.guild_only()
     async def mark(self, ctx: commands.Context, *args):
         """
         Gets a mark from 'mark list' and prints it out into the current channel.

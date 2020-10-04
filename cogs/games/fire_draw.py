@@ -19,6 +19,7 @@ class FireDrawGame(Game):
         super().__init__(channel, owner)
 
     async def start(self, bot: commands.Bot):
+        self.started = True
         answer = get_random_string(random.randint(4, 10))
         message = await self.channel.send("Ready?")
         emoji1 = random.choice(self.emojis)

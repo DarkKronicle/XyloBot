@@ -21,6 +21,7 @@ class Utility(commands.Cog):
     """
     
     @commands.command(name="invite")
+    @commands.guild_only()
     @commands.cooldown(1, 600, commands.BucketType.member)
     async def invite(self, ctx: commands.Context):
         """

@@ -8,6 +8,7 @@ class Game:
         self.channel: discord.TextChannel = channel
         self.owner: discord.User = owner
         self.users.append(owner)
+        self.started = False
 
     def add_user(self, user):
         self.users.append(user)

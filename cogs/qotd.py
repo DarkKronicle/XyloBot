@@ -30,6 +30,7 @@ class QOTD(commands.Cog):
         self.next_question = random.choice(self.questions)
 
     @commands.command(name="qotd")
+    @commands.guild_only()
     async def qotd(self, ctx: commands.Context, *args):
         if get_role("admin", "rivertron", self.bot) in ctx.author.roles:
             if len(args) < 1:

@@ -132,6 +132,7 @@ class AutoReactions(commands.Cog):
                             done = True
 
     @commands.command(name="autoreactions")
+    @commands.guild_only()
     async def autoreaction(self, ctx: commands.Context):
         """
         View current AutoReactions

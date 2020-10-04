@@ -32,6 +32,7 @@ class Commands(commands.Cog):
         self.bot = bot
 
     @commands.command(name="whoami")
+    @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def whoami(self, ctx: commands.Context):
         """
@@ -63,6 +64,7 @@ class Commands(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="whois")
+    @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def whois(self, ctx: commands.Context, user: discord.Member = None):
         """
@@ -105,6 +107,7 @@ class Commands(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="db", hidden=True)
+    @commands.guild_only()
     async def database(self, ctx: commands.Context, *args):
         if await self.bot.is_owner(ctx.author):
             db = Database()
