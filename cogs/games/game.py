@@ -70,7 +70,7 @@ class Games(commands.Cog):
         await ctx.send("Get people to join using `cah join`. If there's enough people in one minute, I'll start it!")
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
-        game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, "default", ctx.bot)
+        game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, ["default"], ctx.bot)
         self.current_games[ctx.guild]["cah"] = game
         await asyncio.sleep(30)
         if game.users < 2:
@@ -85,7 +85,7 @@ class Games(commands.Cog):
     @cah.command(name="join")
     @is_game_channel()
     async def cah_join(self, ctx):
-        if ctx.guild not in self.current_games and "cah" not in self.current_games[ctx.guild]:
+        if ctx.guild not in self.current_games or "cah" not in self.current_games[ctx.guild]:
             return await ctx.send("No games currently going on. Start one with `cah start`")
         game = self.current_games[ctx.guild]["cah"]
         await game.add_user(ctx.author)
