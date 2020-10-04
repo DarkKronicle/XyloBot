@@ -55,7 +55,7 @@ class Games(commands.Cog):
 
         duel = FireDrawGame(ctx.channel, ctx.author)
         if ctx.guild not in self.current_games:
-            self.current_games[ctx.guild] = []
+            self.current_games[ctx.guild] = {}
         self.current_games[ctx.guild]["duel"] = duel
         duel.add_user(user)
         await duel.start(ctx.bot)
