@@ -53,7 +53,7 @@ class CAHUserInstance:
         if self.user.dm_channel is None:
             await self.user.create_dm()
         dm = self.user.dm_channel
-        message = f"The current black card is:\n\n**{blackcard}**\n"
+        message = f"The current black card is:\n\n`{blackcard}`\n"
         i = 0
         for card in self.current_cards:
             i += 1
@@ -139,7 +139,6 @@ class CAHGameInstance(Game):
             self.black_cards = self.get_black_cards()
 
         # Discord will format it to use underscores, we just want the default.
-        black = black.replace("_", "\_")
         await asyncio.sleep(3)
         await self.channel.send(
             embed=discord.Embed(
@@ -174,17 +173,19 @@ class CAHGameInstance(Game):
         self.time = False
 
         # Don't want the czar to know who's is who...
-        # random.shuffle(self.answers)
+        answer_list = list(self.answers.items())
+        random.shuffle(answer_list)
+        self.answers = dict(answer_list)
 
         embed = discord.Embed(
-            title=f"Time for {self.get_czar().mention} to choose!"
+            title=f"Time for the czar to choose!"
         )
         embed.set_footer(text="You have one minute to answer.")
-        message = ""
+        message = f"Type in your answer {self.get_czar().mention}!\n\n"
         current_answer = 0
         for user in self.answers:
             current_answer = current_answer + 1
-            message = message + f"**{current_answer}:** {self.answers[user]}"
+            message = message + f"**{current_answer}:** {self.answers[user]}\n"
         embed.description = message
         await self.channel.send(embed=embed)
 
@@ -203,8 +204,8 @@ class CAHGameInstance(Game):
         winner = list(self.answers)[self.czar_answer-1]
 
         winner_embed = discord.Embed(
-            title=f"The czar chose {winner.mention}!",
-            description=f"Black card: `{black}`\n\nAnswer: `{self.answers[winner]}`",
+            title=f"The czar chose!",
+            description=f"The winner was {winner.mention}!\n\nBlack card: `{black}`\n\nAnswer: `{self.answers[winner]}`",
             colour=discord.Colour.magenta()
         )
         await self.channel.send(embed=winner_embed)
