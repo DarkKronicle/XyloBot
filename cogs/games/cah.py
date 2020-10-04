@@ -100,7 +100,7 @@ class CAHGameInstance(Game):
         self.done(self.bot)
 
     def get_czar(self):
-        return self.users(self.czar_num)
+        return self.users[self.czar_num]
 
     def increment_czar(self):
         if self.czar_num >= len(self.users) - 1:

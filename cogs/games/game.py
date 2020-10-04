@@ -72,7 +72,7 @@ class Games(commands.Cog):
             self.current_games[ctx.guild] = {}
         game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, ["default"], ctx.bot)
         self.current_games[ctx.guild]["cah"] = game
-        await asyncio.sleep(30)
+        await asyncio.sleep(10)
         if len(game.users) < 2:
             await ctx.send("Not enough people!")
             return
