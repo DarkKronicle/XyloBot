@@ -147,7 +147,6 @@ class CAHUserInstance:
 
 
 class CAHGameInstance(Game):
-    instances = {}
 
     def __init__(self, channel, owner, done, categories, bot: commands.Bot):
         super().__init__(channel, owner)
@@ -162,7 +161,7 @@ class CAHGameInstance(Game):
         self.black_cards = self.get_black_cards()
         self.time = False
         self.answers = {}
-        self.instances[owner] = CAHUserInstance(owner, self.white_cards)
+        self.instances = {owner: CAHUserInstance(owner, self.white_cards)}
 
     async def start(self, bot):
         # Randomize card czar somewhat.
