@@ -127,7 +127,7 @@ class CAHGameInstance(Game):
         for user in self.instances:
             if user is not self.get_czar():
                 await self.instances[user].send_white_cards(black)
-        self.answering = self.set_answering()
+        self.answering = await self.set_answering()
         self.time = True
         i = 0
         while not self.check_everyone() and i < 12:
@@ -155,8 +155,9 @@ class CAHGameInstance(Game):
         await self.next_round(user)
 
     def check_everyone(self):
+        czar = self.get_czar()
         for user in self.users:
-            if user not in self.answers:
+            if user not in self.answers and user is not czar:
                 return False
         return True
 
