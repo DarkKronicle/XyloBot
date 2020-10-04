@@ -45,11 +45,11 @@ class CAHUserInstance:
         if self.user.dm_channel is None:
             await self.user.create_dm()
         dm = self.user.dm_channel
-        message = f"The current black card is:\n\n**{blackcard}**"
+        message = f"The current black card is:\n\n**{blackcard}**\n"
         i = 0
         for card in self.current_cards:
             i += 1
-            message = message + f"\n**f{i}:** {card}"
+            message = message + f"\n**{i}:** {card}"
         message = message + "\n\nEnter the number of the card in the game channel!"
         embed = discord.Embed(title="White Cards", description=message, colour=discord.Colour.purple())
         await dm.send(embed=embed)
@@ -136,12 +136,13 @@ class CAHGameInstance(Game):
         if len(self.answers) == 0:
             await self.timeout()
             return
+        self.time = False
         message = "Time for the czar to answer!\n\n"
         j = 0
         for user in self.answers:
             j = j + 1
             message = message + f"(**{j}:** {self.answers[user]}"
-        self.time = False
+        await self.channel.send(message)
         self.answering = None
         i = 0
         while self.czar_answer is None and i < 12:
