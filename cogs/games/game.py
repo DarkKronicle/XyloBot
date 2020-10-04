@@ -132,6 +132,9 @@ class Games(commands.Cog):
         if ctx.guild not in self.current_games or "cah" not in self.current_games[ctx.guild]:
             return await ctx.send("No games currently going on. Start one with `cah start`")
         game = self.current_games[ctx.guild]["cah"]
+        if ctx.author in game.users:
+            await ctx.send("You're already in a game!")
+            return
         await game.add_user(ctx.author)
         add = discord.Embed(
             title="User added to Cards Against Humanity!",
