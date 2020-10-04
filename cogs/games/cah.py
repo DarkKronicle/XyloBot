@@ -78,6 +78,8 @@ class CAHGameInstance(Game):
         self.instances[owner] = CAHUserInstance(owner, self.white_cards)
 
     async def start(self, bot):
+        # Randomize card czar somewhat.
+        random.shuffle(self.users)
         await self.next_round(winner=None)
 
     def get_white_cards(self):
@@ -158,6 +160,11 @@ class CAHGameInstance(Game):
             return
         user = list(self.answers)[self.czar_answer-1]
         await self.channel.send(f"The czar enjoyed {user.mention}'s answer, which was: `{self.answers[user]}`")
+        message = "Current points are: \n\n"
+        for user in self.instances:
+            game = self.instances[user]
+            message = message + f"{user.display_name} - **{game.points}**"
+        await self.channel.send(message)
         await self.next_round(user)
 
     def check_everyone(self):
