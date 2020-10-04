@@ -6,7 +6,6 @@ from storage.database import *
 from storage import cache
 
 import discord
-from discord.ext.commands import Bot
 import random
 from util.context import Context
 from cogs.help import Help
@@ -98,7 +97,7 @@ class XyloBot(commands.Bot):
         """
         Used for setting a random status for the bot.
         """
-        num = random.randint(1, 6)
+        num = random.randint(1, 4)
         if num == 1:
             act = discord.Activity(name="the world burn.", type=discord.ActivityType.watching)
             await self.change_presence(status=discord.Status.online, activity=act)
@@ -110,12 +109,6 @@ class XyloBot(commands.Bot):
             await self.change_presence(status=discord.Status.online, activity=act)
         elif num == 4:
             act = discord.Activity(name="the Terminator.", type=discord.ActivityType.watching)
-            await self.change_presence(status=discord.Status.online, activity=act)
-        elif num == 5:
-            act = discord.Activity(name="with flesh bodies.", type=discord.ActivityType.playing)
-            await self.change_presence(status=discord.Status.online, activity=act)
-        elif num == 6:
-            act = discord.Activity(name="Elcinor being murdered", type=discord.ActivityType.watching)
             await self.change_presence(status=discord.Status.online, activity=act)
 
     # https://github.com/Rapptz/RoboDanny/blob/7cd472ca021e9e166959e91a7ff64036474ea46c/bot.py#L190

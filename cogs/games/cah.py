@@ -9,8 +9,70 @@ import discord
 from discord.ext import commands
 import asyncio
 from storage.json_reader import JSONReader
+from PIL import Image, ImageFont, ImageDraw
+from io import BytesIO
 
 cards = JSONReader("data/cah.json").data
+
+
+# https://itnext.io/how-to-wrap-text-on-image-using-python-8f569860f89e
+def text_wrap(text, font, max_width):
+    """Wrap text base on specified width.
+    This is to enable text of width more than the image width to be display
+    nicely.
+
+    @params:
+        text: str
+            text to wrap
+        font: obj
+            font of the text
+        max_width: int
+            width to split the text with
+    @return
+        lines: list[str]
+            list of sub-strings
+    """
+    lines = []
+
+    # If the text width is smaller than the image width, then no need to split
+    # just add it to the line list and return
+    if font.getsize(text)[0] <= max_width:
+        lines.append(text)
+    else:
+        # split the line by spaces to get words
+        words = text.split(' ')
+        i = 0
+        # append every word to a line while its width is shorter than the image width
+        while i < len(words):
+            line = ''
+            while i < len(words) and font.getsize(line + words[i])[0] <= max_width:
+                line = line + words[i] + " "
+                i += 1
+            if not line:
+                line = words[i]
+                i += 1
+            lines.append(line)
+    return lines
+
+
+def black_card(blackcard):
+    image = Image.open("assets/cah/blackcard.png")
+
+    draw = ImageDraw.Draw(image)
+
+    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 20)
+
+    line_height = font.getsize('hg')[1]
+    lines = text_wrap(blackcard, font, 500)
+    y = 5
+    for line in lines:
+        draw.text((12, y), line, fill="white", font=font, align="left")
+        y = y + line_height
+
+    buffer = BytesIO()
+    image.save(buffer, "png")
+    buffer.seek(0)
+    return discord.File(fp=buffer, filename="blackcard.png")
 
 
 class CAHUserInstance:
@@ -59,7 +121,8 @@ class CAHUserInstance:
             i += 1
             message = message + f"\n**{i}:** {card}"
         message = message + "\n\nEnter the number of the card in the game channel!"
-        embed = discord.Embed(title="Cards Against Humanity - White Cards", description=message, colour=discord.Colour.purple())
+        embed = discord.Embed(title="Cards Against Humanity - White Cards", description=message,
+                              colour=discord.Colour.purple())
         await dm.send(embed=embed)
 
 
@@ -145,7 +208,8 @@ class CAHGameInstance(Game):
                 title="New round!",
                 description=f"The new card czar is {self.get_czar().mention}. The new black card is:\n\n`{black}`",
                 colour=discord.Colour.purple()
-            )
+            ),
+            file=black_card(black)
         )
         for user in self.instances:
             if user is not self.get_czar():
@@ -201,7 +265,7 @@ class CAHGameInstance(Game):
             return
 
         # Get winner through number
-        winner = list(self.answers)[self.czar_answer-1]
+        winner = list(self.answers)[self.czar_answer - 1]
 
         winner_embed = discord.Embed(
             title=f"The czar chose!",
