@@ -19,7 +19,6 @@ class Games(commands.Cog):
     current_games = {}
 
     @commands.group(name="play", usage="<game>", invoke_without_command=True)
-    @is_game_channel()
     async def play(self, ctx: Context):
         """
         Play a game.
@@ -35,6 +34,7 @@ class Games(commands.Cog):
                 await message.delete()
 
     @play.command(name="duel", usage="<user>")
+    @is_game_channel()
     async def fire_draw(self, ctx: Context, user: discord.Member = None):
         """
         First person to type out a random set of characters.
