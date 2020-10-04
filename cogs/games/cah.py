@@ -14,6 +14,9 @@ cards = JSONReader("data/cah.json").data
 
 
 class CAHUserInstance:
+    """
+    Handles player information.
+    """
 
     def __init__(self, user, white_cards, max_cards=6):
         self.max_cards = max_cards
@@ -29,6 +32,7 @@ class CAHUserInstance:
 
     def fill_cards(self):
         while len(self.current_cards) < self.max_cards + 1:
+            # Get new card and remove from player "deck". Prevents repeats.
             new_card = random.choice(self.white_cards)
             self.white_cards.remove(new_card)
             if len(self.white_cards) < 1:
@@ -55,7 +59,7 @@ class CAHUserInstance:
             i += 1
             message = message + f"\n**{i}:** {card}"
         message = message + "\n\nEnter the number of the card in the game channel!"
-        embed = discord.Embed(title="White Cards", description=message, colour=discord.Colour.purple())
+        embed = discord.Embed(title="Cards Against Humanity - White Cards", description=message, colour=discord.Colour.purple())
         await dm.send(embed=embed)
 
 
@@ -80,7 +84,7 @@ class CAHGameInstance(Game):
     async def start(self, bot):
         # Randomize card czar somewhat.
         random.shuffle(self.users)
-        await self.next_round(winner=None)
+        await self.next_round()
 
     def get_white_cards(self):
         white_cards = []
@@ -99,11 +103,21 @@ class CAHGameInstance(Game):
         self.instances[user] = CAHUserInstance(user, self.white_cards)
 
     async def end(self, user):
-        await self.channel.send(f"{user.mention} won!!!!!!")
+        embed = discord.Embed(
+            title="Cards Against Humanity - Winner!",
+            description=f"{user.mention} won the game!",
+            colour=discord.Colour.green()
+        )
+        await self.channel.send(embed=embed)
         await self.done(self.bot)
 
     async def timeout(self):
-        await self.channel.send("Looks like everyone doesn't want to play anymore :(")
+        out = discord.Embed(
+            title="Game Ended",
+            description="This game has not had any activity in the past minute and has timed out.",
+            colour=discord.Colour.red()
+        )
+        await self.channel.send(embed=out)
         await self.done(self.bot)
 
     def get_czar(self):
@@ -115,60 +129,110 @@ class CAHGameInstance(Game):
             return
         self.czar_num = self.czar_num + 1
 
-    async def next_round(self, winner):
-        if winner is not None:
-            self.increment_czar()
-            self.answers.clear()
-            if self.instances[winner].points >= self.needed_points:
-                await self.end(winner)
-                return
+    async def next_round(self):
+        # Remove the last czar answer and select black card for the round.
         self.czar_answer = None
-        black = random.choice(self.black_cards)
-        if len(self.black_cards) < 2:
+        black: str = random.choice(self.black_cards)
+        self.black_cards.remove(black)
+        if len(self.black_cards) < 1:
             self.black_cards = self.get_black_cards()
+
+        # Discord will format it to use underscores, we just want the default.
+        black = black.replace("_", "\\_")
         await asyncio.sleep(3)
         await self.channel.send(
-            embed=discord.Embed(title="New round!", description=f"The new card czar is {self.get_czar().mention}. The "
-                                                                f"new black card is:\n\n`{black}`"))
+            embed=discord.Embed(
+                title="New round!",
+                description=f"The new card czar is {self.get_czar().mention}. The new black card is:\n\n`{black}`",
+                colour=discord.Colour.purple()
+            )
+        )
         for user in self.instances:
             if user is not self.get_czar():
                 await self.instances[user].send_white_cards(black)
+
+        # Message for who has answered what.
         self.answering = await self.set_answering()
+        # Is it time for users to submit answers?
         self.time = True
+
+        # Loop for one minute checking every 5 seconds if everyone has answered.
         i = 0
         while not self.check_everyone() and i < 12:
             await asyncio.sleep(5)
             i = i + 1
+
+        # It will work with just 1 answer, but 0 answers will break.
         if len(self.answers) == 0:
             await self.timeout()
             return
-        self.time = False
-        random.shuffle(self.answers)
-        message = "Time for the czar to answer!\n\n"
-        j = 0
-        for user in self.answers:
-            j = j + 1
-            message = message + f"**{j}:** {self.answers[user]}"
-        await self.channel.send(message)
+
+        await self.answering.delete()
         self.answering = None
+
+        self.time = False
+
+        # Don't want the czar to know who's is who...
+        random.shuffle(self.answers)
+
+        embed = discord.Embed(
+            title=f"Time for {self.get_czar().mention} to choose!"
+        )
+        embed.set_footer(text="You have one minute to answer.")
+        message = ""
+        current_answer = 0
+        for user in self.answers:
+            current_answer = current_answer + 1
+            message = message + f"**{current_answer}:** {self.answers[user]}"
+        embed.description = message
+        await self.channel.send(embed=embed)
+
+        # Wait for czar to answer
         i = 0
         while self.czar_answer is None and i < 12:
             await asyncio.sleep(5)
             i = i + 1
+
         if self.czar_answer is None:
+            # Didn't answer...
             await self.timeout()
             return
+
+        # Get winner through number
         winner = list(self.answers)[self.czar_answer-1]
-        await self.channel.send(f"The czar enjoyed {winner.mention}'s answer, which was: `{self.answers[winner]}`")
+
+        winner_embed = discord.Embed(
+            title=f"The czar chose {winner.mention}!",
+            description=f"Black card: `{black}`\n\nAnswer: `{self.answers[winner]}`",
+            colour=discord.Colour.magenta()
+        )
+        await self.channel.send(embed=winner_embed)
         self.instances[winner].add_point()
-        message = "Current points are: \n\n"
+
+        points_embed = discord.Embed(
+            colour=discord.Colour.dark_purple()
+        )
+        points_embed.set_author(name="Current Points")
+        message = ""
         for user in self.instances:
             game = self.instances[user]
             message = message + f"{user.display_name} - **{game.points}**\n"
-        await self.channel.send(message)
-        await self.next_round(winner)
+        points_embed.description = message
+        await self.channel.send(embed=points_embed)
+
+        self.increment_czar()
+        self.answers.clear()
+
+        if self.instances[winner].points >= self.needed_points:
+            await self.end(winner)
+            return
+
+        await self.next_round()
 
     def check_everyone(self):
+        """
+        Checks if everyone but czar answered.
+        """
         czar = self.get_czar()
         for user in self.users:
             if user not in self.answers and user is not czar:
@@ -176,19 +240,34 @@ class CAHGameInstance(Game):
         return True
 
     async def set_answering(self):
+        """
+        Sets the answer for answering message.
+        """
+        embed = discord.Embed(
+            colour=discord.Colour.dark_purple()
+        )
+        embed.set_footer(text="You have one minute to answer.")
+        embed.set_author(name="Current Answers")
         message = "Make sure you answer here!\n\n"
-        for user in self.answers:
-            message = message + f"{user.display_name} - Answered!"
+        for user in self.users:
+            if user not in self.answers:
+                message = message + f":no_entry_sign:  - `{user.display_name}`"
+            else:
+                message = message + f":white_check_mark:  - `{user.display_name}`"
+        embed.description = message
         if self.answering is None:
-            return await self.channel.send(message)
+            return await self.channel.send(embed=embed)
         try:
-            await self.answering.edit(content=message)
+            await self.answering.edit(embed=embed)
             return self.answering
         except:
             # TODO What is this error???
-            self.answering = await self.channel.send(message)
+            self.answering = await self.channel.send(embed=embed)
 
     async def process_message(self, message: discord.Message):
+        """
+        Processes messages that happen in the channel.
+        """
         if message.author not in self.instances:
             return
         game: CAHUserInstance = self.instances[message.author]

@@ -65,18 +65,40 @@ class Games(commands.Cog):
     @is_game_channel()
     async def cah_start(self, ctx):
         if ctx.guild in self.current_games and "cah" in self.current_games[ctx.guild]:
-            await ctx.send("There's already a cah going on. Please wait")
+            wait = discord.Embed(
+                title="Game already going on!",
+                description="There is already a *Cards Against Humanity* game going on in your server. Please wait.",
+                colour=discord.Colour.red()
+            )
+            await ctx.send(embed=wait)
             return
-        await ctx.send("Get people to join using `cah join`. If there's enough people in one minute, I'll start it!")
+        started = discord.Embed(
+            title="Cards Against Humanity - Setting up...",
+            description=f"The game is being setup, get people to join using `{cache.get_prefix(ctx.guild)}cah join`. "
+                        f"The game will start in **one minute**.",
+            colour=discord.Colour.green()
+        )
+        await ctx.send(embed=started)
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, ["default"], ctx.bot)
         self.current_games[ctx.guild]["cah"] = game
         await asyncio.sleep(60)
         if len(game.users) < 2:
-            await ctx.send("Not enough people!")
+            await ctx.send(embed=discord.Embed(
+                title="Cards Against Humanity - Not enough people!",
+                description=f"Only {len(game.users)} are in the game. You'll need at least 3.",
+                colour=discord.Colour.red()
+            ))
             return
-        await ctx.send("Lets start!")
+        start = discord.Embed(
+            title="Cards Against Humanity - Game starting!",
+            description=f"Game starting for *Cards Against Humanity*. Make sure to type your answers in **this "
+                        f"channel**.",
+            colour=discord.Colour.blue()
+        )
+        await ctx.send(embed=start)
+        await asyncio.sleep(2)
         await game.start(ctx.bot)
 
     async def cah_done(self, guild):
@@ -89,7 +111,14 @@ class Games(commands.Cog):
             return await ctx.send("No games currently going on. Start one with `cah start`")
         game = self.current_games[ctx.guild]["cah"]
         await game.add_user(ctx.author)
-        await ctx.send("You've been added to the game!")
+        add = discord.Embed(
+            title="User added to Cards Against Humanity!",
+            description=f"{ctx.author.mention} has been added to the current game of *Cards Against "
+                        f"Humanity*!",
+            colour=discord.Colour.dark_green()
+        )
+        add.set_footer(text=f"There are now currently {len(game.users)} users.")
+        await ctx.send(embed=add)
 
 
 def setup(bot):
