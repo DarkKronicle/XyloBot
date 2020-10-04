@@ -125,7 +125,8 @@ class CAHGameInstance(Game):
             embed=discord.Embed(title="New round!", description=f"The new card czar is {self.get_czar().mention}. The "
                                                                 f"new black card is:\n\n`{black}`"))
         for user in self.instances:
-            await self.instances[user].send_white_cards(black)
+            if user is not self.get_czar():
+                await self.instances[user].send_white_cards(black)
         self.answering = self.set_answering()
         self.time = True
         i = 0
