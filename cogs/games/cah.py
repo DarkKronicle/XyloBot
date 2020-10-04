@@ -20,7 +20,7 @@ class CAHUserInstance:
         self.user = user
         self.all_white_cards = white_cards
         self.white_cards = white_cards
-        self.current_cards = random.sample(self.white_cards, max)
+        self.current_cards = random.sample(self.white_cards, max_cards)
         self.all_white_cards = list(set(self.all_white_cards) ^ set(self.current_cards))
         self.points = 0
 
