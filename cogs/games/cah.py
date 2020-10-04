@@ -139,7 +139,7 @@ class CAHGameInstance(Game):
             self.black_cards = self.get_black_cards()
 
         # Discord will format it to use underscores, we just want the default.
-        black = black.replace("_", "\\_")
+        black = black.replace("_", "\_")
         await asyncio.sleep(3)
         await self.channel.send(
             embed=discord.Embed(
@@ -174,7 +174,7 @@ class CAHGameInstance(Game):
         self.time = False
 
         # Don't want the czar to know who's is who...
-        random.shuffle(self.answers)
+        # random.shuffle(self.answers)
 
         embed = discord.Embed(
             title=f"Time for {self.get_czar().mention} to choose!"
@@ -250,7 +250,10 @@ class CAHGameInstance(Game):
         embed.set_footer(text="You have one minute to answer.")
         embed.set_author(name="Current Answers")
         message = "Make sure you answer here!\n\n"
+        czar = self.get_czar()
         for user in self.users:
+            if user is czar:
+                continue
             if user not in self.answers:
                 message = message + f":no_entry_sign:  - `{user.display_name}`"
             else:
