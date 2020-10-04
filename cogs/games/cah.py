@@ -60,13 +60,13 @@ def black_card(blackcard):
 
     draw = ImageDraw.Draw(image)
 
-    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 200)
+    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 180)
 
     line_height = font.getsize('hg')[1]
-    lines = text_wrap(blackcard, font, 1900)
-    y = 5
+    lines = text_wrap(blackcard, font, 1950)
+    y = 60
     for line in lines:
-        draw.text((30, y), line, fill="white", font=font, align="left")
+        draw.text((60, y), line, fill="white", font=font, align="left")
         y = y + line_height
 
     buffer = BytesIO()
@@ -208,9 +208,11 @@ class CAHGameInstance(Game):
                 description=f"The new card czar is {self.get_czar().mention}. The new black card is:\n\n`{black}`",
                 colour=discord.Colour.purple()
             )
+        file = black_card(black)
+        embed.set_image(url="attachment://blackcard.png")
         await self.channel.send(
             embed=embed,
-            file=black_card(black)
+            file=file
         )
         for user in self.instances:
             if user is not self.get_czar():
