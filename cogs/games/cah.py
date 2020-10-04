@@ -60,13 +60,13 @@ def black_card(blackcard):
 
     draw = ImageDraw.Draw(image)
 
-    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 120)
+    font = ImageFont.truetype("assets/FontsFree-Net-SFProDisplay-Bold.ttf", 240)
 
     line_height = font.getsize('hg')[1]
-    lines = text_wrap(blackcard, font, 500)
+    lines = text_wrap(blackcard, font, 1800)
     y = 5
     for line in lines:
-        draw.text((12, y), line, fill="white", font=font, align="left")
+        draw.text((30, y), line, fill="white", font=font, align="left")
         y = y + line_height
 
     buffer = BytesIO()
@@ -203,12 +203,13 @@ class CAHGameInstance(Game):
 
         # Discord will format it to use underscores, we just want the default.
         await asyncio.sleep(3)
-        await self.channel.send(
-            embed=discord.Embed(
+        embed = discord.Embed(
                 title="New round!",
                 description=f"The new card czar is {self.get_czar().mention}. The new black card is:\n\n`{black}`",
                 colour=discord.Colour.purple()
-            ),
+            )
+        await self.channel.send(
+            embed=embed,
             file=black_card(black)
         )
         for user in self.instances:
