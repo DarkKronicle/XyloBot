@@ -102,7 +102,8 @@ class Games(commands.Cog):
         game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, ["default"], ctx.bot)
         self.current_games[ctx.guild]["cah"] = game
         await asyncio.sleep(60)
-        await self.cah_force(game, ctx)
+        if not game.started:
+            await self.cah_force(game, ctx)
 
     async def cah_force(self, game, ctx):
         if len(game.users) < 2:
