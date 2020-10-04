@@ -100,11 +100,11 @@ class CAHGameInstance(Game):
 
     async def end(self, user):
         await self.channel.send(f"{user.mention} won!!!!!!")
-        self.done(self.bot)
+        await self.done(self.bot)
 
     async def timeout(self):
         await self.channel.send("Looks like everyone doesn't want to play anymore :(")
-        self.done(self.bot)
+        await self.done(self.bot)
 
     def get_czar(self):
         return self.users[self.czar_num]
@@ -118,7 +118,6 @@ class CAHGameInstance(Game):
     async def next_round(self, winner):
         if winner is not None:
             self.increment_czar()
-            self.instances[winner].add_point()
             self.answers.clear()
             if self.instances[winner].points >= self.needed_points:
                 await self.end(winner)
@@ -144,6 +143,7 @@ class CAHGameInstance(Game):
             await self.timeout()
             return
         self.time = False
+        random.shuffle(self.answers)
         message = "Time for the czar to answer!\n\n"
         j = 0
         for user in self.answers:
@@ -158,14 +158,15 @@ class CAHGameInstance(Game):
         if self.czar_answer is None:
             await self.timeout()
             return
-        user = list(self.answers)[self.czar_answer-1]
-        await self.channel.send(f"The czar enjoyed {user.mention}'s answer, which was: `{self.answers[user]}`")
+        winner = list(self.answers)[self.czar_answer-1]
+        await self.channel.send(f"The czar enjoyed {winner.mention}'s answer, which was: `{self.answers[winner]}`")
+        self.instances[winner].add_point()
         message = "Current points are: \n\n"
         for user in self.instances:
             game = self.instances[user]
-            message = message + f"{user.display_name} - **{game.points}**"
+            message = message + f"{user.display_name} - **{game.points}**\n"
         await self.channel.send(message)
-        await self.next_round(user)
+        await self.next_round(winner)
 
     def check_everyone(self):
         czar = self.get_czar()
