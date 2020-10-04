@@ -1,0 +1,51 @@
+{
+  "default":{
+    "white": [
+      "Science",
+      "Capitalism",
+      "A nerd with glasses",
+      "Puberty",
+      "Bill Nye the Science Guy",
+      "Telling Pluto it's not a planet anymore",
+      "My only hope",
+      "Danny DeVito",
+      "Harry Potter",
+      "Botched plastic surgery",
+      "Black hole",
+      "YouTube comments",
+      "Red necks",
+      "Dividing by zero",
+      "82 cents",
+      "2 whole dollars",
+      "Short people",
+      "My tall sisters boyfriends brothers dad",
+      "I should not have said that",
+      "Never underestimate an old women",
+      "A band who all wear 100 year old suits.",
+      "Dora the Explorer",
+      "Sentimental widow on the back porch.",
+      "The police.",
+      "Your weird 1st grade teacher.",
+      "Bombs.",
+      "Go to bed.",
+      "Trying to wake up from this nightmare.",
+      "Some kind of bird man.",
+      "The Boy Scouts of America."
+    ],
+    "black": [
+      "Twenty bucks would buy _____.",
+      "Where do I see myself in 5 years?",
+      "What's the last thing I would do if I was on the sinking Titanic?",
+      "In case of emergency, please call _____.",
+      "Can I have ____ with sprinkles on top?",
+      "I woke up this morning to ____.",
+      "My last DnD session was all about ____.",
+      "When I blacked out, I woke up with ____.",
+      "Run for your life, it's _____.",
+      "_____, putting the fun in funeral.",
+      "Police! Arrest this man! He's _____.",
+      "Sorry I can't today, I've already planned to ____.",
+      "My biggest lesson through college was: _____."
+    ]
+  }
+}
