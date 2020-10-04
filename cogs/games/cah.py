@@ -255,9 +255,9 @@ class CAHGameInstance(Game):
             if user is czar:
                 continue
             if user not in self.answers:
-                message = message + f":no_entry_sign:  - `{user.display_name}`"
+                message = message + f":no_entry_sign:  - `{user.display_name}`\n"
             else:
-                message = message + f":white_check_mark:  - `{user.display_name}`"
+                message = message + f":white_check_mark:  - `{user.display_name}`\n"
         embed.description = message
         if self.answering is None:
             return await self.channel.send(embed=embed)

@@ -120,6 +120,7 @@ class Games(commands.Cog):
         )
         await ctx.send(embed=start)
         await asyncio.sleep(2)
+        await game.start(ctx.bot)
 
     async def cah_done(self, guild):
         self.current_games[guild].pop("cah")
