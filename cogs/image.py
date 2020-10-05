@@ -8,7 +8,7 @@ from util.image_util import *
 from PIL import Image, ImageFont, ImageDraw
 
 
-class Image(commands.Cog):
+class ImageCog(commands.Cog, name="Image"):
     @commands.group(name="edit")
     async def edit(self, ctx):
         pass
@@ -46,4 +46,4 @@ class Image(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Image())
+    bot.add_cog(ImageCog())
