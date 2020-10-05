@@ -35,7 +35,7 @@ class Image(commands.Cog):
         if buffer is None:
             await ctx.send("Something went wrong getting your image.")
             return
-        image = image_from_buffer(buffer)
+        image = Image.open(fp=buffer)
         image = resize(image, 770)
         approve = Image.open("assets/images/transparent-stamp.png")
         image.paste(approve, (0, 0))
