@@ -46,5 +46,5 @@ def resize(image, width):
     img_h = image.size[1]
     percent = width/float(img_w)
     size = int(float(img_h) * float(percent))
-    rmg = image.resize((width,size), Image.ANTIALIAS)
+    rmg = image.resize((width, size), Image.ANTIALIAS)
     return rmg

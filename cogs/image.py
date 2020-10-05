@@ -11,8 +11,9 @@ class Image(commands.Cog):
     @edit.command(name="approval")
     async def approve(self, ctx: Context):
         message: discord.Message = ctx.message
-        message.attachments
-        pass
+        if len(message.attachments) == 0:
+            await ctx.send("Make sure to send in a file!")
+            return
 
 
 def setup(bot):
