@@ -7,12 +7,14 @@ import util.discord_util
 from util.image_util import *
 from PIL import Image, ImageFont, ImageDraw
 
+
 def check_name(name):
     ext = [".png", ".jpg", ".jpeg"]
     for extension in ext:
         if name.endswith(extension):
             return True
     return False
+
 
 class ImageCog(commands.Cog, name="Image"):
     @commands.group(name="edit")
@@ -33,16 +35,14 @@ class ImageCog(commands.Cog, name="Image"):
         buffer = await util.discord_util.get_data_from_url(url)
         image = Image.open(fp=buffer)
         approve = Image.open("assets/images/transparent-stamp.png")
-        approve_h = approve.size[1]
-        approve_w = approve.size[0]
-        image_h = approve.size[1]
-        image_w = approve.size[0]
-        image = resize(image, approve_w)
-        image.paste(approve, (int((image_w / 2) - (approve_w / 2)), int((image_h / 2) - (approve_h / 2))), approve)
+
+        image = stack_images(image, approve)
+
         buffer = BytesIO()
         image.save(buffer, "png")
         buffer.seek(0)
-        await ctx.send("The results are in: It's approved!", file=discord.File(fp=buffer, filename="approved.png"))
+        await ctx.send(f"This has been approved by {ctx.author.mention}.", file=discord.File(fp=buffer, filename="approved.png"))
+        await ctx.message.delete()
 
 
 def setup(bot):

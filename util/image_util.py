@@ -52,3 +52,13 @@ def resize(image, width):
 
 def image_from_buffer(buffer):
     return Image.frombuffer("L", (4, 4), buffer, "raw", "L", 0, 1)
+
+
+def stack_images(image1, image2):
+    img2_h = image2.size[1]
+    img2_w = image2.size[0]
+    img1_h = image1.size[1]
+    img1_w = image1.size[0]
+    image2 = resize(image2, img1_w)
+    image1.paste(image2, (int((img1_w / 2) - (img2_w / 2)), int((img1_h / 2) - (img2_h / 2))), image2)
+    return image1
