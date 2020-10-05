@@ -32,13 +32,14 @@ class ImageCog(commands.Cog, name="Image"):
             return
         url = attachment.url
         buffer = await util.discord_util.get_data_from_url(url)
-        if buffer is None:
-            await ctx.send("Something went wrong getting your image.")
-            return
         image = Image.open(fp=buffer)
-        image = resize(image, 770)
         approve = Image.open("assets/images/transparent-stamp.png")
-        image.paste(approve, (0, 0))
+        approve_h = approve.size[1]
+        approve_w = approve.size[0]
+        image_h = approve.size[1]
+        image_w = approve.size[0]
+        image = resize(image, approve_w)
+        image.paste(approve, ((image_w / 2) - (approve_w / 2), (image_h / 2) - (approve_h / 2)), approve)
         buffer = BytesIO()
         image.save(buffer, "png")
         buffer.seek(0)
