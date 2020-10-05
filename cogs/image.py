@@ -1,6 +1,11 @@
+from io import BytesIO
+
 from discord.ext import commands
 import discord
 from util.context import Context
+import util.discord_util
+from util.image_util import *
+from PIL import Image, ImageFont, ImageDraw
 
 
 class Image(commands.Cog):
@@ -14,6 +19,27 @@ class Image(commands.Cog):
         if len(message.attachments) == 0:
             await ctx.send("Make sure to send in a file!")
             return
+        attachment: discord.Attachment = message.attachments[0]
+        name: str = attachment.filename
+        ext = [".png", ".jpg", ".jpeg"]
+        one = False
+        for extension in ext:
+            if name.endswith(extension):
+                one = True
+                break
+        if not one:
+            await ctx.send("That's not an image!")
+            return
+        url = attachment.url
+        file = await util.discord_util.get_file_from_image(url, name)
+        image = image_from_buffer(file.fp)
+        image = resize(image, 770)
+        approve = Image.open("assets/images/transparent-stamp.png")
+        image.paste(approve, (0, 0))
+        buffer = BytesIO()
+        image.save(buffer, "png")
+        buffer.seek(0)
+        await ctx.send("The results are in: It's approved!", file=discord.File(fp=buffer, filename="approved.png"))
 
 
 def setup(bot):

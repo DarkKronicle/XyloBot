@@ -44,7 +44,11 @@ def text_wrap(text, font, max_width):
 def resize(image, width):
     img_w = image.size[0]
     img_h = image.size[1]
-    percent = width/float(img_w)
+    percent = width / float(img_w)
     size = int(float(img_h) * float(percent))
     rmg = image.resize((width, size), Image.ANTIALIAS)
     return rmg
+
+
+def image_from_buffer(buffer):
+    return Image.frombuffer("L", (4, 4), buffer, "raw", "L", 0, 1)
