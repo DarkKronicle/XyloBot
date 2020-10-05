@@ -43,4 +43,4 @@ class Image(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(bot)
+    bot.add_cog(Image())
