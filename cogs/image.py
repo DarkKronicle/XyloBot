@@ -17,11 +17,12 @@ def check_name(name):
 
 
 class ImageCog(commands.Cog, name="Image"):
-    @commands.group(name="edit")
+
+    @commands.group(name="image")
     async def edit(self, ctx):
         pass
 
-    @edit.command(name="approval")
+    @edit.command(name="approved")
     async def approve(self, ctx: Context):
         message: discord.Message = ctx.message
         if len(message.attachments) == 0:
