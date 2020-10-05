@@ -9,50 +9,10 @@ import discord
 from discord.ext import commands
 import asyncio
 from storage.json_reader import JSONReader
-from PIL import Image, ImageFont, ImageDraw
 from io import BytesIO
+from util.image_util import *
 
 cards = JSONReader("data/cah.json").data
-
-
-# https://itnext.io/how-to-wrap-text-on-image-using-python-8f569860f89e
-def text_wrap(text, font, max_width):
-    """Wrap text base on specified width.
-    This is to enable text of width more than the image width to be display
-    nicely.
-
-    @params:
-        text: str
-            text to wrap
-        font: obj
-            font of the text
-        max_width: int
-            width to split the text with
-    @return
-        lines: list[str]
-            list of sub-strings
-    """
-    lines = []
-
-    # If the text width is smaller than the image width, then no need to split
-    # just add it to the line list and return
-    if font.getsize(text)[0] <= max_width:
-        lines.append(text)
-    else:
-        # split the line by spaces to get words
-        words = text.split(' ')
-        i = 0
-        # append every word to a line while its width is shorter than the image width
-        while i < len(words):
-            line = ''
-            while i < len(words) and font.getsize(line + words[i])[0] <= max_width:
-                line = line + words[i] + " "
-                i += 1
-            if not line:
-                line = words[i]
-                i += 1
-            lines.append(line)
-    return lines
 
 
 def black_card(blackcard):
@@ -100,14 +60,13 @@ class CAHUserInstance:
     Handles player information.
     """
 
-    def __init__(self, user, white_cards, max_cards=6):
+    def __init__(self, user, game, max_cards=6):
+        self.game = game
         self.max_cards = max_cards
         self.user = user
-        self.all_white_cards = white_cards
-        self.white_cards = white_cards
-        self.current_cards = random.sample(self.white_cards, max_cards)
-        self.white_cards = list(set(self.white_cards) ^ set(self.current_cards))
+        self.current_cards = []
         self.points = 0
+        self.fill_cards()
 
     def add_point(self):
         self.points = self.points + 1
@@ -115,11 +74,7 @@ class CAHUserInstance:
     def fill_cards(self):
         while len(self.current_cards) < self.max_cards + 1:
             # Get new card and remove from player "deck". Prevents repeats.
-            new_card = random.choice(self.white_cards)
-            self.white_cards.remove(new_card)
-            if len(self.white_cards) < 1:
-                self.white_cards = self.all_white_cards
-            self.current_cards.append(new_card)
+            self.current_cards.append(self.game.get_white_card())
 
     def get_card_and_remove(self, num):
         self.fill_cards()
@@ -131,7 +86,7 @@ class CAHUserInstance:
         self.current_cards.remove(card)
         return card
 
-    async def send_white_cards(self, blackcard):
+    async def send_white_cards(self, blackcard, channel):
         if self.user.dm_channel is None:
             await self.user.create_dm()
         dm = self.user.dm_channel
@@ -140,7 +95,7 @@ class CAHUserInstance:
         for card in self.current_cards:
             i += 1
             message = message + f"\n**{i}:** {card}"
-        message = message + "\n\nEnter the number of the card in the game channel!"
+        message = message + f"\n\nEnter the number of the card in the {channel.mention}!"
         embed = discord.Embed(title="Cards Against Humanity - White Cards", description=message,
                               colour=discord.Colour.purple())
         await dm.send(embed=embed)
@@ -161,13 +116,20 @@ class CAHGameInstance(Game):
         self.black_cards = self.get_black_cards()
         self.time = False
         self.answers = {}
-        self.instances = {owner: CAHUserInstance(owner, self.white_cards)}
+        self.instances = {owner: CAHUserInstance(owner, self)}
 
     async def start(self, bot):
         # Randomize card czar somewhat.
         random.shuffle(self.users)
         self.started = True
         await self.next_round()
+
+    def get_white_card(self):
+        card = random.choice(self.white_cards)
+        self.white_cards.remove(card)
+        if len(self.white_cards) < 1:
+            self.white_cards = self.get_white_cards()
+        return card
 
     def get_white_cards(self):
         white_cards = []
@@ -183,7 +145,7 @@ class CAHGameInstance(Game):
 
     async def add_user(self, user):
         super().add_user(user)
-        self.instances[user] = CAHUserInstance(user, self.white_cards)
+        self.instances[user] = CAHUserInstance(user, self)
 
     async def end(self, user):
         embed = discord.Embed(
@@ -235,7 +197,7 @@ class CAHGameInstance(Game):
         )
         for user in self.instances:
             if user is not self.get_czar():
-                await self.instances[user].send_white_cards(black)
+                await self.instances[user].send_white_cards(black, self.channel)
 
         # Message for who has answered what.
         self.answering = await self.set_answering()

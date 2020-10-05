@@ -12,6 +12,7 @@ Open source bots that are extremely cool and helped me understand some really co
 
 - [RoboDanny](https://github.com/Rapptz/RoboDanny) - An *awesome* Discord bot. If you haven't looked at this, check it out. (MIT License)
 
+- [Xiao](https://github.com/dragonfire535/xiao) - Amazing open source bot with a ton of amazing features.
 
 ## Contributing
 
