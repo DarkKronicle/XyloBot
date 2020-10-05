@@ -115,6 +115,15 @@ async def get_file_from_image(url: str, name: str):
             return discord.File(data, name)
 
 
+async def get_data_from_url(url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status != 200:
+                return None
+            data = io.BytesIO(await resp.read())
+            return dat
+
+
 def check_verification(guild: discord.Guild, settings):
     if "channels" in settings and "setup" in settings["channels"] and "setup-logs" in settings["channels"] and "welcome" in settings["channels"]:
         if guild.get_channel(int(settings["channels"]["setup"])) is None or guild.get_channel(

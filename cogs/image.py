@@ -31,8 +31,8 @@ class Image(commands.Cog):
             await ctx.send("That's not an image!")
             return
         url = attachment.url
-        file = await util.discord_util.get_file_from_image(url, name)
-        image = image_from_buffer(file.fp)
+        buffer = await util.discord_util.get_data_from_url(url)
+        image = image_from_buffer(buffer)
         image = resize(image, 770)
         approve = Image.open("assets/images/transparent-stamp.png")
         image.paste(approve, (0, 0))
