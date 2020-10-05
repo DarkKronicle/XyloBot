@@ -121,7 +121,7 @@ async def get_data_from_url(url: str):
             if resp.status != 200:
                 return None
             data = io.BytesIO(await resp.read())
-            return dat
+            return data
 
 
 def check_verification(guild: discord.Guild, settings):
