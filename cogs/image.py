@@ -7,6 +7,12 @@ import util.discord_util
 from util.image_util import *
 from PIL import Image, ImageFont, ImageDraw
 
+def check_name(name):
+    ext = [".png", ".jpg", ".jpeg"]
+    for extension in ext:
+        if name.endswith(extension):
+            return True
+    return False
 
 class ImageCog(commands.Cog, name="Image"):
     @commands.group(name="edit")
@@ -20,14 +26,7 @@ class ImageCog(commands.Cog, name="Image"):
             await ctx.send("Make sure to send in a file!")
             return
         attachment: discord.Attachment = message.attachments[0]
-        name: str = attachment.filename
-        ext = [".png", ".jpg", ".jpeg"]
-        one = False
-        for extension in ext:
-            if name.endswith(extension):
-                one = True
-                break
-        if not one:
+        if not check_name(attachment.filename):
             await ctx.send("That's not an image!")
             return
         url = attachment.url
@@ -39,7 +38,7 @@ class ImageCog(commands.Cog, name="Image"):
         image_h = approve.size[1]
         image_w = approve.size[0]
         image = resize(image, approve_w)
-        image.paste(approve, ((image_w / 2) - (approve_w / 2), (image_h / 2) - (approve_h / 2)), approve)
+        image.paste(approve, (int((image_w / 2) - (approve_w / 2)), int((image_h / 2) - (approve_h / 2))), approve)
         buffer = BytesIO()
         image.save(buffer, "png")
         buffer.seek(0)
