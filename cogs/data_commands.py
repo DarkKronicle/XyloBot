@@ -108,7 +108,7 @@ class Commands(commands.Cog):
 
     @commands.command(name="edit")
     @commands.guild_only()
-    async def edit(self, ctx: Context, member: discord.Member = None, *args):
+    async def edit(self, ctx: Context, *args, member: discord.Member = None):
         """
         Edit information on people.
         """
