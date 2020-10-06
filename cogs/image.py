@@ -23,19 +23,25 @@ class ImageCog(commands.Cog, name="Image"):
         pass
 
     @edit.command(name="approved")
-    async def approve(self, ctx: Context):
+    async def approve(self, ctx: Context, *args):
         message: discord.Message = ctx.message
-        if len(message.attachments) == 0:
-            await ctx.send("Make sure to send in a file!")
-            return
-        attachment: discord.Attachment = message.attachments[0]
-        if not check_name(attachment.filename):
-            await ctx.send("That's not an image!")
-            return
-        url = attachment.url
+        if len(args) == 0:
+            if len(message.attachments) == 0:
+                await ctx.send("Make sure to send in a file or specify a URL!")
+                return
+            attachment: discord.Attachment = message.attachments[0]
+            if not check_name(attachment.filename):
+                await ctx.send("That's not an image!")
+                return
+            url = attachment.url
+        else:
+            url = args[0]
         buffer = await util.discord_util.get_data_from_url(url)
+        if buffer is None:
+            await ctx.send("Something went wrong getting your image. Make sure your URL or file is correct.")
+            return
         image = Image.open(fp=buffer)
-        approve = Image.open("assets/images/transparent-stamp.png")
+        approve = Image.open("assets/images/approved.png")
 
         image = stack_images(image, approve)
 

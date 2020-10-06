@@ -48,7 +48,7 @@ class XyloBot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         intents.guilds = True
-        super().__init__(command_prefix=get_prefix, intents=intents, description=description)
+        super().__init__(command_prefix=get_prefix, intents=intents, description=description, case_insensitive=True)
         # self.remove_command('help')
         self.help_command = Help()
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
