@@ -11,6 +11,18 @@ import json
 from storage import cache
 
 
+def check_admin(ctx, **perms):
+    ch = ctx.channel
+    permissions = ch.permissions_for(ctx.author)
+
+    missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
+
+    if not missing:
+        return True
+
+    return False
+
+
 async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
     """
     Gets a user based off of their current displayname (nick)
@@ -114,7 +126,7 @@ class Commands(commands.Cog):
 
         Values you can use are first, last, school, extra, and birthday.
         """
-        admin = ctx.message.author.server_permissions.administrator
+        admin = check_admin(ctx, administrator=True)
         if member is None:
             member = ctx.author
         else:
