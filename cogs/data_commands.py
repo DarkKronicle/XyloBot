@@ -114,11 +114,11 @@ class Commands(commands.Cog):
 
         Values you can use are first, last, school, extra, and birthday.
         """
-        admin = False
+        admin = ctx.message.author.server_permissions.administrator
         if member is None:
             member = ctx.author
         else:
-            if not ctx.message.author.server_permissions.administrator:
+            if not admin:
                 return await ctx.send("Only admin's can change other people's values!")
             admin = True
         if len(args) < 2:
@@ -156,8 +156,8 @@ class Commands(commands.Cog):
         db = Database()
         user_data = db.get_user(str(ctx.guild.id), str(member.id))
         if "fields" not in user_data:
-            user_data["fields"] = user_data
-        user_data["fields"]["field"] = data
+            user_data["fields"] = {}
+        user_data["fields"][field] = data
         db.update_user(user_data, str(member.id), str(ctx.guild.id))
         log = cache.get_log_channel(ctx.guild)
 
