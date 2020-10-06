@@ -79,7 +79,7 @@ class Commands(commands.Cog):
         else:
             message = f"`{ctx.author.name}`:"
             for f in data["fields"]:
-                message = message + f"\n-   {self.names[f]}: {data['fields'][f]}"
+                message = message + f"\n-   1{self.names[f]}`: {data['fields'][f]}"
 
             await ctx.send(message)
             return
@@ -164,6 +164,8 @@ class Commands(commands.Cog):
         answer = await ctx.prompt(embed=ask)
         if answer is None:
             return await ctx.timeout()
+        if not answer:
+            return await ctx.send("Your response has been trashed.")
 
         db = Database()
         user_data = db.get_user(str(ctx.guild.id), str(member.id))
