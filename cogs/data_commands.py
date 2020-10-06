@@ -110,19 +110,32 @@ class Commands(commands.Cog):
     @commands.guild_only()
     async def edit(self, ctx: Context, *args, member: discord.Member = None):
         """
-        Edit information on people.
+        Edit information on people. User's can only edit their own fields that do not take place in verification.
+
+        Values you can use are first, last, school, extra, and birthday.
         """
+        admin = False
         if member is None:
             member = ctx.author
         else:
             if not ctx.message.author.server_permissions.administrator:
                 return await ctx.send("Only admin's can change other people's values!")
+            admin = True
         if len(args) < 2:
             await ctx.send_help('edit')
         if args[0] not in self.names:
             return await ctx.send("Specify a correct field.")
 
         field = args[0]
+        if not admin:
+            fields = cache.get_fields(ctx.guild)
+            allowed = True
+            for cfield in fields:
+                if fields[cfield] and field == cfield:
+                    allowed = False
+                    break
+            if not allowed:
+                return await ctx.send("You're not allowed to change that value! Ask a staff member to change it.")
         data = ' '.join(args[1:])
         if field == "birthday":
             date_string = data
@@ -133,7 +146,7 @@ class Commands(commands.Cog):
                 return await ctx.send("Birthday format needs to be `YYYY-MM-DD`")
         ask = discord.Embed(
             title="Edit this information?",
-            description=f"`{member.mention} for {field}` to:\n\n{data}",
+            description=f"{member.mention} for `{field}` to:\n\n{data}",
             colour=discord.Colour.purple()
         )
         answer = await ctx.prompt(embed=ask)
@@ -147,8 +160,14 @@ class Commands(commands.Cog):
         user_data["fields"]["field"] = data
         db.update_user(user_data, str(member.id), str(ctx.guild.id))
         log = cache.get_log_channel(ctx.guild)
+
+        await ctx.send(f"Edited your {field}!")
         if log is not None:
-            await log.send()
+            log_embed = discord.Embed(
+                title="Data Changed",
+                description=f"{ctx.author.mention} changed {member.mention}'s data.\n\nFrom `{field}` to:\n\n{data}"
+            )
+            await log.send(embed=log_embed)
 
     @commands.command(name="db", hidden=True)
     @commands.guild_only()
