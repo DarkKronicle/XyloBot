@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import discord
 from discord.ext import commands
 from storage.database_helper import *
+from util.context import Context
 from util.discord_util import *
 from storage.database import *
 from discord.ext.commands import has_permissions
@@ -27,6 +30,14 @@ class Commands(commands.Cog):
     """
     Commands to view stored data on people.
     """
+
+    names = {
+        "first": "First Name",
+        "last": "Last Name",
+        "school": "School",
+        "extra": "Description",
+        "birthday": "Birthday"
+    }
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -56,7 +67,7 @@ class Commands(commands.Cog):
         else:
             message = f"`{ctx.author.name}`:"
             for f in data["fields"]:
-                message = message + f"\n-   {f}: {data['fields'][f]}"
+                message = message + f"\n-   {self.names[f]}: {data['fields'][f]}"
 
             await ctx.send(message)
             return
@@ -72,17 +83,6 @@ class Commands(commands.Cog):
         """
         if not cache.get_enabled(ctx.guild):
             return
-
-        # if len(args) <= 0:
-        #     embed = discord.Embed(
-        #         title="Not Enough Arguments",
-        #         description="`>whois <user>`",
-        #         colour=discord.Colour.red()
-        #     )
-        #     await ctx.send(embed=embed, delete_after=15)
-        #     return
-
-        # user = ctx.guild.get_member_named(' '.join(args))
 
         if user is None:
             await ctx.send_help('whois')
@@ -100,11 +100,55 @@ class Commands(commands.Cog):
         else:
             message = f"`{user.name}`:"
             for f in data["fields"]:
-                message = message + f"\n-   {f}: `{data['fields'][f]}`"
+                message = message + f"\n-   {self.names[f]}: `{data['fields'][f]}`"
             await ctx.send(message)
             return
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="edit")
+    @commands.guild_only()
+    async def edit(self, ctx: Context, member: discord.Member = None, *args):
+        """
+        Edit information on people.
+        """
+        if member is None:
+            member = ctx.author
+        else:
+            if not ctx.message.author.server_permissions.administrator:
+                return await ctx.send("Only admin's can change other people's values!")
+        if len(args) < 2:
+            await ctx.send_help('edit')
+        if args[0] not in self.names:
+            return await ctx.send("Specify a correct field.")
+
+        field = args[0]
+        data = ' '.join(args[1:])
+        if field == "birthday":
+            date_string = data
+            bformat = "%Y-%m-%d"
+            try:
+                datetime.strptime(date_string, bformat)
+            except ValueError:
+                return await ctx.send("Birthday format needs to be `YYYY-MM-DD`")
+        ask = discord.Embed(
+            title="Edit this information?",
+            description=f"`{member.mention} for {field}` to:\n\n{data}",
+            colour=discord.Colour.purple()
+        )
+        answer = await ctx.prompt(embed=ask)
+        if answer is None:
+            return await ctx.timeout()
+
+        db = Database()
+        user_data = db.get_user(str(ctx.guild.id), str(member.id))
+        if "fields" not in user_data:
+            user_data["fields"] = user_data
+        user_data["fields"]["field"] = data
+        db.update_user(user_data, str(member.id), str(ctx.guild.id))
+        log = cache.get_log_channel(ctx.guild)
+        if log is not None:
+            await log.send()
 
     @commands.command(name="db", hidden=True)
     @commands.guild_only()

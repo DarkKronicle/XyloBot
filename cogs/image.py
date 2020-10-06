@@ -22,8 +22,11 @@ class ImageCog(commands.Cog, name="Image"):
     async def edit(self, ctx):
         pass
 
-    @edit.command(name="approved")
+    @edit.command(name="approved", usage="<URL>")
     async def approve(self, ctx: Context, *args):
+        """
+        Stamp a picture with an approved stamp. You can input a URL as an argument on attach an image.
+        """
         message: discord.Message = ctx.message
         if len(args) == 0:
             if len(message.attachments) == 0:

@@ -26,7 +26,7 @@ def black_card(blackcard):
     lines = text_wrap(blackcard, font, 1950)
     y = 60
     for line in lines:
-        draw.text((60, y), line, fill="white", font=font, align="left")
+        draw.text((90, y), line, fill="white", font=font, align="left")
         y = y + line_height
 
     buffer = BytesIO()
@@ -46,7 +46,7 @@ def white_card(whitecard):
     lines = text_wrap(whitecard, font, 1950)
     y = 60
     for line in lines:
-        draw.text((60, y), line, fill="black", font=font, align="left")
+        draw.text((90, y), line, fill="black", font=font, align="left")
         y = y + line_height
 
     buffer = BytesIO()
@@ -72,14 +72,14 @@ class CAHUserInstance:
         self.points = self.points + 1
 
     def fill_cards(self):
-        while len(self.current_cards) < self.max_cards + 1:
+        while len(self.current_cards) <= self.max_cards:
             # Get new card and remove from player "deck". Prevents repeats.
             self.current_cards.append(self.game.get_white_card())
 
     def get_card_and_remove(self, num):
         self.fill_cards()
         if num > self.max_cards:
-            num = 10
+            num = self.max_cards
         if num < 1:
             num = 1
         card = self.current_cards[num - 1]

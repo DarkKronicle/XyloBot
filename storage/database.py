@@ -92,6 +92,11 @@ class Database:
                   f"VALUES($${guild_id}$$, $${user_id}$$, $${json.dumps(settings)}$$);"
         self.send_commands([command])
 
+    def update_user(self, settings, user_id, guild_id):
+        command = f"UPDATE user_data SET info = $${json.dumps(settings)}$$ WHERE guild_id = $${guild_id}$$ and " \
+                  f"user_id = $${user_id}$$;"
+        self.send_commands([command])
+
     def get_user(self, guild_id, user_id):
         command = "SELECT info FROM user_data WHERE guild_id = {} and user_id = {};"
         command = command.format("$$" + guild_id + "$$", "$$" + user_id + "$$")
