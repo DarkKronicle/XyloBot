@@ -54,8 +54,8 @@ class Commands(commands.Cog):
     limits = {
         "first": 20,
         "last": 20,
-        "school": 15,
-        "extra": 100,
+        "school": 30,
+        "extra": 200,
         "birthday": 10
     }
 
