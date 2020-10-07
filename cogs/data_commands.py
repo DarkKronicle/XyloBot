@@ -120,7 +120,7 @@ class Commands(commands.Cog):
         else:
             message = f"`{user.name}`:"
             for f in data["fields"]:
-                message = message + f"\n-   `{self.names[f]}: {data['fields'][f]}"
+                message = message + f"\n-   `{self.names[f]}`: {data['fields'][f]}"
             await ctx.send(message)
             return
 
