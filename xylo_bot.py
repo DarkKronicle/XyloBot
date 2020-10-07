@@ -4,6 +4,7 @@ import traceback
 from util.discord_util import *
 from storage.database import *
 from storage import cache
+from datetime import datetime, timedelta
 
 import discord
 import random
@@ -28,6 +29,28 @@ def get_prefix(dbot, message: discord.Message):
         prefixes.append(prefix)
     return prefixes
 
+def round_time(dt=None, roundTo=30*60):
+   """Round a datetime object to any time lapse in seconds
+   dt : datetime.datetime object, default now.
+   roundTo : Closest number of seconds to round to, default 1 minute.
+   Author: Thierry Husson 2012 - Use it as you want but don't blame me.
+   """
+   if dt == None: 
+       zone = timezone('US/Mountain')
+       utc = timezone('UTC')
+       dt = utc.localize(datetime.now())
+       dt = dt.astimezone(zone)
+       
+   zone = timezone('US/Mountain')
+   utc = timezone('UTC')
+   now = utc.localize(datetime.now())
+   now = now.astimezone(zone)
+   delta = datetime.timedelta(minutes=30)
+   next_half_hour = (now + delta).replace(microsecond=0, second=0, hours=0)
+   seconds = (dt.replace(tzinfo=None) - dt.replace(hours=0, minutes=0 ,seconds=0)).seconds
+   rounding = (seconds+roundTo/2) // roundTo * roundTo
+   return dt + datetime.timedelta(0,rounding-seconds,-dt.microsecond)
+
 
 # bot = Bot(command_prefix=get_prefix, intents=intents)
 # Command Extensions
@@ -41,6 +64,18 @@ startup_extensions = ["data_commands", "auto_reactions", "qotd", "roles", "verif
 description = """
 A fun utility bot made by DarkKronicle.
 """
+
+
+def get_time_until():
+    zone = timezone('US/Mountain')
+    utc = timezone('UTC')
+    now = utc.localize(datetime.now())
+    now = now.astimezone(zone)
+    delta = datetime.timedelta(minutes=30)
+    next_half_hour = (now + delta).replace(microsecond=0, second=0, hours=0)
+
+    wait_seconds = (next_half_hour - now).seconds
+    return wait_seconds
 
 
 class XyloBot(commands.Bot):
@@ -68,6 +103,7 @@ class XyloBot(commands.Bot):
     async def on_ready(self):
         print(f"{self.user} has connected to Discord!")
         self.status.start()
+        self.setup_loop.start()
         update = get_channel("xylo-updates", "rivertron", self)
         join = ConfigData.join
         messages = join.data["wakeup"]
@@ -111,6 +147,39 @@ class XyloBot(commands.Bot):
             act = discord.Activity(name="the Terminator.", type=discord.ActivityType.watching)
             await self.change_presence(status=discord.Status.online, activity=act)
 
+    loops = {}
+
+    def add_loop(self, name, function):
+        """
+        Adds a loop to the thirty minute loop. Needs to take in a function with a parameter time with async.
+        """
+        self.loops[name] = function
+
+    def remove_loop(self, name):
+        """
+        Removes a loop based off of a time.
+        """
+        if name in self.loops:
+            self.loops.pop(name)
+
+    @tasks.loop(minutes=30)
+    async def time_loop(self):
+        time = round_time()
+        for loop in self.loops:
+            await self.loops[loop](time)
+
+
+    first_loop = True
+    @tasks.loop(seconds=get_time_until)
+    async def setup_loop(self):
+        # Probably one of the most hacky ways to get a loop to run every thirty minutes based
+        # off of starting on one of them.
+        if self.first_loop:
+            self.first_loop = False
+            return
+        self.time_loop.start()
+        self.setup_loop.stop()
+
     # https://github.com/Rapptz/RoboDanny/blob/7cd472ca021e9e166959e91a7ff64036474ea46c/bot.py#L190
     # Wow, amazing
     async def process_commands(self, message):
@@ -119,29 +188,4 @@ class XyloBot(commands.Bot):
         if ctx.command is None:
             return
 
-        # bucket = self.spam.get_bucket(message)
-        # bucket.update_rate_limit(message)
-
         await self.invoke(ctx)
-
-# def main():
-#     # Load extensions for the bot.
-#     for extension in startup_extensions:
-#         try:
-#             print(f'trying to load: ' + cogs_dir + "." + extension)
-#             bot.load_extension(cogs_dir + "." + extension)
-#             print(f'{extension} has been loaded!')
-#
-#         except (discord.ClientException, ModuleNotFoundError):
-#             print(f'Failed to load extension {extension}.')
-#             traceback.print_exc()
-
-    # Load the bot
-    # bot.run(, bot=True, reconnect=True)
-
-
-
-
-#
-# if __name__ == "__main__":
-#     main()
