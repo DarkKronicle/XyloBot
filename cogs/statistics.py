@@ -1,8 +1,11 @@
+from datetime import datetime
+
 import discord
 from discord.ext import commands
 from xylo_bot import XyloBot
 
 stats_messages = {}
+
 
 class Stats(commands.Cog):
     """
@@ -13,8 +16,9 @@ class Stats(commands.Cog):
         self.bot: XyloBot = bot
         bot.add_loop("stat", self.update_stats)
 
-    async def update_stats(time):
+    async def update_stats(self, time: datetime):
         pass
+
 
 def setup(bot):
     bot.add_cog(Stats(bot))
