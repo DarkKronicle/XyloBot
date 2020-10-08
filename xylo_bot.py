@@ -43,7 +43,7 @@ def round_time(dt=None, round_to=30 * 60):
         dt = utc.localize(datetime.now())
         dt = dt.astimezone(zone)
 
-    seconds = (dt.replace(tzinfo=None) - dt.replace(hour=0, minute=0, second=0)).seconds
+    seconds = (dt.replace(tzinfo=None) - dt.replace(tzinfo=None, hour=0, minute=0, second=0)).seconds
     rounding = (seconds + round_to / 2) // round_to * round_to
     return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
@@ -52,7 +52,7 @@ def round_time(dt=None, round_to=30 * 60):
 # Command Extensions
 # Setup
 cogs_dir = "cogs"
-startup_extensions = ["data_commands", "auto_reactions", "qotd", "roles", "verify",
+startup_extensions = ["data_commands", "auto_reactions", "qotd", "roles", "verify", "statistics",
                       "settings", "fun", "utility", "mark", "user_settings", "api", "games.game", "image"]
 
 # bot.remove_command('help')
@@ -85,7 +85,6 @@ class XyloBot(commands.Bot):
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
         for extension in startup_extensions:
             try:
-                print(f'trying to load: ' + cogs_dir + "." + extension)
                 self.load_extension(cogs_dir + "." + extension)
                 print(f'{extension} has been loaded!')
 
