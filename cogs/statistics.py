@@ -68,7 +68,6 @@ class Stats(commands.Cog):
                   f"- High: `{temp_high}F`\n" \
                   f"- Low: `{temp_low}F`\n" \
                   f"- Feels like: `{feel}F`\n" \
-                  f"Feels like: `{temp['feels_like']}F`\n\n" \
                   f"Current Status: `{current.detailed_status}`\n" \
                   f"Clouds: `{str(current.clouds)}%`\n"
         embed = discord.Embed(
