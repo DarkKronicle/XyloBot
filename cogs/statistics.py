@@ -61,8 +61,8 @@ class Stats(commands.Cog):
         temp = current.temp["temp"]
         feel = current.temp["feels_like"]
         today: weather.Weather = one_call.forecast_daily[0]
-        temp_low = today.temp["temp_low"]
-        temp_high = today.temp["temp_high"]
+        temp_low = today.temp["min"]
+        temp_high = today.temp["max"]
         message = "Temperature:\n" \
                   f"- Right now: `{temp}F`\n" \
                   f"- High: `{temp_high}F`\n" \
