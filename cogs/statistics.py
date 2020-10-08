@@ -55,7 +55,7 @@ class Stats(commands.Cog):
         await ctx.send(embed=discord.Embed(
             title="Current Weather",
             description=message,
-            colour=discord.Colour.blue
+            colour=discord.Colour.blue()
         ))
 
 
