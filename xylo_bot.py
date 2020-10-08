@@ -43,7 +43,7 @@ def round_time(dt=None, round_to=30 * 60):
         dt = utc.localize(datetime.now())
         dt = dt.astimezone(zone)
 
-    seconds = (dt.replace(tzinfo=None) - dt.replace(hours=0, minutes=0, seconds=0)).seconds
+    seconds = (dt.replace(tzinfo=None) - dt.replace(hour=0, minute=0, second=0)).seconds
     rounding = (seconds + round_to / 2) // round_to * round_to
     return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
@@ -68,7 +68,7 @@ def get_time_until():
     now = utc.localize(datetime.now())
     now = now.astimezone(zone)
     delta = timedelta(minutes=30)
-    next_half_hour = (now + delta).replace(microsecond=0, second=0, hours=0)
+    next_half_hour = (now + delta).replace(microsecond=0, second=0, hour=0)
 
     wait_seconds = (next_half_hour - now).seconds
     return wait_seconds
