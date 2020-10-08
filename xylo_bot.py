@@ -5,6 +5,7 @@ from util.discord_util import *
 from storage.database import *
 from storage import cache
 from datetime import datetime, timedelta, timezone
+from pytz import timezone
 
 import discord
 import random
@@ -29,27 +30,22 @@ def get_prefix(dbot, message: discord.Message):
         prefixes.append(prefix)
     return prefixes
 
-def round_time(dt=None, roundTo=30*60):
-   """Round a datetime object to any time lapse in seconds
+
+def round_time(dt=None, round_to=30 * 60):
+    """Round a datetime object to any time lapse in seconds
    dt : datetime.datetime object, default now.
    roundTo : Closest number of seconds to round to, default 1 minute.
    Author: Thierry Husson 2012 - Use it as you want but don't blame me.
    """
-   if dt == None: 
-       zone = timezone('US/Mountain')
-       utc = timezone('UTC')
-       dt = utc.localize(datetime.now())
-       dt = dt.astimezone(zone)
-       
-   zone = timezone('US/Mountain')
-   utc = timezone('UTC')
-   now = utc.localize(datetime.now())
-   now = now.astimezone(zone)
-   delta = datetime.timedelta(minutes=30)
-   next_half_hour = (now + delta).replace(microsecond=0, second=0, hours=0)
-   seconds = (dt.replace(tzinfo=None) - dt.replace(hours=0, minutes=0 ,seconds=0)).seconds
-   rounding = (seconds+roundTo/2) // roundTo * roundTo
-   return dt + datetime.timedelta(0,rounding-seconds,-dt.microsecond)
+    if dt is None:
+        zone = timezone('US/Mountain')
+        utc = timezone('UTC')
+        dt = utc.localize(datetime.now())
+        dt = dt.astimezone(zone)
+
+    seconds = (dt.replace(tzinfo=None) - dt.replace(hours=0, minutes=0, seconds=0)).seconds
+    rounding = (seconds + round_to / 2) // round_to * round_to
+    return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
 
 # bot = Bot(command_prefix=get_prefix, intents=intents)
@@ -71,7 +67,7 @@ def get_time_until():
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
     now = now.astimezone(zone)
-    delta = datetime.timedelta(minutes=30)
+    delta = timedelta(minutes=30)
     next_half_hour = (now + delta).replace(microsecond=0, second=0, hours=0)
 
     wait_seconds = (next_half_hour - now).seconds
@@ -168,8 +164,8 @@ class XyloBot(commands.Bot):
         for loop in self.loops:
             await self.loops[loop](time)
 
-
     first_loop = True
+
     @tasks.loop(seconds=get_time_until)
     async def setup_loop(self):
         # Probably one of the most hacky ways to get a loop to run every thirty minutes based
