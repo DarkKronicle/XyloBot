@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from util.context import Context
 from xylo_bot import XyloBot
-from pyowm import OWM
+from pyowm.owm import OWM
 from pyowm.weatherapi25 import weather
 
 stats_messages = {}
