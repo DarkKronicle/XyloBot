@@ -3,13 +3,15 @@ from datetime import datetime
 
 import discord
 from discord.ext import commands
+from pyowm.weatherapi25.one_call import OneCall
 
 from util.context import Context
 from xylo_bot import XyloBot
 from pyowm.owm import OWM
 from pyowm.weatherapi25 import weather
-from pyowm.weatherapi25.location import Location
+from pyowm.weatherapi25.weather_manager import WeatherManager
 from pyowm.commons.exceptions import NotFoundError
+from pyowm.commons import cityidregistry
 
 stats_messages = {}
 
@@ -21,7 +23,8 @@ class Stats(commands.Cog):
     API_key = os.getenv('WEATHER_TOKEN')
     city_name = int(os.getenv('CITY_CODE'))
     owm = OWM(API_key)
-    mgr = owm.weather_manager()
+    mgr: WeatherManager = owm.weather_manager()
+    reg: cityidregistry.CityIDRegistry = owm.city_id_registry()
 
     def __init__(self, bot):
         self.bot: XyloBot = bot
@@ -48,25 +51,33 @@ class Stats(commands.Cog):
 
         # observation = self.mgr.weather_at_id(self.city_name)
         try:
-            observation = self.mgr.weather_at_place(args[0])
-            w: weather.Weather = observation.weather
-            location: Location = observation.location
+            # observation = self.mgr.weather_at_place(args[0])
+            # w: weather.Weather = observation.weather
+            location = self.reg.locations_for(args[0])[0]
+            one_call: OneCall = self.mgr.one_call(lat=location.lat, lon=location.lon, units='imperial', exclude="minutely")
         except NotFoundError:
             return await ctx.send("That cities weather was not found!")
-        temp = w.temperature('fahrenheit')
+        current: weather.Weather = one_call.current
+        temp = current.temp["temp"]
+        feel = current.temp["feels_like"]
+        today: weather.Weather = one_call.forecast_daily[0]
+        temp_low = today.temp["temp_low"]
+        temp_high = today.temp["temp_high"]
         message = "Temperature:\n" \
-                  f"- Right now: `{temp['temp']}`\n- Low: `{temp['temp_min']}F`\n- High: `{temp['temp_max']}F`\n- " \
+                  f"- Right now: `{temp}F`\n" \
+                  f"- High: `{temp_high}F`\n" \
+                  f"- Low: `{temp_low}F`\n" \
+                  f"- Feels like: `{feel}F`\n" \
                   f"Feels like: `{temp['feels_like']}F`\n\n" \
-                  f"Current Status: `{w.detailed_status}`\n" \
-                  f"Wind: `{str(w.wind(unit='miles_hour')['speed'])}MPH`\n" \
-                  f"Clouds: `{str(w.clouds)}%`\n"
+                  f"Current Status: `{current.detailed_status}`\n" \
+                  f"Clouds: `{str(current.clouds)}%`\n"
         embed = discord.Embed(
             title=f"Current Weather at {location.name}",
             description=message,
             colour=discord.Colour.blue()
         )
-        embed.set_thumbnail(url=w.weather_icon_url())
-        embed.set_footer(text=f"City: {location.name}. Country: {location.country}. Coord: {location.lon}, {location.lat}")
+        embed.set_thumbnail(url=current.weather_icon_url())
+        embed.set_footer(text=f"City: {location.name}. Country: {location.country}. Coord: {location.lat}, {location.lon}")
         await ctx.send(embed=embed)
 
 
