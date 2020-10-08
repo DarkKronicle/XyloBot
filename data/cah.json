@@ -19,7 +19,6 @@
       "Short people",
       "My tall sisters boyfriends brothers dad",
       "An old man who keeps on saying, \"Never underestimate an old women\"",
-      "A band who all wear 100 year old suits.",
       "Dora the Explorer",
       "A sentimental widow on the back porch.",
       "The police.",
@@ -87,12 +86,15 @@
       "Vigorous jazz hands.",
       "Bees?",
       "BATMAN!!!",
-      "Having been dead for a while."
+      "Having been dead for a while.",
+      "Virginity.",
+      "Your virginity.",
+      "*That* man.",
+      "MY NAME CHUNGO. CHUNGO LOVE _____."
     ],
     "black": [
       "Twenty bucks would buy _____.",
       "Where do I see myself in 5 years?",
-      "What's the last thing I would do if I was on the sinking Titanic?",
       "In case of emergency, please call _____.",
       "Can I have ____ with sprinkles on top?",
       "I woke up this morning to ____.",
@@ -134,7 +136,33 @@
       "And I would have gotten away with it, too, if it hadn't been for ____!",
       "When I am the President of the United States, I will create the department of _____.",
       "Dear Abby, I'm having some trouble with _____ and would like your advice.",
-      "What are my parents hiding from me?"
+      "What are my parents hiding from me?",
+      "What's the secret to winning the Hunger Games?",
+      "What did I bring back from Mexico?",
+      "Betcha can't have just one!"
+    ]
+  },
+  "school": {
+    "white": [
+      "Pulling down your pants all the way when peeing.",
+      "Uranas.",
+      "AP Sex Ed",
+      "Getting stuck in the toilet.",
+      "Forgetting to put on deoderant.",
+      "Not wearing socks."
+    ],
+    "black": [
+      "Class pay attention, I'm about to demonstrate the physics of _____.",
+      "What's about to take this school dance to the next level?",
+      "Now I'm not going to lie, my favorite class was definetally _____.",
+      "Shut up, Becky! At least I'm not _____.",
+      "Oh, no thank you, Mrs. Lee. I've had plenty of _____ for now.",
+      "The best show and tell was when Alyssa brought in _____.",
+      "Exploiting _____ for Student Growth.",
+      "Everything I know about teaching I learned from ____.",
+      "Stop! _____ is killing your teaching!",
+      "Repurposing _____ for new paradigms in teaching all over the country.",
+      "What's the next Happy Meal toy?"
     ]
   }
 }

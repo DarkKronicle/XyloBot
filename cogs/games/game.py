@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from cogs.games.fire_draw import FireDrawGame
 from cogs.games.cah import CAHUserInstance, CAHGameInstance
+from storage.json_reader import JSONReader
 from util.context import Context
 from storage import cache
 
@@ -69,10 +70,12 @@ class Games(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send_help('cah')
 
-    @cah.command(name="start")
+    cards = JSONReader("data/cah.json").data
+
+    @cah.command(name="start", usage="<categories>")
     @commands.guild_only()
     @is_game_channel()
-    async def cah_start(self, ctx):
+    async def cah_start(self, ctx, *args):
         """
         Start a game of Cards Against Humanity. You can send it again to force it to start.
         """
@@ -97,9 +100,19 @@ class Games(commands.Cog):
             colour=discord.Colour.green()
         )
         await ctx.send(embed=started)
+        if len(args) == 0:
+            categories = ["default"]
+        else:
+            categories = []
+            for arg in args:
+                if arg in args:
+                    if arg in self.cards:
+                        categories.append(arg)
+        if len(categories) == 0:
+            categories = ["default"]
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
-        game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, ["default"], ctx.bot)
+        game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, categories, ctx.bot)
         self.current_games[ctx.guild]["cah"] = game
         await asyncio.sleep(60)
         if not game.started:
@@ -113,10 +126,12 @@ class Games(commands.Cog):
                 colour=discord.Colour.red()
             ))
             return
+        message = f"Game starting for *Cards Against Humanity*. Make sure to type your answers in **this channel**.\n\nCategories:"
+        for cat in game.categories:
+            message = message + f" `{cat}`"
         start = discord.Embed(
             title="Cards Against Humanity - Game starting!",
-            description=f"Game starting for *Cards Against Humanity*. Make sure to type your answers in **this "
-                        f"channel**.",
+            description=message,
             colour=discord.Colour.blue()
         )
         await ctx.send(embed=start)
