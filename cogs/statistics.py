@@ -37,27 +37,31 @@ class Stats(commands.Cog):
 
     @commands.command(name="weather")
     @commands.cooldown(2, 60, commands.BucketType.guild)
-    async def weather(self, ctx: Context):
+    async def weather(self, ctx: Context, *args):
         """
-        Gets the current weather
+        Gets the current weather.
         """
-        if ctx.guild.id != 731284440642224139:
-            return
+        if len(args) == 0:
+            return await ctx.send('Specify a city. `weather "Tokyo,JP"')
 
-        observation = self.mgr.weather_at_id(self.city_name)
+        # observation = self.mgr.weather_at_id(self.city_name)
+        observation = self.mgr.weather_at_place(args[0])
         w: weather.Weather = observation.weather
 
         temp = w.temperature('fahrenheit')
-        message = "Temperature:" \
-                  f"- Right now: `{temp['temp']}`\n- Low: `{temp['temp_min']}`\n- High: `{temp['temp_min']}`\n- Feels like: `{temp['feels_like']}`\n\n" \
+        message = "Temperature:\n" \
+                  f"- Right now: `{temp['temp']}`\n- Low: `{temp['temp_min']}F`\n- High: `{temp['temp_max']}F`\n- " \
+                  f"Feels like: `{temp['feels_like']}F`\n\n" \
                   f"Current Status: `{w.detailed_status}`" \
-                  f"Wind: `{str(w.wind()['speed'])}`" \
-                  f"Clouds: `{str(w.clouds)}%`"
-        await ctx.send(embed=discord.Embed(
+                  f"Wind: `{str(w.wind(unit='miles_hour')['speed'])}MPH`\n" \
+                  f"Clouds: `{str(w.clouds)}%`\n"
+        embed = discord.Embed(
             title="Current Weather",
             description=message,
             colour=discord.Colour.blue()
-        ))
+        )
+        embed.set_thumbnail(url=w.weather_icon_url())
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
