@@ -46,16 +46,16 @@ class Stats(commands.Cog):
         """
         Gets the current weather.
         """
-        if len(args) == 0:
-            return await ctx.send('Specify a city. `weather "Tokyo,JP"')
+        if len(args) < 2:
+            return await ctx.send('Specify a city. `weather "Tokyo" "JP"')
 
         # observation = self.mgr.weather_at_id(self.city_name)
         try:
             # observation = self.mgr.weather_at_place(args[0])
             # w: weather.Weather = observation.weather
-            location = self.reg.locations_for(args[0])[0]
+            location = self.reg.locations_for(args[0], country=args[1])[0]
             one_call: OneCall = self.mgr.one_call(lat=location.lat, lon=location.lon, units='imperial', exclude="minutely")
-        except NotFoundError:
+        except (NotFoundError, IndexError):
             return await ctx.send("That cities weather was not found!")
         current: weather.Weather = one_call.current
         temp = current.temp["temp"]
