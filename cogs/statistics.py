@@ -48,13 +48,11 @@ class Stats(commands.Cog):
         w: weather.Weather = observation.weather
 
         temp = w.temperature('fahrenheit')
-        message = f"
-        "Temperature:"
-        f"- Right now: `{temp['temp']}`\n- Low: `{temp['temp_min']}`\n- High: `{temp['temp_min']}`\n- Feels like: `{temp['feels_like']}`\n\n"
-        f"Current Status: `{w.detailed_status}`"
-        f"Wind: `{str(w.wind()['speed'])}`"
-        f"Clouds: `{str(w.clouds)}%`"
-
+        message = "Temperature:" \
+                  f"- Right now: `{temp['temp']}`\n- Low: `{temp['temp_min']}`\n- High: `{temp['temp_min']}`\n- Feels like: `{temp['feels_like']}`\n\n" \
+                  f"Current Status: `{w.detailed_status}`" \
+                  f"Wind: `{str(w.wind()['speed'])}`" \
+                  f"Clouds: `{str(w.clouds)}%`"
         await ctx.send(embed=discord.Embed(
             title="Current Weather",
             description=message,
