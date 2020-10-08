@@ -166,7 +166,7 @@ class XyloBot(commands.Bot):
 
     first_loop = True
 
-    @tasks.loop(seconds=get_time_until)
+    @tasks.loop(seconds=get_time_until())
     async def setup_loop(self):
         # Probably one of the most hacky ways to get a loop to run every thirty minutes based
         # off of starting on one of them.
