@@ -36,6 +36,7 @@ class Stats(commands.Cog):
             return
 
     @commands.command(name="weather")
+    @commands.cooldown(2, 60, commands.BucketType.guild)
     async def weather(self, ctx: Context):
         """
         Gets the current weather
@@ -46,12 +47,14 @@ class Stats(commands.Cog):
         observation = self.mgr.weather_at_id(self.city_name)
         w: weather.Weather = observation.weather
 
-        message = f"""
-        Temperature: `{w.temperature('fahrenheit')}
-        Current Status: `{w.detailed_status}`\n
-        Wind: `{str(w.wind()['speed'])}`\n
-        Clouds: `{str(w.clouds)}%`
-        """
+        temp = w.temperature('fahrenheit')
+        message = f"
+        "Temperature:"
+        f"- Right now: `{temp['temp']}`\n- Low: `{temp['temp_min']}`\n- High: `{temp['temp_min']}`\n- Feels like: `{temp['feels_like']}`\n\n"
+        f"Current Status: `{w.detailed_status}`"
+        f"Wind: `{str(w.wind()['speed'])}`"
+        f"Clouds: `{str(w.clouds)}%`"
+
         await ctx.send(embed=discord.Embed(
             title="Current Weather",
             description=message,
