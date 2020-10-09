@@ -37,9 +37,20 @@ class Stats(commands.Cog):
         return None
 
     async def update_stats(self, time: datetime):
-        channel = self.get_stat_channel(731284440642224139)
+        channel: discord.TextChannel = self.get_stat_channel(731284440642224139)
         if channel is None:
             return
+        db = Database()
+        data = db.get_settings(str(731284440642224139))
+        if "utility" in data and "weather" in data["utility"]:
+            city = data["utility"]["weather"]["city"]
+            country = data["utility"]["weather"]["country"]
+        else:
+            return
+
+        location = self.reg.locations_for(city, country=country.upper())[0]
+        embed = await self.get_weather_embed(location)
+        await channel.send(embed=embed)
 
     @commands.command(name="weather", usage="<city> <country>")
     @commands.cooldown(2, 60, commands.BucketType.guild)
@@ -104,12 +115,12 @@ class Stats(commands.Cog):
         temp = math.ceil(current.temp["temp"])
         feel = math.ceil(current.temp["feels_like"])
         today: weather.Weather = one_call.forecast_daily[0]
-        temp_low = math.ceil(today.temp["min"])
+        temp_low = math.ceil(today.temp["night"])
         temp_high = math.ceil(today.temp["max"])
         message = "Temperature:\n" \
                   f"- Right now: `{str(temp)}F`\n" \
                   f"- High: `{str(temp_high)}F`\n" \
-                  f"- Low: `{str(temp_low)}F`\n" \
+                  f"- Night: `{str(temp_low)}F`\n" \
                   f"- Feels like: `{str(feel)}F`\n" \
                   f"Current Status: `{current.detailed_status}`\n" \
                   f"Clouds: `{str(current.clouds)}%`\n"
