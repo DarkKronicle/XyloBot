@@ -72,7 +72,7 @@ class Games(commands.Cog):
 
     cards = JSONReader("data/cah.json").data
 
-    @cah.command(name="start", usage="<categories>")
+    @cah.command(name="start", usage="<all/categories>")
     @commands.guild_only()
     @is_game_channel()
     async def cah_start(self, ctx, *args):
@@ -102,12 +102,15 @@ class Games(commands.Cog):
         await ctx.send(embed=started)
         if len(args) == 0:
             categories = ["default"]
+        elif args[0] == "all":
+            categories = []
+            for cat in self.cards:
+                categories.append(cat)
         else:
             categories = []
             for arg in args:
-                if arg in args:
-                    if arg in self.cards:
-                        categories.append(arg)
+                if arg in self.cards:
+                    categories.append(arg)
         if len(categories) == 0:
             categories = ["default"]
         if ctx.guild not in self.current_games:

@@ -56,7 +56,7 @@ class Stats(commands.Cog):
         if len(locations) == 0:
             return await ctx.send("That cities weather was not found!")
         if len(locations) > 1:
-            message = "Multiple cities were found, please type in the number of the one you want.`\n"
+            message = "Multiple cities were found, please type in the number of the one you want.\n"
             i = 0
             for loc in locations:
                 i = i + 1
@@ -75,7 +75,7 @@ class Stats(commands.Cog):
                 if i == val:
                     location = loc
             if location is None:
-                return await ctx.send("Incorrect number!")
+                return await ctx.send("Incorrect number!", delete_after=15)
         else:
             location = locations[0]
 
