@@ -534,7 +534,7 @@ class Settings(commands.Cog):
             if len(args) < 3:
                 await ctx.send_help('settings loc <city> <country>')
                 return
-            if len(args[1]) != 2:
+            if len(args[2]) != 2:
                 return await ctx.send("Country must be 2 characters!")
 
             db = Database()
@@ -543,8 +543,8 @@ class Settings(commands.Cog):
                 data["utility"] = {}
             if "weather" not in data["utility"]:
                 data["utility"]["weather"] = {}
-            data["utility"]["weather"]["city"] = args[0]
-            data["utility"]["weather"]["country"] = args[1]
+            data["utility"]["weather"]["city"] = args[1]
+            data["utility"]["weather"]["country"] = args[2]
             db.set_settings(str(ctx.guild.id), data)
             return await ctx.send("Default weather set!")
 
