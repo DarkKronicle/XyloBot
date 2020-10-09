@@ -50,13 +50,40 @@ class Stats(commands.Cog):
             return await ctx.send('Specify a city. `weather "Tokyo" "JP"')
 
         # observation = self.mgr.weather_at_id(self.city_name)
-        try:
-            # observation = self.mgr.weather_at_place(args[0])
-            # w: weather.Weather = observation.weather
-            location = self.reg.locations_for(args[0], country=args[1])[0]
-            one_call: OneCall = self.mgr.one_call(lat=location.lat, lon=location.lon, units='imperial', exclude="minutely")
-        except (NotFoundError, IndexError):
+        # observation = self.mgr.weather_at_place(args[0])
+        # w: weather.Weather = observation.weather
+        locations = self.reg.locations_for(args[0], country=args[1])
+        if len(locations) == 0:
             return await ctx.send("That cities weather was not found!")
+        elif len(locations) > 1:
+            message = "Multiple cities were found, please type in the number of the one you want.`"
+            i = 0
+            for loc in locations:
+                i = i + 1
+                message = message + f"`**{i}**  {str(loc.id)}` - {loc.name}: `{loc.lat}` `{loc.lon}`\n"
+            answer = await ctx.ask(message)
+            if answer is None:
+                return await ctx.timeout()
+            try:
+                val = int(answer)
+            except ValueError:
+                return await ctx.send("You need to type in a number!")
+            i = 0
+            location = None
+            for loc in locations:
+                if i == val:
+                    location = loc
+            if location is None:
+                return await ctx.send("Incorrect number!")
+        else:
+            location = locations[0]
+
+        weather = await self.get_weather_embed(location)
+        await ctx.send(embed=weather)
+
+    async def get_weather_embed(self, loc):
+        one_call: OneCall = self.mgr.one_call(lat=loc.lat, lon=loc.lon, units='imperial', exclude="minutely")
+
         current: weather.Weather = one_call.current
         temp = current.temp["temp"]
         feel = current.temp["feels_like"]
@@ -71,14 +98,13 @@ class Stats(commands.Cog):
                   f"Current Status: `{current.detailed_status}`\n" \
                   f"Clouds: `{str(current.clouds)}%`\n"
         embed = discord.Embed(
-            title=f"Current Weather at {location.name}",
+            title=f"Current Weather at {loc.name}",
             description=message,
             colour=discord.Colour.blue()
         )
         embed.set_thumbnail(url=current.weather_icon_url())
-        embed.set_footer(text=f"City: {location.name}. Country: {location.country}. Coord: {location.lat}, {location.lon}")
-        await ctx.send(embed=embed)
-
+        embed.set_footer(text=f"City: {loc.name}. Country: {loc.country}. Coord: {loc.lat}, {loc.lon}")
+        return embed
 
 def setup(bot):
     bot.add_cog(Stats(bot))
