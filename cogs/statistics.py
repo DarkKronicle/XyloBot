@@ -56,11 +56,11 @@ class Stats(commands.Cog):
         if len(locations) == 0:
             return await ctx.send("That cities weather was not found!")
         if len(locations) > 1:
-            message = "Multiple cities were found, please type in the number of the one you want.`"
+            message = "Multiple cities were found, please type in the number of the one you want.`\n"
             i = 0
             for loc in locations:
                 i = i + 1
-                message = message + f"`**{i}**  {str(loc.id)}` - {loc.name}: `{loc.lat}` `{loc.lon}`\n"
+                message = message + f"**{i}**  `{str(loc.id)}` - {loc.name}, {loc.country}: `{loc.lat}` `{loc.lon}`\n"
             answer = await ctx.ask(message)
             if answer is None:
                 return await ctx.timeout()
@@ -71,6 +71,7 @@ class Stats(commands.Cog):
             i = 0
             location = None
             for loc in locations:
+                i = i + 1
                 if i == val:
                     location = loc
             if location is None:
