@@ -115,9 +115,9 @@ class Stats(commands.Cog):
         temp = math.ceil(current.temp["temp"])
         feel = math.ceil(current.temp["feels_like"])
         today: weather.Weather = one_call.forecast_daily[0]
-        temp_low = math.ceil(today.temp["night"])
+        temp_low = math.ceil(today.temp["min"])
         temp_high = math.ceil(today.temp["max"])
-        message = f"Low {str(temp_low)}F - High {str(temp_high)}F\n" \
+        message = f"__**{str(temp)}F**__ *(feels like {str(feel)})*\nLow {str(temp_low)}F - High {str(temp_high)}F\n" \
                   f"{current.detailed_status}\n" \
                   f"Cloud percentage is {str(current.clouds)}%"
         embed = discord.Embed(
@@ -125,7 +125,7 @@ class Stats(commands.Cog):
             description=message,
             colour=discord.Colour.blue()
         )
-        embed.set_author(name=f"__**{str(temp)}F**__ (feels like {str(feel)})", icon_url=current.weather_icon_url())
+        embed.set_thumbnail(url=current.weather_icon_url())
         embed.set_footer(text=f"City: {loc.name}. Country: {loc.country}. Coord: {loc.lat}, {loc.lon}")
         return embed
 
