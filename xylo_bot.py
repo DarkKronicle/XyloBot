@@ -31,23 +31,6 @@ def get_prefix(dbot, message: discord.Message):
     return prefixes
 
 
-def round_time(dt=None, round_to=30 * 60):
-    """Round a datetime object to any time lapse in seconds
-   dt : datetime.datetime object, default now.
-   roundTo : Closest number of seconds to round to, default 1 minute.
-   Author: Thierry Husson 2012 - Use it as you want but don't blame me.
-   """
-    if dt is None:
-        zone = timezone('US/Mountain')
-        utc = timezone('UTC')
-        dt = utc.localize(datetime.now())
-        dt = dt.astimezone(zone)
-
-    seconds = (dt.replace(tzinfo=None) - dt.replace(tzinfo=None, hour=0, minute=0, second=0)).seconds
-    rounding = (seconds + round_to / 2) // round_to * round_to
-    return dt + timedelta(0, rounding - seconds, -dt.microsecond)
-
-
 # bot = Bot(command_prefix=get_prefix, intents=intents)
 # Command Extensions
 # Setup
@@ -66,12 +49,30 @@ def get_time_until():
     zone = timezone('US/Mountain')
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
-    now = now.astimezone(zone)
-    delta = timedelta(minutes=30)
+    now: datetime = now.astimezone(zone)
+    minute = 30 - (now.minute % 30)
+    delta = timedelta(minutes=minute)
     next_half_hour = (now + delta).replace(microsecond=0, second=0, hour=0)
 
     wait_seconds = (next_half_hour - now).seconds
     return wait_seconds
+
+
+def round_time(dt=None, round_to=30 * 60):
+    """Round a datetime object to any time lapse in seconds
+   dt : datetime.datetime object, default now.
+   roundTo : Closest number of seconds to round to, default 1 minute.
+   Author: Thierry Husson 2012 - Use it as you want but don't blame me.
+   """
+    if dt is None:
+        zone = timezone('US/Mountain')
+        utc = timezone('UTC')
+        dt = utc.localize(datetime.now())
+        dt = dt.astimezone(zone)
+
+    seconds = (dt.replace(tzinfo=None) - dt.replace(tzinfo=None, hour=0, minute=0, second=0)).seconds
+    rounding = (seconds + round_to / 2) // round_to * round_to
+    return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
 
 class XyloBot(commands.Bot):
