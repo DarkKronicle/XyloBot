@@ -1,4 +1,5 @@
 from storage import cache
+from util.context import Context
 from util.discord_util import *
 import discord
 from discord.ext import commands
@@ -430,6 +431,7 @@ class Settings(commands.Cog):
         )
         embed.add_field(name="`invite <toggle/CHANNELID>`",
                         value="Allow for Xylo to create tempory invites for quick use.")
+        embed.add_field(name="`weather <loc>", value="Configure default weather location.")
         await ctx.send(embed=embed)
         return
 
@@ -442,6 +444,7 @@ class Settings(commands.Cog):
             await ctx.send_help('settings invite')
 
     @invite.command(name="toggle")
+    @is_allowed()
     @commands.guild_only()
     async def invite_toggle(self, ctx):
         """
@@ -469,6 +472,7 @@ class Settings(commands.Cog):
 
     @invite.command(name="channel")
     @commands.guild_only()
+    @is_allowed()
     async def invite_channel(self, ctx, channel: discord.TextChannel = None):
         """
         Set the channel for settings invite.
@@ -489,6 +493,7 @@ class Settings(commands.Cog):
         await ctx.send(f"Invite channel set to {channel.mention}!")
 
     @settings.command(name="prefix", usage="<new_prefix>")
+    @is_allowed()
     @commands.guild_only()
     async def prefix(self, ctx: commands.Context, *args):
         if len(args) == 1:
@@ -513,6 +518,33 @@ class Settings(commands.Cog):
         cache.clear_prefix_cache(ctx.guild)
         await ctx.send(embed=success)
         return
+
+    @util.command(name="weather", usage="<loc>")
+    @is_allowed()
+    @commands.guild_only()
+    async def weather(self, ctx: Context, *args):
+        """
+        Configure weather data for the server.
+        """
+        if len(args) == 0:
+            await ctx.send_help('settings weather')
+            return
+
+        if args[0] == "loc":
+            if len(args) < 3:
+                await ctx.send_help('settings loc <city> <country>')
+                return
+
+            db = Database()
+            data = db.get_settings(str(ctx.guild.id))
+            if "utility" not in data:
+                data["utility"] = {}
+            if "weather" not in data["utility"]:
+                data["utility"]["weather"] = {}
+            data["utility"]["weather"]["city"] = args[1]
+            data["utility"]["weather"]["country"] = args[1]
+            db.set_settings(str(ctx.guild.id), data)
+            return await ctx.send("Default weather set!")
 
 
 def setup(bot):

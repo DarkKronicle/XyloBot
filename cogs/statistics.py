@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime
 
@@ -6,7 +7,7 @@ from discord.ext import commands
 from pyowm.weatherapi25.one_call import OneCall
 
 from util.context import Context
-from xylo_bot import XyloBot
+from xylo_bot import XyloBot, Database
 from pyowm.owm import OWM
 from pyowm.weatherapi25 import weather
 from pyowm.weatherapi25.weather_manager import WeatherManager
@@ -40,19 +41,31 @@ class Stats(commands.Cog):
         if channel is None:
             return
 
-    @commands.command(name="weather")
+    @commands.command(name="weather", usage="<city> <country>")
     @commands.cooldown(2, 60, commands.BucketType.guild)
     async def weather(self, ctx: Context, *args):
         """
         Gets the current weather.
         """
-        if len(args) < 1:
-            return await ctx.send('Specify a city. `weather "Tokyo" "JP"')
+        if len(args) == 0 and ctx.guild is not None:
+            db = Database()
+            data = db.get_settings(str(ctx.guild.id))
+            if "utility" in data and "weather" in data["utility"]:
+                city = data["utility"]["weather"]["city"]
+                country = data["utility"]["weather"]["country"]
+            else:
+                return await ctx.send("You need to specify a city and a country!")
+        else:
+            city = args[0]
+            if len(args) > 1:
+                country = args[1]
+            else:
+                country = None
 
         if len(args) == 1:
-            locations = self.reg.locations_for(args[0])
+            locations = self.reg.locations_for(city)
         else:
-            locations = self.reg.locations_for(args[0], country=args[1])
+            locations = self.reg.locations_for(city, country=country.upper())
         if len(locations) == 0:
             return await ctx.send("That cities weather was not found!")
         if len(locations) > 1:
@@ -83,19 +96,19 @@ class Stats(commands.Cog):
         await ctx.send(embed=weather)
 
     async def get_weather_embed(self, loc):
-        one_call: OneCall = self.mgr.one_call(lat=loc.lat, lon=loc.lon, units='imperial', exclude="minutely")
+        one_call: OneCall = self.mgr.one_call(lat=loc.lat, lon=loc.lon, units='imperial', exclude="minutely, hourly")
 
         current: weather.Weather = one_call.current
-        temp = current.temp["temp"]
-        feel = current.temp["feels_like"]
+        temp = math.ceil(current.temp["temp"])
+        feel = math.ceil(current.temp["feels_like"])
         today: weather.Weather = one_call.forecast_daily[0]
-        temp_low = today.temp["min"]
-        temp_high = today.temp["max"]
+        temp_low = math.ceil(today.temp["min"])
+        temp_high = math.ceil(today.temp["max"])
         message = "Temperature:\n" \
-                  f"- Right now: `{temp}F`\n" \
-                  f"- High: `{temp_high}F`\n" \
-                  f"- Low: `{temp_low}F`\n" \
-                  f"- Feels like: `{feel}F`\n" \
+                  f"- Right now: `{str(temp)}F`\n" \
+                  f"- High: `{str(temp_high)}F`\n" \
+                  f"- Low: `{str(temp_low)}F`\n" \
+                  f"- Feels like: `{str(feel)}F`\n" \
                   f"Current Status: `{current.detailed_status}`\n" \
                   f"Clouds: `{str(current.clouds)}%`\n"
         embed = discord.Embed(
@@ -106,6 +119,7 @@ class Stats(commands.Cog):
         embed.set_thumbnail(url=current.weather_icon_url())
         embed.set_footer(text=f"City: {loc.name}. Country: {loc.country}. Coord: {loc.lat}, {loc.lon}")
         return embed
+
 
 def setup(bot):
     bot.add_cog(Stats(bot))
