@@ -37,7 +37,7 @@ class Stats(commands.Cog):
         return None
 
     async def update_stats(self, time: datetime):
-        channel: discord.TextChannel = self.get_stat_channel(731284440642224139)
+        channel: discord.TextChannel = await self.get_stat_channel(731284440642224139)
         if channel is None:
             return
         db = Database()
@@ -117,13 +117,9 @@ class Stats(commands.Cog):
         today: weather.Weather = one_call.forecast_daily[0]
         temp_low = math.ceil(today.temp["night"])
         temp_high = math.ceil(today.temp["max"])
-        message = "Temperature:\n" \
-                  f"- Right now: `{str(temp)}F`\n" \
-                  f"- High: `{str(temp_high)}F`\n" \
-                  f"- Night: `{str(temp_low)}F`\n" \
-                  f"- Feels like: `{str(feel)}F`\n" \
-                  f"Current Status: `{current.detailed_status}`\n" \
-                  f"Clouds: `{str(current.clouds)}%`\n"
+        message = f"__***{str(temp)}F***__ (feels like {str(feel)})\n{str(temp_low)} - {str(temp_high)}\n" \
+                  f"{current.detailed_status}\n" \
+                  f"Cloud percentage is {str(current.clouds)}%"
         embed = discord.Embed(
             title=f"Current Weather at {loc.name}",
             description=message,
