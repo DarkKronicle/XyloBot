@@ -46,16 +46,16 @@ class Stats(commands.Cog):
         """
         Gets the current weather.
         """
-        if len(args) < 2:
+        if len(args) < 1:
             return await ctx.send('Specify a city. `weather "Tokyo" "JP"')
 
-        # observation = self.mgr.weather_at_id(self.city_name)
-        # observation = self.mgr.weather_at_place(args[0])
-        # w: weather.Weather = observation.weather
-        locations = self.reg.locations_for(args[0], country=args[1])
+        if len(args) == 1:
+            locations = self.reg.locations_for(args[0])
+        else:
+            locations = self.reg.locations_for(args[0], country=args[1])
         if len(locations) == 0:
             return await ctx.send("That cities weather was not found!")
-        elif len(locations) > 1:
+        if len(locations) > 1:
             message = "Multiple cities were found, please type in the number of the one you want.`"
             i = 0
             for loc in locations:
