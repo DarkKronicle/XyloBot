@@ -50,7 +50,7 @@ def get_time_until():
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
     now: datetime = now.astimezone(zone)
-    minute = 30 - ((now.minute + 1) % 30)
+    minute = 30 - ((now.minute) % 30)
     delta = timedelta(minutes=minute)
     next_half_hour = (now + delta).replace(microsecond=0, second=0)
 

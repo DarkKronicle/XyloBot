@@ -100,9 +100,7 @@ class Games(commands.Cog):
             colour=discord.Colour.green()
         )
         await ctx.send(embed=started)
-        if len(args) == 0:
-            categories = ["default"]
-        elif args[0] == "all":
+        if len(args) == 0 or args[0] == "all":
             categories = []
             for cat in self.cards:
                 categories.append(cat)
@@ -112,7 +110,7 @@ class Games(commands.Cog):
                 if arg in self.cards:
                     categories.append(arg)
         if len(categories) == 0:
-            categories = ["default"]
+            categories = ["base"]
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, categories, ctx.bot)
@@ -137,6 +135,7 @@ class Games(commands.Cog):
             description=message,
             colour=discord.Colour.blue()
         )
+        game.started = True
         await ctx.send(embed=start)
         await asyncio.sleep(2)
         await game.start(ctx.bot)

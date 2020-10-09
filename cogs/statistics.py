@@ -11,7 +11,6 @@ from xylo_bot import XyloBot, Database
 from pyowm.owm import OWM
 from pyowm.weatherapi25 import weather
 from pyowm.weatherapi25.weather_manager import WeatherManager
-from pyowm.commons.exceptions import NotFoundError
 from pyowm.commons import cityidregistry
 
 stats_messages = {}
@@ -47,7 +46,7 @@ class Stats(commands.Cog):
             country = data["utility"]["weather"]["country"]
         else:
             return
-
+        await channel.purge(limit=10)
         location = self.reg.locations_for(city, country=country.upper())[0]
         embed = await self.get_weather_embed(location)
         await channel.send(embed=embed)
@@ -121,7 +120,7 @@ class Stats(commands.Cog):
                   f"{current.detailed_status}\n" \
                   f"Cloud percentage is {str(current.clouds)}%"
         embed = discord.Embed(
-            title=f"Current Weather at {loc.name}",
+            title=f"Current Weather in {loc.name}",
             description=message,
             colour=discord.Colour.blue()
         )

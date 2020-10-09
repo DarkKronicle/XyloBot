@@ -118,3 +118,9 @@ class Context(commands.Context):
         command = command or self.command.qualified_name
         await self.invoke(cmd, command=command)
 
+    async def get_dm(self, user=None):
+        if user is None:
+            user = self.author
+        if user.dm_channel is None:
+            await user.create_dm()
+        return user.dm_channel

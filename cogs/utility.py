@@ -1,6 +1,7 @@
 import discord
 from storage import cache
 from storage.database import Database
+from util.context import Context
 from util.discord_util import *
 from discord.ext import commands
 from datetime import datetime, timedelta
@@ -23,7 +24,7 @@ class Utility(commands.Cog):
     @commands.command(name="invite")
     @commands.guild_only()
     @commands.cooldown(1, 600, commands.BucketType.member)
-    async def invite(self, ctx: commands.Context):
+    async def invite(self, ctx: Context):
         """
         Creates an invite to the server using specific staff settings.
         """
@@ -53,6 +54,15 @@ class Utility(commands.Cog):
                         await log.send(embed=embed)
                         # embed.set_footer(text=f"Today at {get_time().strftime('%I:%M $p')}")
                     return
+
+    @commands.command(name="dmme")
+    async def dmme(self, ctx: Context):
+        dm = ctx.get_dm()
+        await dm.send("Hello there!")
+
+    @commands.command(name="ping")
+    async def ping(self, ctx: Context):
+        await ctx.send("Pong!")
 
 
 def setup(bot):
