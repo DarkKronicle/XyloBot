@@ -62,6 +62,8 @@ class Stats(commands.Cog):
             else:
                 country = None
 
+        if country is not None and len(country) != 2:
+            return await ctx.send('Country has to be 2 characters!')
         if len(args) == 1:
             locations = self.reg.locations_for(city)
         else:
