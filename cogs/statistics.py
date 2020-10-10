@@ -48,10 +48,17 @@ class Stats(commands.Cog):
             return
         loc = self.reg.locations_for(city, country=country.upper())[0]
 
-        current: weather.Weather = self.mgr.weather_at_coords(lat=loc.lat, lon=loc.lon)
+        obs = self.mgr.weather_at_coords(lat=loc.lat, lon=loc.lon)
+        current: weather.Weather = obs.weather
         temp = current.temperature("fahrenheit")
         right_now = math.ceil(temp["temp"])
         await channel.edit(name=f"{right_now}° - {current.status}")
+
+    @commands.command(name="updatestats", hidden=True)
+    async def updatestats(self, ctx: Context):
+        if await self.bot.is_owner(ctx.author):
+            await self.update_stats(time=None)
+            await ctx.send("Stats updated boss!")
 
     @commands.command(name="weather", usage="<city> <country>")
     @commands.cooldown(2, 60, commands.BucketType.guild)
