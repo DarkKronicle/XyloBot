@@ -76,7 +76,7 @@ class API(commands.Cog):
         if len(args) == 0:
             return ctx.send_help('yoda')
         content = ' '.join(args)
-        url = f"<https://api.funtranslations.com/translate/yoda.json?text={content}>"
+        url = f"https://api.funtranslations.com/translate/yoda.json?text={content}"
         url = url.replace(' ', '%20')
         data = requests.get(url=url).json()
         if data["success"]["total"] != 1:
