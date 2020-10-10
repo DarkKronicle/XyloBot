@@ -5,15 +5,7 @@ from discord.ext.commands import Bot
 import random
 from datetime import datetime, timedelta
 from util.discord_util import *
-
-
-def get_time_until():
-    zone = timezone('US/Mountain')
-    utc = timezone('UTC')
-    now = utc.localize(datetime.now())
-    curtime = now.astimezone(zone)
-    return int(round((timedelta(hours=24) - (
-                curtime - curtime.replace(hour=13, minute=0, second=0, microsecond=0))).total_seconds() % (24 * 3600)))
+from xylo_bot import XyloBot
 
 
 class QOTD(commands.Cog):
@@ -76,11 +68,9 @@ class QOTD(commands.Cog):
                 await ctx.send(embed=embed)
                 return
 
-            if args[0] == "time":
-                await ctx.send("Time until is " + str(get_time_until()) + " seconds!")
-                return
-
-    async def send_qotd(self):
+    async def send_qotd(self, time: datetime):
+        if time.hour != 12 and time.minute != 30:
+            return
         channel: discord.TextChannel = get_channel("qotd", "rivertron", self.bot)
 
         if channel is None:
@@ -101,19 +91,9 @@ class QOTD(commands.Cog):
         if self.go:
             await self.send_qotd()
 
-    setupcomplete = False
-
-    @tasks.loop(seconds=get_time_until())
-    async def setup(self):
-        if not self.setupcomplete:
-            self.setupcomplete = True
-            return
-        self.auto_qotd.start()
-        self.setup.stop()
-
     def __init__(self, bot):
-        self.bot = bot
-        self.setup.start()
+        self.bot: XyloBot = bot
+        self.bot.add_loop("qotd", self.send_qotd)
 
 
 def setup(bot):

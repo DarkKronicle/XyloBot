@@ -51,8 +51,8 @@ class Stats(commands.Cog):
         obs = self.mgr.weather_at_coords(lat=loc.lat, lon=loc.lon)
         current: weather.Weather = obs.weather
         temp = current.temperature("fahrenheit")
-        right_now = math.ceil(temp["temp"])
-        await channel.edit(name=f"{right_now}° - {current.status}")
+        right_now = math.floor(temp["temp"])
+        await channel.edit(name=f"{right_now}°-{current.status}")
 
     @commands.command(name="updatestats", hidden=True)
     async def updatestats(self, ctx: Context):

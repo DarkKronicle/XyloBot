@@ -57,7 +57,7 @@ class Utility(commands.Cog):
 
     @commands.command(name="dmme")
     async def dmme(self, ctx: Context):
-        dm = ctx.get_dm()
+        dm = await ctx.get_dm()
         await dm.send("Hello there!")
 
     @commands.command(name="ping")
