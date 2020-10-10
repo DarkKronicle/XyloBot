@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 from util import context
 from util import streaming
+from util.context import Context
 
 
 class API(commands.Cog):
@@ -28,6 +29,17 @@ class API(commands.Cog):
             colour=discord.Colour.purple()
         )
         await ctx.send(embed=embed)
+
+    @commands.command(name="lmgtfy")
+    async def lmgtfy(self, ctx: Context, *args):
+        """
+        Send a passive agressive google it review.
+        """
+        if len(args) == 0:
+            return ctx.send_help('lmgtfy')
+        content = ' '.join(args)
+        url = f"https://lmgtfy.app/?q={content}&iie=1"
+        await ctx.send(f"I have the perfect solution for you! Click here:\n{url}")
 
 
 def setup(bot):
