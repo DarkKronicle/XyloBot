@@ -46,10 +46,12 @@ class Stats(commands.Cog):
             country = data["utility"]["weather"]["country"]
         else:
             return
-        await channel.purge(limit=10)
-        location = self.reg.locations_for(city, country=country.upper())[0]
-        embed = await self.get_weather_embed(location)
-        await channel.send(embed=embed)
+        loc = self.reg.locations_for(city, country=country.upper())[0]
+
+        current: weather.Weather = self.mgr.weather_at_coords(lat=loc.lat, lon=loc.lon)
+        temp = current.temperature("fahrenheit")
+        right_now = math.ceil(temp["temp"])
+        await channel.edit(name=f"{right_now}° - {current.status}")
 
     @commands.command(name="weather", usage="<city> <country>")
     @commands.cooldown(2, 60, commands.BucketType.guild)

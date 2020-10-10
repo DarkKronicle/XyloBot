@@ -120,7 +120,7 @@ class Games(commands.Cog):
             await self.cah_force(game, ctx)
 
     async def cah_force(self, game, ctx):
-        if len(game.users) < 2:
+        if len(game.users) < 3:
             await ctx.send(embed=discord.Embed(
                 title="Cards Against Humanity - Not enough people!",
                 description=f"Only {len(game.users)} are in the game. You'll need at least 3.",
