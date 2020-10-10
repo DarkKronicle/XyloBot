@@ -69,7 +69,7 @@ class QOTD(commands.Cog):
                 return
 
     async def send_qotd(self, time: datetime):
-        if time.hour != 12 and time.minute != 30:
+        if time.hour != 12 or time.minute != 30:
             return
         channel: discord.TextChannel = get_channel("qotd", "rivertron", self.bot)
 

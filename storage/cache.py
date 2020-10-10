@@ -167,6 +167,8 @@ def clear_fields_cache(guild):
 
 
 def get_fields(guild: discord.Guild):
+    if guild is None:
+        return None
     if guild.id in fields:
         return fields[guild.id]
     else:
