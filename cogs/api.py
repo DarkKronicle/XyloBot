@@ -30,7 +30,7 @@ class API(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.command(name="lmgtfy")
+    @commands.command(name="lmgtfy", aliases=["lemmegoogle"])
     async def lmgtfy(self, ctx: Context, *args):
         """
         Send a passive agressive google it review.
@@ -39,6 +39,7 @@ class API(commands.Cog):
             return ctx.send_help('lmgtfy')
         content = ' '.join(args)
         url = f"https://lmgtfy.app/?q={content}&iie=1"
+        url = url.replace(' ', '+')
         await ctx.send(f"I have the perfect solution for you! Click here:\n{url}")
 
 
