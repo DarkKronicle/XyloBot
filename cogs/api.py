@@ -3,6 +3,7 @@ import discord
 from util import context
 from util import streaming
 from util.context import Context
+import requests
 
 
 class API(commands.Cog):
@@ -65,6 +66,22 @@ class API(commands.Cog):
         url = f"<https://www.google.com/search?tbm=isch&q={content}>"
         url = url.replace(' ', '%20')
         await ctx.send(f"I have the perfect image for you! Click here:\n{url}")
+
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.command(name="yoda", aliases=["yodaspeak"])
+    async def yoda(self, ctx: Context, *args):
+        """
+        Translates text into Yoda
+        """
+        if len(args) == 0:
+            return ctx.send_help('yoda')
+        content = ' '.join(args)
+        url = f"<https://api.funtranslations.com/translate/yoda.json?text={content}>"
+        url = url.replace(' ', '%20')
+        data = requests.get(url=url).json()
+        if data["success"]["total"] != 1:
+            return await ctx.send("Looks like this has been used too much!")
+        await ctx.send(data["contents"]["translated"])
 
 
 def setup(bot):

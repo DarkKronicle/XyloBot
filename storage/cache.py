@@ -145,6 +145,8 @@ def clear_enabled_cache(guild):
 
 
 def get_enabled(guild: discord.Guild):
+    if guild is None:
+        return None
     if guild.id in verify_enabled:
         return verify_enabled[guild.id]
     else:

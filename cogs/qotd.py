@@ -1,9 +1,7 @@
-from pytz import timezone
-
 from discord.ext import tasks
 from discord.ext.commands import Bot
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from util.discord_util import *
 from xylo_bot import XyloBot
 

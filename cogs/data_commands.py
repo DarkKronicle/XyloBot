@@ -1,8 +1,5 @@
 from datetime import datetime
 
-import discord
-from discord.ext import commands
-from storage.database_helper import *
 from util.context import Context
 from util.discord_util import *
 from storage.database import *
@@ -38,7 +35,7 @@ async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
     return None
 
 
-class Commands(commands.Cog):
+class DataCommands(commands.Cog):
     """
     Commands to view stored data on people.
     """
@@ -319,4 +316,4 @@ class Commands(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Commands(bot))
+    bot.add_cog(DataCommands(bot))
