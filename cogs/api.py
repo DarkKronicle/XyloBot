@@ -38,7 +38,7 @@ class API(commands.Cog):
         if len(args) == 0:
             return ctx.send_help('lmgtfy')
         content = ' '.join(args)
-        url = f"https://lmgtfy.app/?q={content}&iie=1"
+        url = f"<https://lmgtfy.app/?q={content}&iie=1>"
         url = url.replace(' ', '+')
         await ctx.send(f"I have the perfect solution for you! Click here:\n{url}")
 
@@ -50,7 +50,7 @@ class API(commands.Cog):
         if len(args) == 0:
             return ctx.send_help('google')
         content = ' '.join(args)
-        url = f"https://google.com/search?q={content}"
+        url = f"<https://google.com/search?q={content}>"
         url = url.replace(' ', '%20')
         await ctx.send(f"I have the perfect solution for you! Click here:\n{url}")
 
@@ -62,9 +62,9 @@ class API(commands.Cog):
         if len(args) == 0:
             return ctx.send_help('imagegoogle')
         content = ' '.join(args)
-        url = f"https://www.google.com/search?tbm=isch&q={content}"
+        url = f"<https://www.google.com/search?tbm=isch&q={content}>"
         url = url.replace(' ', '%20')
-        await ctx.send(f"I have the perfect image for you! Clikc here:\n{url}")
+        await ctx.send(f"I have the perfect image for you! Click here:\n{url}")
 
 
 def setup(bot):
