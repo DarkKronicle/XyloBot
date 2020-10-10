@@ -54,7 +54,7 @@ class API(commands.Cog):
         url = url.replace(' ', '%20')
         await ctx.send(f"I have the perfect solution for you! Click here:\n{url}")
 
-    @commands.command(name="imagegoogle", "igoogle")
+    @commands.command(name="imagegoogle", aliases=["igoogle"])
     async def igoogle(self, ctx: Context, *args):
         """
         Sends a google search link
@@ -65,6 +65,7 @@ class API(commands.Cog):
         url = f"https://www.google.com/search?tbm=isch&q={content}"
         url = url.replace(' ', '%20')
         await ctx.send(f"I have the perfect image for you! Clikc here:\n{url}")
+
 
 def setup(bot):
     bot.add_cog(API())
