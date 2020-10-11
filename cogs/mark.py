@@ -19,15 +19,6 @@ class Mark(commands.Cog):
         Configure and view marks
         """
         if ctx.invoked_subcommand is None:
-            # embed = discord.Embed(
-            #     title="Marks Help",
-            #     description="Config your marks!",
-            #     colour=discord.Colour.purple()
-            # )
-            # embed.add_field(name="`list <page>`", value="List what marks are for your server.")
-            # embed.add_field(name="`add`", value="Starts a mark setup wizard.")
-            # embed.add_field(name="`remove`", value="Starts a mark remove wizard.")
-            # await ctx.send(embed=embed)
             await ctx.send_help('marks')
 
     @marks.command(name="list", usage="<page>")

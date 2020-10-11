@@ -31,9 +31,6 @@ def get_prefix(dbot, message: discord.Message):
     return prefixes
 
 
-# bot = Bot(command_prefix=get_prefix, intents=intents)
-# Command Extensions
-# Setup
 cogs_dir = "cogs"
 startup_extensions = ["data_commands", "auto_reactions", "qotd", "roles", "verify", "statistics",
                       "settings", "fun", "utility", "mark", "user_settings", "api", "games.game", "image"]
@@ -81,7 +78,6 @@ class XyloBot(commands.Bot):
         intents.members = True
         intents.guilds = True
         super().__init__(command_prefix=get_prefix, intents=intents, description=description, case_insensitive=True)
-        # self.remove_command('help')
         self.help_command = Help()
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
         for extension in startup_extensions:
