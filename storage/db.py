@@ -164,7 +164,7 @@ class Column:
         if sum(map(bool, (unique, primary_key, default is not None))) > 1:
             raise SchemaError("'unique', 'primary_key', and 'default' are mutually exclusive.")
 
-    def _create_table(self):
+    def create_statement(self):
         builder = [self.name, self.column_type.to_sql()]
 
         default = self.default
@@ -200,7 +200,7 @@ class MaybeAcquire:
     def cursor(self):
         return self.connection.cursor() if self.connection is not None else None
 
-    def __init__(self, connection):
+    def __init__(self, connection=None):
         self.connection = connection
         self._cleanup = True
 
@@ -219,10 +219,10 @@ class MaybeAcquire:
 
 class TableMeta(type):
     @classmethod
-    def __prepare__(cls, name, bases, **kwargs):
+    def __prepare__(mcs, name, bases, **kwargs):
         return OrderedDict()
 
-    def __new__(cls, name, parents, dct, **kwargs):
+    def __new__(mcs, name, parents, attributes, **kwargs):
         columns = []
 
         try:
@@ -230,9 +230,10 @@ class TableMeta(type):
         except KeyError:
             table_name = name.lower()
 
-        dct['__tablename__'] = table_name
+        attributes['__tablename__'] = table_name
+        tablename = table_name
 
-        for elem, value in dct.items():
+        for elem, value in attributes.items():
             if isinstance(value, Column):
                 if value.name is None:
                     value.name = elem
@@ -242,12 +243,97 @@ class TableMeta(type):
 
                 columns.append(value)
 
-        dct['columns'] = columns
-        return super().__new__(cls, name, parents, dct)
+        attributes['columns'] = columns
+        return super().__new__(mcs, name, parents, attributes)
 
-    def __init__(self, name, parents, dct, **kwargs):
+    def __init__(cls, name, parents, dct, **kwargs):
         super().__init__(name, parents, dct)
+
+
+class Table(metaclass=TableMeta):
 
     @classmethod
     def acquire_connection(cls, connection=None):
         return MaybeAcquire(connection)
+
+    @classmethod
+    def create_table(cls, overwrite=False):
+        statements = []
+        builder = ['CREATE TABLE', cls.tablename]
+
+        column_creations = []
+        primary_keys = []
+        for col in cls.columns:
+            column_creations.append(col.create_statement())
+            if col.primary_key:
+                primary_keys.append(col)
+
+        if len(primary_keys) > 0:
+            column_creations.append('PRIMARY KEY ({})'.format(', '.join(primary_keys)))
+        builder.append("({})".format(', '.join(column_creations)))
+        statements.append(' '.join(builder) + ";")
+
+        for column in cls.columns:
+            if column.index:
+                fmt = 'CREATE INDEX IF NOT EXISTS {1.index_name} ON {0} ({1.name});'.format(cls.tablename, column)
+                statements.append(fmt)
+
+        return '\n'.join(statements)
+
+    @classmethod
+    async def insert(cls, connection=None, **kwargs):
+        """Inserts an element to the table."""
+
+        # verify column names:
+        verified = {}
+        for column in cls.columns:
+            try:
+                value = kwargs[column.name]
+            except KeyError:
+                continue
+
+            check = column.column_type.python
+            if value is None and not column.nullable:
+                raise TypeError('Cannot pass None to non-nullable column %s.' % column.name)
+            elif not check or not isinstance(value, check):
+                fmt = 'column {0.name} expected {1.__name__}, received {2.__class__.__name__}'
+                raise TypeError(fmt.format(column, check, value))
+
+            if not isinstance(value, int):
+                formatted = f"$${str(value)}$$"
+            else:
+                formatted = str(value)
+            verified[column.name] = formatted
+
+        sql = 'INSERT INTO {0} ({1}) VALUES ({2});'.format(cls.tablename, ', '.join(verified),
+                                                           ', '.join(str(i) for i, _ in enumerate(verified, 1)))
+
+        async with MaybeAcquire(connection) as con:
+            await con.execute(sql, *verified.values())
+
+    @classmethod
+    async def remove(cls, connection=None, **kwargs):
+        # verify column names:
+        verified = {}
+        for column in cls.columns:
+            try:
+                value = kwargs[column.name]
+            except KeyError:
+                continue
+
+            check = column.column_type.python
+            if value is None and not column.nullable:
+                raise TypeError('Cannot pass None to non-nullable column %s.' % column.name)
+            elif not check or not isinstance(value, check):
+                fmt = 'column {0.name} expected {1.__name__}, received {2.__class__.__name__}'
+                raise TypeError(fmt.format(column, check, value))
+
+            verified[column.name] = value
+        statements = []
+        for col in verified:
+            statements.append("{0} = $${1}$$".format(col, verified[col]))
+
+        sql = 'REMOVE FROM {0} WHERE {1};'.format(cls.tablename, ' AND '.join(statements))
+
+        async with MaybeAcquire(connection) as con:
+            await con.execute(sql)

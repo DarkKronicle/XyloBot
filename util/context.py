@@ -7,10 +7,13 @@ The code above was released under MIT license.
 from discord.ext import commands
 import asyncio
 
+from storage import db
+
 
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.connection = None
 
     async def timeout(self):
         """
@@ -124,3 +127,18 @@ class Context(commands.Context):
         if user.dm_channel is None:
             await user.create_dm()
         return user.dm_channel
+
+    @property
+    def db(self):
+        if self.connection is None:
+            self.acquire()
+            return self.connection.cursor()
+        else:
+            return self.connection.cursor()
+
+    def acquire(self):
+        self.connection = db.MaybeAcquire()
+
+    def release(self):
+        if self.connection is not None:
+            self.connection.release()

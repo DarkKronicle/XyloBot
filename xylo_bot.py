@@ -182,3 +182,4 @@ class XyloBot(commands.Bot):
             return
 
         await self.invoke(ctx)
+        ctx.release()
