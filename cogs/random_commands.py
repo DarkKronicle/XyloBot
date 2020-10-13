@@ -19,7 +19,7 @@ class RandomCommands(commands.Cog, name="Random"):
         if user is None:
             user = ctx.author
 
-        if user.id == ctx.bot.id:
+        if user.id == ctx.bot.user.id:
             message = "Oh... you're asking me? Well I'll say I'm a solid 10/10 :)"
             return await ctx.send(message)
 
