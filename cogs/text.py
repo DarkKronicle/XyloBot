@@ -28,6 +28,18 @@ class TextCog(commands.Cog, name="text"):
 
         await ctx.send(''.join(data_list))
 
+    @commands.command(name="clap")
+    async def clap(self, ctx: Context, *args):
+        """
+        Sends a message like: Hi:clap:how:clap:is:clap:...
+        """
+        if len(args) == 0:
+            return await ctx.send("Please put in a proper phrase.")
+        data = ' '.join(args)
+
+        data = data.replace(" ", ":clap:")
+        await ctx.send(data)
+
 
 def setup(bot):
     bot.add_cog(TextCog())
