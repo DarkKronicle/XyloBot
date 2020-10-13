@@ -1,4 +1,4 @@
-from random import random
+import random
 
 import discord
 from discord.ext import commands
@@ -18,6 +18,11 @@ class RandomCommands(commands.Cog, name="Random"):
     async def rate(self, ctx: Context, *, user: discord.Member = None):
         if user is None:
             return await ctx.send("Specify a correct user!")
+
+        if await ctx.bot.is_owner(ctx.author):
+            message = "Now this may be boring, but I'm legally abliged to say that this person is a 1000/10. Please " \
+                      "give it up to my creator! *Wooooo* "
+            return await ctx.send(message)
 
         rating = self.seeded_int(user.id, 0, 10)
 
