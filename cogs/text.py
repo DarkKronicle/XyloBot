@@ -20,7 +20,7 @@ class TextCog(commands.Cog, name="text"):
         length = len(data_list)
         while i < length:
             c = data_list[i]
-            if num == 3:
+            if num == 2:
                 data_list[i] = c.upper()
                 num = -1
             i = i + 1
