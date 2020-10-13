@@ -19,6 +19,10 @@ class RandomCommands(commands.Cog, name="Random"):
         if user is None:
             user = ctx.author
 
+        if user is ctx.bot:
+            message = "Oh... you're asking me? Well I'll say I'm a solid 10/10 :)"
+            return await ctx.send(message)
+
         if await ctx.bot.is_owner(user):
             message = "Now this may be boring, but I'm legally obliged to say that this person is a 1000/10. Please " \
                       "give it up to my creator! *Wooooo* "
