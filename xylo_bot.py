@@ -1,5 +1,5 @@
 from discord.ext import tasks
-from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure
+from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, MemberNotFound
 import traceback
 from util.discord_util import *
 from storage.database import *
@@ -117,6 +117,9 @@ class XyloBot(commands.Bot):
             await ctx.send(message, delete_after=15)
             return
         if isinstance(error, CheckFailure):
+            return
+        if isinstance(error, MemberNotFound):
+            await ctx.send("Member not found.")
             return
         raise error
 
