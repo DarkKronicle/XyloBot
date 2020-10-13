@@ -1,6 +1,7 @@
 import random
 
 import discord
+import requests
 from discord.ext import commands
 
 from storage.json_reader import JSONReader
@@ -8,7 +9,6 @@ from util.context import Context
 
 
 class RandomCommands(commands.Cog, name="Random"):
-
     random_values = JSONReader("data/random.json").data
 
     def seeded_int(self, obj_id, min_int=0, max_int=1):
@@ -134,6 +134,16 @@ class RandomCommands(commands.Cog, name="Random"):
 
         await ctx.send(message.format(ship1.display_name, ship2.display_name, str(ship)))
 
+    @commands.command(name="product", aliases=["sell", "tft"])
+    async def this_for_that(self, ctx: Context):
+        """
+        This for that
+
+        http://itsthisforthat.com/api.php?json
+        """
+        data = requests.get("http://itsthisforthat.com/api.php?json").json()
+        message = "So, basically, it's like a {} for {}."
+        await ctx.send(message.format(data["this"], data["that"]))
 
 
 def setup(bot):
