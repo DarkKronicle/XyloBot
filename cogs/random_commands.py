@@ -9,7 +9,7 @@ from util.context import Context
 
 class RandomCommands(commands.Cog, name="Random"):
 
-    random_values = JSONReader.loadfile("data/random.json").data
+    random_values = JSONReader("data/random.json").data
 
     def seeded_int(self, obj_id, min_int=0, max_int=1):
         random.seed(obj_id)
@@ -40,7 +40,7 @@ class RandomCommands(commands.Cog, name="Random"):
         rating = self.seeded_int(user.id, 0, 10)
 
         if rating == 0:
-            message = f"OH WOW. {user.display_name} is ***baaaaad***. You get a fat {str(rating)}/10"
+            message = f"OH WOW. {user.display_name} is ***baaaaad***. You get a fat {str(rating)}/10. L."
         elif rating <= 3:
             message = f"I'm not super impressed by {user.display_name}... I guess I'll give them a {str(rating)}/10."
         elif rating <= 6:
@@ -52,9 +52,9 @@ class RandomCommands(commands.Cog, name="Random"):
                       f"whopping **{str(rating)}/10!** "
         elif rating == 10:
             message = f"OH MAN. ***OOOOO BABY!*** We are among a *legend*. Ladies and gentlmen, please give a big " \
-                      f"round of applause for {user.display_name}! ***10/10*** "
+                      f"round of applause for {user.display_name}! ***10/10!*** "
         else:
-            message = f"I have no clue how you did it. You somehow broke me. You should not be here. Here's your {str(rating)}/10. "
+            message = f"I have no clue how you did it. You somehow broke me. You should not be here. Here's your {str(rating)}/10."
         await ctx.send(message)
 
     @commands.command(name="president", aliases=["pres"])
