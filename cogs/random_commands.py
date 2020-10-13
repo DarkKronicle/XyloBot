@@ -34,8 +34,10 @@ class RandomCommands(commands.Cog, name="Random"):
             message = f"OH WOW. {user.display_name} is ***baaaaad***. You get a fat {str(rating)}/10"
         elif rating <= 3:
             message = f"I'm not super impressed by {user.display_name}... I guess I'll give them a {str(rating)}/10."
+        elif rating <= 6:
+            message = f"Meh, thats pretty ok. {user.display_name} got a pretty average {str(rating)}/10."
         elif rating <= 7:
-            message = f"Eyy, that's pretty good. {user.display_name} is totally a {str(rating)}/10."
+            message = f"Hey, that's pretty good. {user.display_name} is totally a {str(rating)}/10."
         elif rating <= 9:
             message = f"Wow. *Slow Clap* You are easily one of the best people I know. {user.display_name} gets a " \
                       f"whopping **{str(rating)}/10!** "
