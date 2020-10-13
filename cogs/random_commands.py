@@ -100,7 +100,7 @@ class RandomCommands(commands.Cog, name="Random"):
     async def ship(self, ctx: Context, *, ship1: discord.Member = None):
         if ship1 is None:
             ship1 = ctx.author
-        answer = await ctx.ask("Who else would you like to ship?")
+        answer = await ctx.ask(f"Who should be shipped with {ship1.display_name}?")
         if answer is None:
             return ctx.timeout()
         guild: discord.Guild = ctx.guild
@@ -110,29 +110,29 @@ class RandomCommands(commands.Cog, name="Random"):
 
         ship = self.seeded_int(ship1.id + ship2.id, 0, 50)
         if ship == 0:
-            message = "**OH NO. PLEASE NO** {} and {} have ***no*** compatibility. 0/50 :("
+            message = "**OH NO. PLEASE NO** {0} and {1} have ***no*** compatibility. {2}/50 :("
         elif ship <= 10:
-            message = "{} and {} are equivalent to a one night fling. They deeply regret all past relations. {}/50."
+            message = "{0} and {1} are equivalent to a one night fling. They deeply regret all past relations. {2}/50."
         elif ship <= 20:
             message = "They see each other and grow hopeful of a friendship, but they still pass each other walking. " \
-                      "Not looking great {} and {}. {}/50. "
+                      "Not looking great {0} and {1}. {2}/50. "
         elif ship <= 30:
-            message = "The warm embrace of {} is something that {} looks forward to everyday. {}/50."
+            message = "The warm embrace of {0} is something that {1} looks forward to everyday. {2}/50."
         elif ship <= 38:
-            message = "Everyday they see each other and smile at the thought of being together. {} and {} have a " \
-                      "compatibility of {}/50. "
+            message = "Everyday they see each other and smile at the thought of being together. {0} and {1} have a " \
+                      "compatibility of {2}/50. "
         elif ship <= 45:
-            message = "{} has finally transcended best friendship with {}. They have made it to longing for each " \
-                      "other. {}/50. "
+            message = "{0} has finally transcended best friendship with {1}. They have made it to longing for each " \
+                      "other. {2}/50. "
         elif ship <= 49:
             message = "How they did it, I don't know. These two are extremely close and love spending time with each " \
-                      "other. Good job {} and {}. *{}/50*. "
+                      "other. Good job {0} and {1}. *{2}/50*. "
         elif ship == 50:
-            message = "***CONGRATS*** {} and {} are *officially* soulmates! Party time baby!! {}/50"
+            message = "***CONGRATS*** {0} and {1} are *officially* soulmates! Party time baby!! {2}/50"
         else:
-            message = "There love for each other broke me. {} and {} got a {}/50."
+            message = "There love for each other broke me. {0} and {1} got a {2}/50."
 
-        await ctx.send(message.format(ship1.display_name, ship2.display_name))
+        await ctx.send(message.format(ship1.display_name, ship2.display_name, str(ship)))
 
 
 
