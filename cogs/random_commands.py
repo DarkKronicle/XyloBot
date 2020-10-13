@@ -3,14 +3,23 @@ import random
 import discord
 from discord.ext import commands
 
+from storage.json_reader import JSONReader
 from util.context import Context
 
 
 class RandomCommands(commands.Cog, name="Random"):
 
+    random_values = JSONReader.loadfile("data/random.json").data
+
     def seeded_int(self, obj_id, min_int=0, max_int=1):
         random.seed(obj_id)
         value = random.randint(min_int, max_int)
+        random.seed()
+        return value
+
+    def seeded_choose(self, obj_id, objects):
+        random.seed(obj_id)
+        value = random.choice(objects)
         random.seed()
         return value
 
@@ -47,6 +56,18 @@ class RandomCommands(commands.Cog, name="Random"):
         else:
             message = f"I have no clue how you did it. You somehow broke me. You should not be here. Here's your {str(rating)}/10. "
         await ctx.send(message)
+
+    @commands.command(name="president", aliases=["pres"])
+    async def president(self, ctx: Context, *, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
+
+        prefix = ctx.author.display_name + " is clearly most similar to the President himself, {}!"
+        if await ctx.bot.is_owner(user):
+            return await ctx.send(prefix.format("George Washington"))
+
+        pres = self.seeded_choose(user.id, self.random_values["presidents"])
+        await ctx.send(prefix.format(pres))
 
 def setup(bot):
     bot.add_cog(RandomCommands())
