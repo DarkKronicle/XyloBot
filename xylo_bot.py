@@ -80,6 +80,7 @@ class XyloBot(commands.Bot):
         super().__init__(command_prefix=get_prefix, intents=intents, description=description, case_insensitive=True)
         self.help_command = Help()
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
+        self.session = aiohttp.ClientSession(loop=self.loop)
         for extension in startup_extensions:
             try:
                 self.load_extension(cogs_dir + "." + extension)
@@ -96,11 +97,11 @@ class XyloBot(commands.Bot):
         print(f"{self.user} has connected to Discord!")
         self.status.start()
         self.setup_loop.start()
-        update = get_channel("xylo-updates", "rivertron", self)
+        # update = get_channel("xylo-updates", "rivertron", self)
         join = ConfigData.join
         messages = join.data["wakeup"]
         message = random.choice(messages)
-        await update.send(message)
+        await self.log.send(message)
 
     async def on_command_error(self, ctx: commands.Context, error):
         if isinstance(error, CommandNotFound):
@@ -121,7 +122,7 @@ class XyloBot(commands.Bot):
         if isinstance(error, MemberNotFound):
             await ctx.send("Member not found.")
             return
-        raise error
+        await super().on_command_error(ctx, error)
 
     @tasks.loop(hours=1)
     async def status(self):
@@ -167,7 +168,6 @@ class XyloBot(commands.Bot):
 
     @tasks.loop(seconds=get_time_until())
     async def setup_loop(self):
-        print(get_time_until())
         # Probably one of the most hacky ways to get a loop to run every thirty minutes based
         # off of starting on one of them.
         if self.first_loop:
@@ -186,3 +186,10 @@ class XyloBot(commands.Bot):
 
         await self.invoke(ctx)
         ctx.release()
+
+    @discord.utils.cached_property
+    def log(self):
+        wh_id = int(os.getenv('WH_ID'))
+        wh_token = os.getenv('WH_TOKEN')
+        wh = discord.Webhook.partial(id=wh_id, token=wh_token, adapter=discord.AsyncWebhookAdapter(self.session))
+        return wh
