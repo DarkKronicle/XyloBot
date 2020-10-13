@@ -17,10 +17,10 @@ class RandomCommands(commands.Cog, name="Random"):
     @commands.command(name="rate")
     async def rate(self, ctx: Context, *, user: discord.Member = None):
         if user is None:
-            return await ctx.send("Specify a correct user!")
+            user = ctx.author
 
-        if await ctx.bot.is_owner(ctx.author):
-            message = "Now this may be boring, but I'm legally abliged to say that this person is a 1000/10. Please " \
+        if await ctx.bot.is_owner(user):
+            message = "Now this may be boring, but I'm legally obliged to say that this person is a 1000/10. Please " \
                       "give it up to my creator! *Wooooo* "
             return await ctx.send(message)
 
