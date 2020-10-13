@@ -5,6 +5,19 @@ from storage.config import ConfigData
 from util.discord_util import *
 
 
+# class AutoReactionsDB(db.Table, table_name="auto_reactions"):
+#     id = db.Column(db.Integer(big=True, auto_increment=True), primary_key=True)
+#     guild_id = db.Column(db.Integer(big=True))
+#     filter = db.Column(db.String(length=20))
+#     emoji_id = db.Column(db.String(length=100))
+#     uses = db.Column(db.Integer(), default=0)
+#
+#     @classmethod
+#     def create_table(cls, overwrite=False):
+#         statement = super().create_table(overwrite=overwrite)
+#
+#         return statement + "\n" + stq
+
 class TextType(enum.Enum):
     command = "command",
     only = "only",

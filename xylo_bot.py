@@ -33,7 +33,7 @@ def get_prefix(dbot, message: discord.Message):
 
 cogs_dir = "cogs"
 startup_extensions = ["data_commands", "auto_reactions", "qotd", "roles", "verify", "statistics",
-                      "settings", "fun", "utility", "mark", "user_settings", "api", "games.game", "image"]
+                      "settings", "fun", "utility", "mark", "user_settings", "api", "games.game", "image", "random_commands"]
 
 # bot.remove_command('help')
 
@@ -47,7 +47,7 @@ def get_time_until():
     utc = timezone('UTC')
     now = utc.localize(datetime.now())
     now: datetime = now.astimezone(zone)
-    minute = 30 - ((now.minute) % 30)
+    minute = 30 - (now.minute % 30)
     delta = timedelta(minutes=minute)
     next_half_hour = (now + delta).replace(microsecond=0, second=0)
 

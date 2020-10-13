@@ -195,6 +195,7 @@ class MaybeAcquire:
 
     def release(self):
         if self.connection is not None:
+            self.connection.cursor().close()
             self.connection.close()
 
     def cursor(self):
@@ -260,6 +261,9 @@ class Table(metaclass=TableMeta):
     def create_table(cls, overwrite=False):
         statements = []
         builder = ['CREATE TABLE', cls.tablename]
+
+        if not overwrite:
+            builder.append('IF NOT EXISTS')
 
         column_creations = []
         primary_keys = []
