@@ -62,7 +62,7 @@ class RandomCommands(commands.Cog, name="Random"):
         if user is None:
             user = ctx.author
 
-        prefix = ctx.author.display_name + " is clearly most similar to the President himself, {}!"
+        prefix = user.display_name + " is clearly most similar to the President himself, {}!"
         if await ctx.bot.is_owner(user):
             return await ctx.send(prefix.format("George Washington"))
 
