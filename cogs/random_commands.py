@@ -25,6 +25,9 @@ class RandomCommands(commands.Cog, name="Random"):
 
     @commands.command(name="rate")
     async def rate(self, ctx: Context, *, user: discord.Member = None):
+        """
+        Rates someone.
+        """
         if user is None:
             user = ctx.author
 
@@ -54,11 +57,14 @@ class RandomCommands(commands.Cog, name="Random"):
             message = f"OH MAN. ***OOOOO BABY!*** We are among a *legend*. Ladies and gentlmen, please give a big " \
                       f"round of applause for {user.display_name}! ***10/10!*** "
         else:
-            message = f"I have no clue how you did it. You somehow broke me. You should not be here. Here's your {str(rating)}/10."
+            message = f"I have no clue how you did it. You somehow broke me. You should not be here. Here's your {str(rating)}/10. "
         await ctx.send(message)
 
     @commands.command(name="president", aliases=["pres"])
     async def president(self, ctx: Context, *, user: discord.Member = None):
+        """
+        Chooses a random president that is 'most' similar to a user.
+        """
         if user is None:
             user = ctx.author
 
@@ -68,6 +74,57 @@ class RandomCommands(commands.Cog, name="Random"):
 
         pres = self.seeded_choose(user.id, self.random_values["presidents"])
         await ctx.send(prefix.format(pres))
+
+    @commands.command(name="number", aliases=["num"])
+    async def number(self, ctx, min_num=0, max_num=15):
+        """
+        Displays a random number between minimum and maximum.
+        """
+        if max_num > 1500:
+            max_num = 1500
+        if min_num >= max_num:
+            return await ctx.send("Minimum is larger than maximum.")
+
+        await ctx.send(f"Here's your random number: `{random.randint(min_num, max_num)}`")
+
+    @commands.command(name="idea", aliases=["lb", "lightbulb"])
+    async def idea(self, ctx: Context):
+        """
+        Sends you a random idea.
+        """
+        message = "Something"
+        await ctx.send(message)
+
+    @commands.command(name="ship", aliases=["compat"])
+    async def ship(self, ctx: Context, *, ship1: discord.Member = None, ship2: discord.Member = None):
+        if ship1 is None:
+            ship1 = ctx.author
+        if ship2 is None or ship1 is ship2:
+            return await ctx.send("Please put in 2 proper users.")
+
+        ship = self.seeded_int(ship1.id + ship2.id, 0, 50)
+        if ship == 0:
+            message = "**OH NO. PLEASE NO** {} and {} have ***no*** compatibility. 0/50 :("
+        elif ship <= 10:
+            message = "{} and {} are equivalent to a one night fling. They deeply regret all past relations. {}/50."
+        elif ship <= 20:
+            message = "They see each other and grow hopeful of a friendship, but they still pass each other walking. Not looking great {} and {}. {}/50."
+        elif ship <= 30:
+            message = "The warm embrace of {} is something that {} looks forward to everyday. {}/50."
+        elif ship <= 38:
+            message = "Everyday they see each other and smile at the thought of being together. {} and {} have a compatibility of {}/50."
+        elif ship <= 45:
+            message = "{} has finally transcended best friendship with {}. They have made it to longing for each other. {}/50."
+        elif ship <= 49:
+            message = "How they did it, I don't know. These two are extremely close and love spending time with each other. Good job {} and {}. *{}/50*."
+        elif ship == 50:
+            message = "***CONGRATS*** {} and {} are *officially* soulmates! Party time baby!! {}/50"
+        else:
+            message = "There love for each other broke me. {} and {} got a {}/50."
+
+        await ctx.send(message.format(ship1.display_name, ship2.display_name))
+
+
 
 def setup(bot):
     bot.add_cog(RandomCommands())
