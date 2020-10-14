@@ -83,8 +83,6 @@ class TextCog(commands.Cog, name="text"):
         embed = discord.Embed(
             colour=discord.Colour.gold()
         )
-        embed.add_field(name="Normal Grading", value="")
-        embed.add_field(name="Standard Based Grading", value=f"")
         message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** {str(round(totalpercent * 4, 2))}\n\n**\n\n**Percentage -=- Current/Total**\n``` "
         for grade in grades:
             message = message + f"\n{str(round(grade['percent'] * 100, 2))}% -=- {str(grade['current'])}/{str(grade['outof'])}"
