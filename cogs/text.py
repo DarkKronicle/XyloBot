@@ -84,9 +84,9 @@ class TextCog(commands.Cog, name="text"):
         embed = discord.Embed(
             colour=discord.Colour.gold()
         )
-        message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** {str(round(totalpercent * 4, 2))}\n\n*```Percentage | Weighted Percent -=- Current/Total\n"
+        message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** {str(round(totalpercent * 4, 2))}\n\n```Percentage | -=- Current/Total\n"
         for grade in grades:
-            message = message + f"\n{str(round(grade['percent'] * 100, 2))}% | {str(round(grade['weighted']))}% -=- {str(grade['current'])}/{str(grade['outof'])}"
+            message = message + f"\n{str(round(grade['percent'] * 100, 2))}% | {str(round(grade['weighted'] * 100))}% -=- {str(grade['current'])}/{str(grade['outof'])}"
         message = message + "```"
         embed.description = message
         await ctx.send(embed=embed)
