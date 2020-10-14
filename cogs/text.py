@@ -50,7 +50,7 @@ class TextCog(commands.Cog, name="text"):
         total = []
         for arg in args:
             content = arg.split("|")
-            if len(arg) != 3:
+            if len(content) != 3:
                 return await ctx.send("Argument should be: `CURRENT|OUTOF|WEIGHT`")
 
             try:
