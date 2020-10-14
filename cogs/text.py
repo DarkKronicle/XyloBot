@@ -43,9 +43,16 @@ class TextCog(commands.Cog, name="text"):
 
     @commands.command(name="grade")
     async def grade(self, ctx: Context, *args):
+        """
+        Calculates your grade based off of categories.
+
+        Format each arg like CURRENT|OUTOF|WEIGHT.
+        """
         if len(args) == 0:
             await ctx.send("Make sure to put in grades like this: `grade CURRENT|OUTOF|WEIGHT CURRENT...`")
             return
+        if len(args) > 25:
+            return await ctx.send("Too many grades ;-;")
         grades = []
         total = []
         for arg in args:
@@ -74,12 +81,14 @@ class TextCog(commands.Cog, name="text"):
         for tot in total:
             totalpercent = totalpercent + tot
         embed = discord.Embed(
-            title=f"{str(round(totalpercent * 100, 2))}% - {str(round(totalpercent * 4, 2))}",
             colour=discord.Colour.gold()
         )
-        message = ""
+        embed.add_field(name="Normal Grading", value="")
+        embed.add_field(name="Standard Based Grading", value=f"")
+        message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** {str(round(totalpercent * 4, 2))}\n\n**\n\n**Percentage -=- Current/Total**\n``` "
         for grade in grades:
-            message = message + f"`{str(grade['current'])}/{str(grade['outof'])}` - `{str(round(grade['percent'] * 100, 2))}%`\n"
+            message = message + f"\n{str(round(grade['percent'] * 100, 2))}% -=- {str(grade['current'])}/{str(grade['outof'])}"
+        message = message + "```"
         embed.description = message
         await ctx.send(embed=embed)
 
