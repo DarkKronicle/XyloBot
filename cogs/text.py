@@ -74,12 +74,12 @@ class TextCog(commands.Cog, name="text"):
         for tot in total:
             totalpercent = totalpercent + tot
         embed = discord.Embed(
-            title=f"{str(totalpercent * 100)}% - {str(totalpercent * 4)}",
+            title=f"{str(round(totalpercent * 100, 2))}% - {str(round(totalpercent * 4, 2))}",
             colour=discord.Colour.gold()
         )
         message = ""
         for grade in grades:
-            message = message + f"`{str(grade['current'])}/{str(grade['outof'])}` - `{str(grade['percent'] * 100)}%`\n"
+            message = message + f"`{str(grade['current'])}/{str(grade['outof'])}` - `{str(round(grade['percent'] * 100, 2))}%`\n"
         embed.description = message
         await ctx.send(embed=embed)
 
