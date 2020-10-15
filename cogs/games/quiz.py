@@ -72,6 +72,7 @@ class QuizGameInstance(game.Game):
             description=f"Question is: `{self.question}`",
             colour=discord.Colour.blue()
         )
+        await self.channel.send(embed=embed)
         while i < 12 and self.winner is None:
             i = i + 1
             await asyncio.sleep(5)
