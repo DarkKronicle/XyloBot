@@ -51,6 +51,7 @@ class QuizGameInstance(game.Game):
 
     async def start(self, bot):
         self.started = True
+        await self.round()
 
     async def timeout(self):
         pass
