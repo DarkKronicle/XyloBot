@@ -197,10 +197,16 @@ class Games(commands.Cog):
                 if ctx.author is game.owner:
                     await self.quiz_force(game, ctx)
             return
+
+        message: discord.Message = ctx.message
+        if len(message.attachments) == 0:
+            return await ctx.send("Send a JSON file with the start to get a quiz!")
+
         game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done)
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         self.current_games[ctx.guild]["quiz"] = game
+        await ctx.send(f"Game started! Get people to join with `{ctx.prefix}quiz join`.")
         await asyncio.sleep(60)
         if not game.started:
             await game.start(ctx.bot)

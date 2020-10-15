@@ -67,7 +67,7 @@ class QuizGameInstance(game.Game):
         return choice
 
     async def round(self):
-        self.question = random.choice(list(self.questions))
+        self.question = self.get_question()
         self.answer = self.questions[self.question]
         self.winner = None
         i = 0
