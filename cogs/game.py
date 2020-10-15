@@ -286,11 +286,11 @@ class Games(commands.Cog):
 
         message = message + "```"
 
-        json_dump = json.dumps(questions)
-        message = json_dump
-        buffer = BytesIO()
-        buffer.write(json_dump.encode('utf-8'))
-        file = discord.File(fp=buffer, filename="quiz.json")
+        json_dump = json.dump(questions)
+        # message = json_dump
+        # buffer = BytesIO()
+        # buffer.write(json_dump.encode('utf-8'))
+        file = discord.File(fp=json_dump, filename="quiz.json")
         await ctx.send(message, file=file)
 
 
