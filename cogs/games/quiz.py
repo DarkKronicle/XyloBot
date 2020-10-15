@@ -124,7 +124,7 @@ class QuizGameInstance(game.Game):
         await message.delete()
         self.active = True
         if message.content.lower() == self.answer.lower():
-            await message.channel.send(f"{message.author.mention} got it right!", delete_after=5)
             self.winner = message.author
+            await message.channel.send(f"{message.author.mention} got it right!", delete_after=5)
         else:
             await message.channel.send("Incorrect answer!", delete_after=5)

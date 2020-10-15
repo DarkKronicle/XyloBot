@@ -187,7 +187,7 @@ class Games(commands.Cog):
         await asyncio.sleep(2)
         await game.start(ctx.bot)
 
-    @quiz.command(name="start")
+    @quiz.command(name="start", usage="<max_points>")
     async def quiz_start(self, ctx: Context, *args):
         if ctx.guild in self.current_games and "quiz" in self.current_games[ctx.guild]:
             game = self.current_games[ctx.guild]["quiz"]
@@ -210,7 +210,7 @@ class Games(commands.Cog):
         attachment: discord.Attachment = message.attachments[0]
         name: str = attachment.filename
         if not name.endswith(".json"):
-            return await ctx.send("Please send a proper JSON file.")
+            return await ctx.send("Please send a proper JSON file. Build one with `>json 'QUESTION|ANSWER' 'QUESTION|ANSWER'...`")
 
         buffer = await discord_util.get_data_from_url(attachment.url)
         if buffer is None:
@@ -226,6 +226,8 @@ class Games(commands.Cog):
         for key in questions:
             if not isinstance(key, str) or not isinstance(questions[key], str):
                 return await ctx.send("All keys and values need to be strings!")
+
+        await ctx.message.delete()
 
         if len(args) > 0:
             try:

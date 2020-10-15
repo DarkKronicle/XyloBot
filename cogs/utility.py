@@ -125,7 +125,7 @@ class Utility(commands.Cog):
         """
 
         if len(args) == 0:
-            return await ctx.send("Make sure to add arguments with | dividing answer from question.")
+            return await ctx.send("Make sure to add arguments with | dividing key from value. Like `>json 'KEY|VALUE' 'KEY|VALUE'...`")
 
         questions = {}
         message = "Building your file...\n\n```Question | Answer\n-----"
