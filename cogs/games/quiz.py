@@ -18,13 +18,10 @@ questio = {
 class QuizUserInstance:
 
     def __init__(self):
-        self.score = 0
+        self.points = 0
 
     def increment(self):
-        self.score = self.score + 1
-
-    def score(self):
-        return self.score
+        self.points = self.points + 1
 
 
 class QuizGameInstance(game.Game):
@@ -105,9 +102,9 @@ class QuizGameInstance(game.Game):
         message = ""
         for user in self.instances:
             instance = self.instances[user]
-            message = message + f"{user.display_name} - **{instance.score()}**\n"
+            message = message + f"{user.display_name} - **{instance.points}**\n"
         points_embed.description = message
-        if win.score() >= self.max_score:
+        if win.points >= self.max_score:
             return await self.channel.send(f"{self.winner.mention} won!")
         await self.round()
 
