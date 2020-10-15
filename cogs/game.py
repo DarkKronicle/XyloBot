@@ -166,9 +166,9 @@ class Games(commands.Cog):
         add.set_footer(text=f"There are now currently {len(game.users)} users.")
         await ctx.send(embed=add)
 
-    @commands.group(name="quiz")
-    async def quiz(self, ctx: Context, invoke_without_command=True):
-        pass
+    @commands.group(name="quiz", invoke_without_command=True)
+    async def quiz(self, ctx: Context):
+        await ctx.send_help('quiz')
 
     @quiz.command(name="start")
     async def quiz_start(self, ctx: Context, *args):
