@@ -13,6 +13,7 @@ from storage.json_reader import JSONReader
 from util import discord_util
 from util.context import Context
 from storage import cache
+from io import BytesIO
 
 
 def is_game_channel():
@@ -284,6 +285,10 @@ class Games(commands.Cog):
             questions[split[0]] = split[1]
 
         json_dump = json.dumps(questions)
+        buffer = BytesIO()
+        buffer.write(json_dump.encode('utf-8'))
+        file = discord.File(fp=buffer, filename="quiz.json")
+        await ctx.send("Generated a quiz for you!", file=file)
 
 
 def setup(bot):
