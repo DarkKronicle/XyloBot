@@ -1,8 +1,10 @@
 from io import StringIO
+from json import detect_encoding
 
 import discord
 from storage import cache
 from storage.database import Database
+from util import discord_util
 from util.context import Context
 from util.discord_util import *
 from discord.ext import commands
@@ -119,6 +121,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="json")
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def basic_json(self, ctx: Context, *args):
         """
         Creates a JSON file based off of your arguments. Split with a |
@@ -145,6 +148,7 @@ class Utility(commands.Cog):
         await ctx.send(message, file=file)
 
     @commands.command(name="txt")
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def txt(self, ctx: Context, *args):
         """
         Generates a text file based on what you put.
@@ -160,6 +164,44 @@ class Utility(commands.Cog):
         buffer.seek(0)
         file = discord.File(fp=buffer, filename="file.txt")
         await ctx.send("*Bing bada boom!* Here's your file!", file=file)
+
+    @commands.command(name="paste", usage = "[FORMAT]")
+    @commands.cooldown(1, 10, commands.BucketType.member)
+    async def paste(self, ctx: Context):
+        """
+        Sends the content of a file you send.
+
+        You can specifiy an argument for formatting. Like JAVA, PYTHON, RUBY...
+        """
+        if len(ctx.message.attachments) != 1:
+            return await ctx.send("Please attach ***one*** file to the message!")
+
+        atta: discord.Attachment = ctx.message.attachments[0]
+        name: str = atta.filename
+        types = {".py": "PYTHON", ".json": "JSON", ".txt": "", ".xml": "XML"}
+        file_type = None
+        for t in types:
+            if name.endswith(t):
+                file_type = types[t]
+                break
+        if file_type is None:
+            return await ctx.send("Please use a proper image format.")
+
+        buffer = await discord_util.get_data_from_url(atta.url)
+        if buffer is None:
+            return await ctx.send("Something went wrong getting that file...")
+
+        data = buffer.read()
+        if isinstance(data, str):
+            if data.startswith('\ufeff'):
+                return await ctx.send("Something went wrong with loading that file...")
+        else:
+            if not isinstance(data, (bytes, bytearray)):
+                return await ctx.send("Something went wrong opening up that file...")
+            data = data.decode(detect_encoding(data), 'surrogatepass')
+
+        message = f"```{file_type}\n{data}\n```"
+        await ctx.send(message)
 
 
 def setup(bot):
