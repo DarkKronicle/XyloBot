@@ -267,8 +267,6 @@ class Games(commands.Cog):
         self.current_games[guild].pop("quiz")
 
     @quiz.command(name="create")
-    @commands.guild_only()
-    @is_game_channel()
     async def create(self, ctx: Context, *args):
         """
         Creates a JSON file based off of your arguments. Split with a |
@@ -278,17 +276,21 @@ class Games(commands.Cog):
             return await ctx.send("Make sure to add arguments with | dividing answer from question.")
 
         questions = {}
+        message = "Building your file...\n\n```Question | Answer"
         for arg in args:
             split = arg.split("|")
             if len(split) == 1:
                 return await ctx.send("Make sure that a | divides your answer from your question.")
             questions[split[0]] = split[1]
+            message = message + f"\n{split[0]} | {split[1]}"
+
+        message = message + "```"
 
         json_dump = json.dumps(questions)
         buffer = BytesIO()
         buffer.write(json_dump.encode('utf-8'))
         file = discord.File(fp=buffer, filename="quiz.json")
-        await ctx.send("Generated a quiz for you!", file=file)
+        await ctx.send(message, file=file)
 
 
 def setup(bot):
