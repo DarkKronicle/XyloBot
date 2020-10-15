@@ -39,7 +39,7 @@ class QuizGameInstance(game.Game):
         self.question = None
         self.answers = {}
         self.active = False
-        self.instances = {}
+        self.instances = {owner: QuizUserInstance()}
         self.max_score = max_score
         self.done = done
         self.answering = False
@@ -114,9 +114,11 @@ class QuizGameInstance(game.Game):
     async def process_message(self, message):
         if self.answering:
             await message.delete()
+        else:
+            return
         self.active = True
         if message.content.lower() == self.answer.lower():
-            await message.channel.send(f"{message.author.mention} got it right!")
+            await message.channel.send(f"{message.author.mention} got it right!", delete_after=5)
             self.winner = message.author
         else:
             await message.channel.send("Incorrect answer!", delete_after=5)
