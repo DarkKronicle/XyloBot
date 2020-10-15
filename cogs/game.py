@@ -276,7 +276,7 @@ class Games(commands.Cog):
             return await ctx.send("Make sure to add arguments with | dividing answer from question.")
 
         questions = {}
-        message = "Building your file...\n\n```Question | Answer"
+        message = "Building your file...\n\n```Question | Answer\n-----"
         for arg in args:
             split = arg.split("|")
             if len(split) == 1:
@@ -287,6 +287,7 @@ class Games(commands.Cog):
         message = message + "```"
 
         json_dump = json.dumps(questions)
+        message = json_dump
         buffer = BytesIO()
         buffer.write(json_dump.encode('utf-8'))
         file = discord.File(fp=buffer, filename="quiz.json")
