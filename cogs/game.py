@@ -172,8 +172,14 @@ class Games(commands.Cog):
 
     @quiz.command(name="start")
     async def quiz_start(self, ctx: Context, *args):
-        game = quiz.QuizGameInstance(ctx.channel, ctx.author)
+        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done)
+        if ctx.guild not in self.current_games:
+            self.current_games[ctx.guild] = {}
+        self.current_games[ctx.guild]["quiz"] = game
         await game.start(ctx.bot)
+
+    async def quiz_done(self, guild):
+        self.current_games[guild].pop("quiz")
 
 
 def setup(bot):

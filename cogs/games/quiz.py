@@ -29,7 +29,7 @@ class QuizUserInstance:
 
 class QuizGameInstance(game.Game):
 
-    def __init__(self, channel, owner, questions=None, max_score=5):
+    def __init__(self, channel, owner, done, questions=None, max_score=5):
         super().__init__(channel, owner)
         if questions is None:
             questions = questio
@@ -41,6 +41,7 @@ class QuizGameInstance(game.Game):
         self.active = False
         self.instances = {}
         self.max_score = max_score
+        self.done = done
 
     def add_user(self, user):
         self.users.append(user)
@@ -57,6 +58,7 @@ class QuizGameInstance(game.Game):
         pass
 
     async def end(self, user):
+        await self.done(self.channel.guild)
         pass
 
     async def round(self):
@@ -65,6 +67,11 @@ class QuizGameInstance(game.Game):
         self.winner = None
         i = 0
         self.active = False
+        embed = discord.Embed(
+            title="Quiz!",
+            description=f"Question is: `{self.question}`",
+            colour=discord.Colour.blue()
+        )
         while i < 12 and self.winner is None:
             i = i + 1
             await asyncio.sleep(5)
@@ -74,6 +81,7 @@ class QuizGameInstance(game.Game):
                 description=f"Question: `{self.question}`.\n\nAnswer: `{self.answer}`"
             )
             if self.active is False:
+                self.done()
                 return await self.channel.send("No one has done anything ;-;")
             await self.channel.send(embed=embed)
             await self.round()
