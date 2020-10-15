@@ -42,7 +42,7 @@ class QuizGameInstance(game.Game):
         self.done = done
         self.answering = False
 
-    def add_user(self, user):
+    async def add_user(self, user):
         self.users.append(user)
         self.instances[user] = QuizUserInstance()
 
@@ -116,10 +116,9 @@ class QuizGameInstance(game.Game):
         await self.round()
 
     async def process_message(self, message):
-        if self.answering:
-            await message.delete()
-        else:
+        if not self.answering or self.winner is not None:
             return
+        await message.delete()
         self.active = True
         if message.content.lower() == self.answer.lower():
             await message.channel.send(f"{message.author.mention} got it right!", delete_after=5)
