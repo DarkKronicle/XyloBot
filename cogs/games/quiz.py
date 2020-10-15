@@ -42,6 +42,7 @@ class QuizGameInstance(game.Game):
         self.instances = {}
         self.max_score = max_score
         self.done = done
+        self.answering = False
 
     def add_user(self, user):
         self.users.append(user)
@@ -73,9 +74,11 @@ class QuizGameInstance(game.Game):
             colour=discord.Colour.blue()
         )
         await self.channel.send(embed=embed)
+        self.answering = True
         while i < 12 and self.winner is None:
             i = i + 1
             await asyncio.sleep(5)
+        self.answering = False
         if self.winner is None:
             embed = discord.Embed(
                 title="No one got the answer!",
@@ -95,11 +98,22 @@ class QuizGameInstance(game.Game):
         await self.channel.send(embed=embed)
         win = self.instances[self.winner]
         win.increment()
+        points_embed = discord.Embed(
+            colour=discord.Colour.dark_purple()
+        )
+        points_embed.set_author(name="Current Points")
+        message = ""
+        for user in self.instances:
+            instance = self.instances[user]
+            message = message + f"{user.display_name} - **{instance.score()}**\n"
+        points_embed.description = message
         if win.score() >= self.max_score:
             return await self.channel.send(f"{self.winner.mention} won!")
+        await self.round()
 
     async def process_message(self, message):
-        await message.delete()
+        if self.answering:
+            await message.delete()
         self.active = True
         if message.content.lower() == self.answer.lower():
             await message.channel.send(f"{message.author.mention} got it right!")
