@@ -113,7 +113,8 @@ class QuizGameInstance(game.Game):
             message = message + f"{user.display_name} - **{instance.points}**\n"
         points_embed.description = message
         if win.points >= self.max_score:
-            return await self.channel.send(f"{self.winner.mention} won!")
+            await self.channel.send(f"{self.winner.mention} won!")
+            return await self.done(self.channel.guild)
         await self.round()
 
     async def process_message(self, message):

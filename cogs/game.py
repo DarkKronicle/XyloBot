@@ -234,7 +234,7 @@ class Games(commands.Cog):
         else:
             max_num = 5
 
-        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done, questions=questions, max_score=5)
+        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done, questions=questions, max_score=max_num)
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         self.current_games[ctx.guild]["quiz"] = game
