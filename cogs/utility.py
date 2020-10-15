@@ -1,3 +1,5 @@
+from StringIO import StringIO
+
 import discord
 from storage import cache
 from storage.database import Database
@@ -115,6 +117,49 @@ class Utility(commands.Cog):
         message = message + "```"
         embed.description = message
         await ctx.send(embed=embed)
+
+    @commands.command(name="json")
+    async def basic_json(self, ctx: Context, *args):
+        """
+        Creates a JSON file based off of your arguments. Split with a |
+        """
+
+        if len(args) == 0:
+            return await ctx.send("Make sure to add arguments with | dividing answer from question.")
+
+        questions = {}
+        message = "Building your file...\n\n```Question | Answer\n-----"
+        for arg in args:
+            split = arg.split("|")
+            if len(split) == 1:
+                return await ctx.send("Make sure that a | divides your answer from your question.")
+            questions[split[0]] = split[1]
+            message = message + f"\n{split[0]} | {split[1]}"
+
+        message = message + "```"
+
+        buffer = StringIO()
+        json.dump(questions, fp=buffer, indent=4)
+        buffer.seek(0)
+        file = discord.File(fp=buffer, filename="quiz.json")
+        await ctx.send(message, file=file)
+
+    @commands.command(name="txt")
+    async def txt(self, ctx: Context, *args):
+        """
+        Generates a text file based on what you put.
+        """
+        if len(args) == 0:
+            data = ctx.ask("What do you want in the file?")
+            if data is None:
+                await ctx.timeout()
+        else:
+            data = ' '.join(args)
+        buffer = StringIO()
+        buffer.write(data)
+        buffer.seek(0)
+        file = discord.File(fp=buffer, filename="file.txt")
+        await ctx.send("*Bing bada boom!* Here's your file!", file=file)
 
 
 def setup(bot):

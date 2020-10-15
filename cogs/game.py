@@ -266,35 +266,6 @@ class Games(commands.Cog):
     async def quiz_done(self, guild):
         self.current_games[guild].pop("quiz")
 
-    @quiz.command(name="create")
-    async def create(self, ctx: Context, *args):
-        """
-        Creates a JSON file based off of your arguments. Split with a |
-        """
-
-        if len(args) == 0:
-            return await ctx.send("Make sure to add arguments with | dividing answer from question.")
-
-        questions = {}
-        message = "Building your file...\n\n```Question | Answer\n-----"
-        for arg in args:
-            split = arg.split("|")
-            if len(split) == 1:
-                return await ctx.send("Make sure that a | divides your answer from your question.")
-            questions[split[0]] = split[1]
-            message = message + f"\n{split[0]} | {split[1]}"
-
-        message = message + "```"
-
-        buffer = StringIO()
-        json.dump(questions, fp=buffer, indent=4)
-        # message = json_dump
-        # buffer = BytesIO()
-        # buffer.write(json_dump.encode('utf-8'))
-        buffer.seek(0)
-        file = discord.File(fp=buffer, filename="quiz.json")
-        await ctx.send(message, file=file)
-
 
 def setup(bot):
     bot.add_cog(Games())
