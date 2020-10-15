@@ -112,7 +112,7 @@ class QuizGameInstance(game.Game):
             instance = self.instances[user]
             message = message + f"{user.display_name} - **{instance.points}**\n"
         points_embed.description = message
-        await self.channel.send(embed=embed)
+        await self.channel.send(embed=points_embed)
         if win.points >= self.max_score:
             await self.channel.send(f"{self.winner.mention} won!")
             return await self.end(self.winner)
