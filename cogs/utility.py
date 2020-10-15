@@ -178,7 +178,7 @@ class Utility(commands.Cog):
 
         atta: discord.Attachment = ctx.message.attachments[0]
         name: str = atta.filename
-        types = {".py": "PYTHON", ".json": "JSON", ".txt": "", ".xml": "XML"}
+        types = {".py": "PYTHON", ".json": "JSON", ".txt": "", ".xml": "XML", ".md": "", ".yml": "YAML"}
         file_type = None
         for t in types:
             if name.endswith(t):

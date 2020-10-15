@@ -154,7 +154,7 @@ class CAHGameInstance(Game):
             colour=discord.Colour.green()
         )
         await self.channel.send(embed=embed)
-        await self.done(self.channel.guild)
+        await self.done(self.channel)
 
     async def timeout(self):
         out = discord.Embed(
@@ -163,7 +163,7 @@ class CAHGameInstance(Game):
             colour=discord.Colour.red()
         )
         await self.channel.send(embed=out)
-        await self.done(self.channel.guild)
+        await self.done(self.channel)
 
     def get_czar(self):
         return self.users[self.czar_num]

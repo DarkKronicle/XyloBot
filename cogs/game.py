@@ -5,15 +5,13 @@ from json import JSONDecodeError
 import discord
 from discord.ext import commands
 
-import util
 from cogs.games import quiz
 from cogs.games.fire_draw import FireDrawGame
-from cogs.games.cah import CAHUserInstance, CAHGameInstance
+from cogs.games.cah import CAHGameInstance
 from storage.json_reader import JSONReader
 from util import discord_util
 from util.context import Context
 from storage import cache
-from io import BytesIO, StringIO
 
 
 def is_game_channel():
@@ -21,7 +19,7 @@ def is_game_channel():
         channel = cache.get_game_channel(context.guild)
         if channel is not None:
             return context.channel is channel
-        return False
+        return True
 
     return commands.check(predicate)
 
@@ -34,10 +32,10 @@ class Games(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.guild in self.current_games:
-            if len(self.current_games[message.guild]) != 0:
-                for g in self.current_games[message.guild]:
-                    game = self.current_games[message.guild][g]
+        if message.channel in self.current_games:
+            if len(self.current_games[message.channel]) != 0:
+                for g in self.current_games[message.channel]:
+                    game = self.current_games[message.channel][g]
                     if message.channel is game.channel:
                         if message.author in game.users:
                             await game.process_message(message)
@@ -49,7 +47,7 @@ class Games(commands.Cog):
         """
         First person to type out a random set of characters.
         """
-        if ctx.guild in self.current_games and "duel" in self.current_games[ctx.guild]:
+        if ctx.channel in self.current_games and "duel" in self.current_games[ctx.channel]:
             await ctx.send("There's already a duel going on. Please wait")
             return
         if user is None or user is ctx.author:
@@ -63,12 +61,12 @@ class Games(commands.Cog):
             return
 
         duel = FireDrawGame(ctx.channel, ctx.author)
-        if ctx.guild not in self.current_games:
-            self.current_games[ctx.guild] = {}
-        self.current_games[ctx.guild]["duel"] = duel
+        if ctx.channel not in self.current_games:
+            self.current_games[ctx.channel] = {}
+        self.current_games[ctx.channel]["duel"] = duel
         duel.add_user(user)
         await duel.start(ctx.bot)
-        self.current_games[ctx.guild].pop("duel")
+        self.current_games[ctx.channel].pop("duel")
 
     @commands.group(name="cah", usage="<start|join>")
     async def cah(self, ctx: Context):
@@ -87,7 +85,7 @@ class Games(commands.Cog):
         """
         Start a game of Cards Against Humanity. You can send it again to force it to start.
         """
-        if ctx.guild in self.current_games and "cah" in self.current_games[ctx.guild]:
+        if ctx.channel in self.current_games and "cah" in self.current_games[ctx.channel]:
             game = self.current_games[ctx.guild]["cah"]
             if game.started:
                 wait = discord.Embed(
@@ -119,10 +117,10 @@ class Games(commands.Cog):
                     categories.append(arg)
         if len(categories) == 0:
             categories = ["base"]
-        if ctx.guild not in self.current_games:
-            self.current_games[ctx.guild] = {}
+        if ctx.channel not in self.current_games:
+            self.current_games[ctx.channel] = {}
         game = CAHGameInstance(ctx.channel, ctx.author, self.cah_done, categories, ctx.bot)
-        self.current_games[ctx.guild]["cah"] = game
+        self.current_games[ctx.channel]["cah"] = game
         await asyncio.sleep(60)
         if not game.started:
             await self.cah_force(game, ctx)
@@ -148,16 +146,16 @@ class Games(commands.Cog):
         await asyncio.sleep(2)
         await game.start(ctx.bot)
 
-    async def cah_done(self, guild):
-        self.current_games[guild].pop("cah")
+    async def cah_done(self, channel):
+        self.current_games[channel].pop("cah")
 
     @cah.command(name="join")
     @commands.guild_only()
     @is_game_channel()
     async def cah_join(self, ctx):
-        if ctx.guild not in self.current_games or "cah" not in self.current_games[ctx.guild]:
+        if ctx.channel not in self.current_games or "cah" not in self.current_games[ctx.channel]:
             return await ctx.send("No games currently going on. Start one with `cah start`")
-        game = self.current_games[ctx.guild]["cah"]
+        game = self.current_games[ctx.channel]["cah"]
         if ctx.author in game.users:
             await ctx.send("You're already in a game!")
             return
@@ -189,8 +187,8 @@ class Games(commands.Cog):
 
     @quiz.command(name="start", usage="<max_points>")
     async def quiz_start(self, ctx: Context, *args):
-        if ctx.guild in self.current_games and "quiz" in self.current_games[ctx.guild]:
-            game = self.current_games[ctx.guild]["quiz"]
+        if ctx.guild in self.current_games and "quiz" in self.current_games[ctx.channel]:
+            game = self.current_games[ctx.channel]["quiz"]
             if game.started:
                 wait = discord.Embed(
                     title="Game already going on!",
@@ -238,9 +236,9 @@ class Games(commands.Cog):
             max_num = 5
 
         game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done, questions=questions, max_score=max_num)
-        if ctx.guild not in self.current_games:
-            self.current_games[ctx.guild] = {}
-        self.current_games[ctx.guild]["quiz"] = game
+        if ctx.channel not in self.current_games:
+            self.current_games[ctx.channel] = {}
+        self.current_games[ctx.channel]["quiz"] = game
         await ctx.send(f"Game started! Get people to join with `{ctx.prefix}quiz join`.")
         await asyncio.sleep(60)
         if not game.started:
@@ -250,9 +248,9 @@ class Games(commands.Cog):
     @commands.guild_only()
     @is_game_channel()
     async def quiz_join(self, ctx):
-        if ctx.guild not in self.current_games or "quiz" not in self.current_games[ctx.guild]:
+        if ctx.channel not in self.current_games or "quiz" not in self.current_games[ctx.channel]:
             return await ctx.send("No games currently going on. Start one with `cah quiz`")
-        game = self.current_games[ctx.guild]["quiz"]
+        game = self.current_games[ctx.channel]["quiz"]
         if ctx.author in game.users:
             await ctx.send("You're already in a game!")
             return
@@ -265,8 +263,8 @@ class Games(commands.Cog):
         add.set_footer(text=f"There are now currently {len(game.users)} users.")
         await ctx.send(embed=add)
 
-    async def quiz_done(self, guild):
-        self.current_games[guild].pop("quiz")
+    async def quiz_done(self, channel):
+        self.current_games[channel].pop("quiz")
 
 
 def setup(bot):

@@ -57,7 +57,7 @@ class QuizGameInstance(game.Game):
         pass
 
     async def end(self, user):
-        await self.done(self.channel.guild)
+        await self.done(self.channel)
         pass
 
     def get_question(self):
