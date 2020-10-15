@@ -3,10 +3,12 @@ import asyncio
 import discord
 from discord.ext import commands
 
+import util
 from cogs.games import quiz
 from cogs.games.fire_draw import FireDrawGame
 from cogs.games.cah import CAHUserInstance, CAHGameInstance
 from storage.json_reader import JSONReader
+from util import discord_util
 from util.context import Context
 from storage import cache
 
@@ -199,8 +201,20 @@ class Games(commands.Cog):
             return
 
         message: discord.Message = ctx.message
-        if len(message.attachments) == 0:
+        if len(message.attachments) != 1:
             return await ctx.send("Send a JSON file with the start to get a quiz!")
+
+        attachment: discord.Attachment = message.attachments[0]
+        name: str = attachment.filename
+        if not name.endswith(".json"):
+            return await ctx.send("Please send a proper JSON file.")
+
+        buffer = await discord_util.get_data_from_url(attachment.url)
+        if buffer is None:
+            await ctx.send("Something went wrong getting your image. Make sure your URL or file is correct.")
+            return
+
+        return await ctx.send(buffer.read().decode('UTF-8'))
 
         game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done)
         if ctx.guild not in self.current_games:

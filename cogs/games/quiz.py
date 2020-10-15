@@ -62,6 +62,7 @@ class QuizGameInstance(game.Game):
 
     def get_question(self):
         choice = random.choice(self.questions_list)
+        self.questions_list.remove(choice)
         if len(self.questions_list) == 0:
             self.questions_list = list(self.questions)
         return choice
