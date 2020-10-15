@@ -200,6 +200,8 @@ class Utility(commands.Cog):
                 return await ctx.send("Something went wrong opening up that file...")
             data = data.decode(detect_encoding(data), 'surrogatepass')
 
+        if len(data) > 1990:
+            return await ctx.send("File too big!")
         message = f"```{file_type}\n{data}\n```"
         await ctx.send(message)
 
