@@ -13,7 +13,7 @@ from storage.json_reader import JSONReader
 from util import discord_util
 from util.context import Context
 from storage import cache
-from io import BytesIO
+from io import BytesIO, StringIO
 
 
 def is_game_channel():
@@ -286,8 +286,8 @@ class Games(commands.Cog):
 
         message = message + "```"
 
-        buffer = BytesIO()
-        json.dump(questions, fp=buffer)
+        buffer = StringIO()
+        json.dump(questions, fp=buffer, indent=4)
         # message = json_dump
         # buffer = BytesIO()
         # buffer.write(json_dump.encode('utf-8'))
