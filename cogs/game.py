@@ -187,7 +187,7 @@ class Games(commands.Cog):
 
     @quiz.command(name="start", usage="<max_points>")
     async def quiz_start(self, ctx: Context, *args):
-        if ctx.guild in self.current_games and "quiz" in self.current_games[ctx.channel]:
+        if ctx.channel in self.current_games and "quiz" in self.current_games[ctx.channel]:
             game = self.current_games[ctx.channel]["quiz"]
             if game.started:
                 wait = discord.Embed(
