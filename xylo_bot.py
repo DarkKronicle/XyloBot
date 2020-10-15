@@ -196,3 +196,7 @@ class XyloBot(commands.Bot):
         wh_token = os.getenv('WH_TOKEN')
         wh = discord.Webhook.partial(id=wh_id, token=wh_token, adapter=discord.AsyncWebhookAdapter(self.session))
         return wh
+
+    async def close(self):
+        await super().close()
+        await self.session.close()
