@@ -31,6 +31,7 @@ class QuizGameInstance(game.Game):
         if questions is None:
             questions = questio
         self.questions = questions
+        self.questions_list = list(self.questions)
         self.winner = None
         self.answer = None
         self.question = None
@@ -58,6 +59,12 @@ class QuizGameInstance(game.Game):
     async def end(self, user):
         await self.done(self.channel.guild)
         pass
+
+    def get_question(self):
+        choice = random.choice(self.questions_list)
+        if len(self.questions_list) == 0:
+            self.questions_list = list(self.questions)
+        return choice
 
     async def round(self):
         self.question = random.choice(list(self.questions))

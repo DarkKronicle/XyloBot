@@ -170,13 +170,59 @@ class Games(commands.Cog):
     async def quiz(self, ctx: Context):
         await ctx.send_help('quiz')
 
+    async def quiz_force(self, game, ctx):
+        message = f"Game starting for *Quiz*."
+        start = discord.Embed(
+            title="Quiz - Game starting!",
+            description=message,
+            colour=discord.Colour.blue()
+        )
+        game.started = True
+        await ctx.send(embed=start)
+        await asyncio.sleep(2)
+        await game.start(ctx.bot)
+
     @quiz.command(name="start")
     async def quiz_start(self, ctx: Context, *args):
+        if ctx.guild in self.current_games and "quiz" in self.current_games[ctx.guild]:
+            game = self.current_games[ctx.guild]["quiz"]
+            if game.started:
+                wait = discord.Embed(
+                    title="Game already going on!",
+                    description="There is already a *Quiz* game going on in your server. Please wait.",
+                    colour=discord.Colour.red()
+                )
+                await ctx.send(embed=wait)
+            else:
+                if ctx.author is game.owner:
+                    await self.quiz_force(game, ctx)
+            return
         game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done)
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         self.current_games[ctx.guild]["quiz"] = game
-        await game.start(ctx.bot)
+        await asyncio.sleep(60)
+        if not game.started:
+            await game.start(ctx.bot)
+
+    @quiz.command(name="join")
+    @commands.guild_only()
+    @is_game_channel()
+    async def quiz_join(self, ctx):
+        if ctx.guild not in self.current_games or "quiz" not in self.current_games[ctx.guild]:
+            return await ctx.send("No games currently going on. Start one with `cah quiz`")
+        game = self.current_games[ctx.guild]["quiz"]
+        if ctx.author in game.users:
+            await ctx.send("You're already in a game!")
+            return
+        await game.add_user(ctx.author)
+        add = discord.Embed(
+            title="User added to Quiz!",
+            description=f"{ctx.author.mention} has been added to the current game of *Quiz*!",
+            colour=discord.Colour.dark_green()
+        )
+        add.set_footer(text=f"There are now currently {len(game.users)} users.")
+        await ctx.send(embed=add)
 
     async def quiz_done(self, guild):
         self.current_games[guild].pop("quiz")
