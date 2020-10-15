@@ -226,7 +226,15 @@ class Games(commands.Cog):
             if not isinstance(key, str) or not isinstance(questions[key], str):
                 return await ctx.send("All keys and values need to be strings!")
 
-        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done, questions=questions)
+        if len(args) > 0:
+            try:
+                max_num = int(args[0])
+            except ValueError:
+                max_num = 5
+        else:
+            max_num = 5
+
+        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done, questions=questions, max_score=5)
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         self.current_games[ctx.guild]["quiz"] = game
@@ -256,6 +264,26 @@ class Games(commands.Cog):
 
     async def quiz_done(self, guild):
         self.current_games[guild].pop("quiz")
+
+    @quiz.command(name="create")
+    @commands.guild_only()
+    @is_game_channel()
+    async def create(self, ctx: Context, *args):
+        """
+        Creates a JSON file based off of your arguments. Split with a |
+        """
+
+        if len(args) == 0:
+            return await ctx.send("Make sure to add arguments with | dividing answer from question.")
+
+        questions = {}
+        for arg in args:
+            split = arg.split("|")
+            if len(split) == 1:
+                return await ctx.send("Make sure that a | divides your answer from your question.")
+            questions[split[0]] = split[1]
+
+        json_dump = json.dumps(questions)
 
 
 def setup(bot):
