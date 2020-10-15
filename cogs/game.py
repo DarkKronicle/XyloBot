@@ -1,4 +1,6 @@
 import asyncio
+import json
+from json import JSONDecodeError
 
 import discord
 from discord.ext import commands
@@ -211,12 +213,20 @@ class Games(commands.Cog):
 
         buffer = await discord_util.get_data_from_url(attachment.url)
         if buffer is None:
-            await ctx.send("Something went wrong getting your image. Make sure your URL or file is correct.")
+            await ctx.send("Something went wrong getting your file. Make sure your file is correct.")
             return
 
-        return await ctx.send(buffer.read().decode('UTF-8'))
+        # json_raw = buffer.read().decode('UTF-8')
+        try:
+            questions = json.load(buffer)
+        except JSONDecodeError:
+            return await ctx.send("Error while reading your file.")
 
-        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done)
+        for key in questions:
+            if not isinstance(key, str) or not isinstance(questions[key], str):
+                return await ctx.send("All keys and values need to be strings!")
+
+        game = quiz.QuizGameInstance(ctx.channel, ctx.author, self.quiz_done, questions=questions)
         if ctx.guild not in self.current_games:
             self.current_games[ctx.guild] = {}
         self.current_games[ctx.guild]["quiz"] = game
