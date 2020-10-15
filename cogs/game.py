@@ -2,6 +2,8 @@ import asyncio
 
 import discord
 from discord.ext import commands
+
+from cogs.games import quiz
 from cogs.games.fire_draw import FireDrawGame
 from cogs.games.cah import CAHUserInstance, CAHGameInstance
 from storage.json_reader import JSONReader
@@ -163,6 +165,15 @@ class Games(commands.Cog):
         )
         add.set_footer(text=f"There are now currently {len(game.users)} users.")
         await ctx.send(embed=add)
+
+    @commands.group(name="quiz")
+    async def quiz(self, ctx: Context, invoke_without_command=True):
+        pass
+
+    @quiz.command(name="start")
+    async def quiz_start(self, ctx: Context, *args):
+        game = quiz.QuizGameInstance(ctx.channel, ctx.author)
+        await game.start(ctx.bot)
 
 
 def setup(bot):

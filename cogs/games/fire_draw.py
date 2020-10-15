@@ -60,3 +60,6 @@ class FireDrawGame(Game):
 
     async def timeout(self):
         await self.channel.send("Right before the duel was about to take place, everyone left and no one shot...")
+
+    async def process_message(self, message):
+        await message.delete()
