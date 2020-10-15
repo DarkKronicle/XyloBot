@@ -24,3 +24,6 @@ class Game:
 
     async def end(self, user):
         pass
+
+    async def process_message(self, message):
+        pass

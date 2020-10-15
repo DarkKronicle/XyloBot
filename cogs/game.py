@@ -28,11 +28,12 @@ class Games(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.guild in self.current_games:
-            if "cah" in self.current_games[message.guild]:
-                game = self.current_games[message.guild]["cah"]
-                if message.channel is game.channel:
-                    if message.author in game.users:
-                        await game.process_message(message)
+            if len(self.current_games[message.guild]) != 0:
+                for g in self.current_games[message.guild]:
+                    game = self.current_games[message.guild][g]
+                    if message.channel is game.channel:
+                        if message.author in game.users:
+                            await game.process_message(message)
 
     @commands.command(name="duel", usage="<user>", aliases=["gun", "wordduel"])
     @commands.guild_only()

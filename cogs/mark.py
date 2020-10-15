@@ -53,12 +53,14 @@ class Mark(commands.Cog):
             embed.add_field(name=f"No marks on {str(page)}", value="Sad day :(")
             await ctx.send(embed=embed)
             return
+        message = ""
 
         current = start + 1
         for row in newrows:
             name = row[0]
-            embed.add_field(name=f"{str(current)}.", value=name, inline=False)
+            message = message + f"**{str(current)}.** {name}\n"
             current = current + 1
+        embed.description = message
         await ctx.send(embed=embed)
 
     @marks.command(name="remove")

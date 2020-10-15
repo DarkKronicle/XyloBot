@@ -76,7 +76,8 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
     async def format_page(self, menu, cogs):
         top = f"Prefixes you can use: `{cache.get_prefix(self.help_command.context.guild)}`, `x>`\nUse `help [" \
               f"command]` for " \
-              f"specific info on a command.\nUse `help [category]` for specific info in a category."
+              f"specific info on a command.\nUse `help [category]` for specific info in a category. \n" \
+              f"*Use the reactions to look through commands*"
 
         embed = discord.Embed(title="Xylo Help - Categories", description=top, colour=discord.Colour.blue())
 

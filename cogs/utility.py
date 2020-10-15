@@ -64,6 +64,58 @@ class Utility(commands.Cog):
     async def ping(self, ctx: Context):
         await ctx.send("Pong!")
 
+    @commands.command(name="grade")
+    async def grade(self, ctx: Context, *args):
+        """
+        Calculates your grade based off of categories.
+
+        Format each arg like CURRENT|OUTOF|WEIGHT.
+        """
+        if len(args) == 0:
+            await ctx.send("Make sure to put in grades like this: `grade CURRENT|OUTOF|WEIGHT CURRENT...`")
+            return
+        if len(args) > 25:
+            return await ctx.send("Too many grades ;-;")
+        grades = []
+        total = []
+        for arg in args:
+            content = arg.split("|")
+            if len(content) != 3:
+                return await ctx.send("Argument should be: `CURRENT|OUTOF|WEIGHT`")
+
+            try:
+                current = float(content[0])
+                outof = float(content[1])
+                weight = float(content[2]) / 100
+                percent = float(current / outof)
+            except ValueError:
+                return await ctx.send(
+                    f"Could not parse arguments for integers. Args were: `f{content[0]} f{content[1]} f{content[2]}")
+
+            grade = {
+                "current": current,
+                "outof": outof,
+                "weight": weight,
+                "percent": percent,
+                "weighted": percent * weight
+            }
+            grades.append(grade)
+            total.append(percent * weight)
+
+        totalpercent = 0.0
+        for tot in total:
+            totalpercent = totalpercent + tot
+        embed = discord.Embed(
+            colour=discord.Colour.gold()
+        )
+        message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** {str(round(totalpercent * 4, 2))}\n\n```Percentage | Weighted -=- Current/Total\n"
+        for grade in grades:
+            message = message + f"\n{str(round(grade['percent'] * 100, 2))}% | {str(round(grade['weighted'] * 100))}% " \
+                                f"-=- {str(grade['current'])}/{str(grade['outof'])} "
+        message = message + "```"
+        embed.description = message
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Utility())
