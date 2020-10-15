@@ -19,8 +19,9 @@ def get_prefix(dbot, message: discord.Message):
     prefixes = ["x>", f"<@{user_id}> "]
     space = ["x> ", f"<@{user_id}> "]
     if message.guild is None:
-        return prefixes
-    prefix = cache.get_prefix(message.guild)
+        prefix = ">"
+    else:
+        prefix = cache.get_prefix(message.guild)
     if prefix is not None:
         content: str = message.content
         if content.startswith("x> "):
@@ -36,7 +37,7 @@ cogs_dir = "cogs"
 startup_extensions = [
     "data_commands", "auto_reactions", "qotd", "roles", "verify", "statistics",
     "settings", "fun", "utility", "mark", "user_settings", "api", "game", "image",
-    "random_commands", "text, new_guild"
+    "random_commands", "text", "new_guild"
 ]
 
 # bot.remove_command('help')
