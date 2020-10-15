@@ -90,8 +90,8 @@ class QuizGameInstance(game.Game):
                 description=f"Question: `{self.question}`.\n\nAnswer: `{self.answer}`"
             )
             if self.active is False:
-                self.done()
-                return await self.channel.send("No one has done anything ;-;")
+                await self.channel.send("No one has done anything ;-;")
+                return await self.end(self.winner)
             await self.channel.send(embed=embed)
             await self.round()
             return
@@ -112,9 +112,10 @@ class QuizGameInstance(game.Game):
             instance = self.instances[user]
             message = message + f"{user.display_name} - **{instance.points}**\n"
         points_embed.description = message
+        await self.channel.send(embed=embed)
         if win.points >= self.max_score:
             await self.channel.send(f"{self.winner.mention} won!")
-            return await self.done(self.channel.guild)
+            return await self.end(self.winner)
         await self.round()
 
     async def process_message(self, message):
