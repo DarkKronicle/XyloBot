@@ -289,6 +289,7 @@ class Table(metaclass=TableMeta):
     async def create(cls):
         sql = cls.create_table(False)
         async with MaybeAcquire() as con:
+            print(sql)
             await con.execute(sql)
 
     @classmethod
