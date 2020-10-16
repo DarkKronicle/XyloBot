@@ -34,6 +34,7 @@ def database():
             print(f"Created table {table.tablename}")
         except Exception:
             print(f"Failed creating table {table.tablename}")
+            traceback.print_exc()
 
 
 def main():
