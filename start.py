@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import logging
 
 from storage import db
@@ -10,12 +11,18 @@ def run_bot():
     bot.run()
 
 
-def main():
-    run_bot()
-    print(f"Preparing to load {len(db.Table.all_tables())} tables...")
+def database():
+    run = asyncio.get_event_loop().run_until_complete
     for table in db.Table.all_tables():
-        print(f"Creating table {table.tablename}")
-        table.create()
+        try:
+            run(table.create())
+        except Exception:
+            print(f"Created table {table.tablename}")
+
+
+def main():
+    database()
+    run_bot()
 
 
 def _cli():

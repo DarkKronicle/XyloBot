@@ -53,8 +53,8 @@ class VerifySettings(db.Table, table_name="verify_settings"):
     def create_table(cls, *, overwrite=False):
         statement = super().create_table(overwrite=overwrite)
         # create the unique index
-        sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_settings_uniq_idx ON verify_settings (guild_id);"
-        return statement + '\n' + sql
+        # sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_settings_uniq_idx ON verify_settings (guild_id);"
+        return statement + '\n' # + sql
 
 
 class Verify(commands.Cog):
