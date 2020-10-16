@@ -15,6 +15,7 @@ def database():
     run = asyncio.get_event_loop().run_until_complete
     for table in db.Table.all_tables():
         try:
+            print(f"Creating table {table.tablename}")
             run(table.create())
             print(f"Created table {table.tablename}")
         except Exception:
