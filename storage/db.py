@@ -284,7 +284,7 @@ class Table(metaclass=TableMeta):
         for col in cls.columns:
             column_creations.append(col.create_statement())
             if col.primary_key:
-                primary_keys.append(col)
+                primary_keys.append(col.name)
 
         if len(primary_keys) > 0:
             column_creations.append('PRIMARY KEY ({})'.format(', '.join(primary_keys)))
