@@ -195,9 +195,11 @@ class MaybeAcquire:
 
     def release(self):
         if self.connection is not None:
+            self.connection.commit()
             self.connection.cursor().close()
             self.connection.close()
         if self._connection is not None:
+            self._connection.commit()
             self._connection.close()
 
     def cursor(self):
