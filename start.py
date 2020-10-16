@@ -12,6 +12,7 @@ def run_bot():
 
 def main():
     run_bot()
+    print(f"Preparing to load {len(db.Table.all_tables())} tables...")
     for table in db.Table.all_tables():
         print(f"Creating table {table.tablename}")
         table.create()
