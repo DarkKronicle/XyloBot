@@ -114,7 +114,7 @@ class JSON(SQLType):
     python = None
 
     def to_sql(self):
-        return 'JSONB'
+        return 'JSON'
 
 
 class Array(SQLType):
@@ -261,10 +261,12 @@ class Table(metaclass=TableMeta):
     @classmethod
     def create_table(cls, overwrite=False):
         statements = []
-        builder = ['CREATE TABLE', cls.tablename]
+        builder = ['CREATE TABLE']
 
         if not overwrite:
             builder.append('IF NOT EXISTS')
+
+        builder.append(cls.tablename)
 
         column_creations = []
         primary_keys = []
