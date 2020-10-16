@@ -22,7 +22,6 @@ def database():
             importlib.import_module(ext)
         except Exception:
             print(f'Could not load {ext}')
-            return
 
     print(f"Preparing to create {len(db.Table.all_tables())} tables.")
     for table in db.Table.all_tables():
