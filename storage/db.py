@@ -197,6 +197,8 @@ class MaybeAcquire:
         if self.connection is not None:
             self.connection.cursor().close()
             self.connection.close()
+        if self._connection is not None:
+            self._connection.close()
 
     def cursor(self):
         return self.connection.cursor() if self.connection is not None else None
@@ -215,7 +217,7 @@ class MaybeAcquire:
 
     async def __aexit__(self, *args):
         if self._cleanup:
-            await self._connection.close()
+            self.release()
 
 
 class TableMeta(type):
