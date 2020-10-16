@@ -1,9 +1,10 @@
 import argparse
 import asyncio
+import importlib
 import logging
 
 from storage import db
-from xylo_bot import XyloBot
+from xylo_bot import XyloBot, startup_extensions
 
 
 def run_bot():
@@ -13,6 +14,16 @@ def run_bot():
 
 def database():
     run = asyncio.get_event_loop().run_until_complete
+
+    cogs = startup_extensions
+
+    for ext in cogs:
+        try:
+            importlib.import_module(ext)
+        except Exception:
+            print(f'Could not load {ext}')
+            return
+
     print(f"Preparing to create {len(db.Table.all_tables())} tables.")
     for table in db.Table.all_tables():
         try:
