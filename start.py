@@ -16,8 +16,9 @@ def database():
     for table in db.Table.all_tables():
         try:
             run(table.create())
-        except Exception:
             print(f"Created table {table.tablename}")
+        except Exception:
+            print(f"Failed creating table {table.tablename}")
 
 
 def main():
