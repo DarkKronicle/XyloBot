@@ -211,6 +211,7 @@ class MaybeAcquire:
 
     def __init__(self, connection=None, cleanup=True):
         self.connection = connection
+        self._connection = None
         self._cleanup = cleanup
 
     async def __aenter__(self):
