@@ -3,7 +3,7 @@ import random
 
 from util.discord_util import *
 from discord.ext import commands
-from storage import cache
+from storage import cache, db
 
 
 def id_in(id_int, check):
@@ -35,6 +35,26 @@ def get_key(val, settings):
             return key
 
     return "key doesn't exist"
+
+
+class VerifySettings(db.Table, table_name="verify_settings"):
+    guild_id = db.Column(db.Integer(big=True), index=True)
+
+    setup_channel = db.Column(db.Integer(big=True))
+    setup_log = db.Column(db.Integer(big=True))
+
+    unverified_role = db.Column(db.Integer(big=True))
+    roles = db.Column(db.JSON())
+
+    fields = db.Column(db.JSON())
+    active = db.Column(db.Boolean(), default=True)
+
+    @classmethod
+    def create_table(cls, *, overwrite=False):
+        statement = super().create_table(overwrite=overwrite)
+        # create the unique index
+        sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_settings_uniq_idx ON verify_settings (guild_id);"
+        return statement + '\n' + sql
 
 
 class Verify(commands.Cog):

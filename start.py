@@ -1,5 +1,7 @@
 import argparse
 import logging
+
+from storage import db
 from xylo_bot import XyloBot
 
 
@@ -10,6 +12,9 @@ def run_bot():
 
 def main():
     run_bot()
+    for table in db.Table.all_tables():
+        print(f"Creating table {table.tablename}")
+        table.create()
 
 
 def _cli():

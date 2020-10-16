@@ -245,6 +245,7 @@ class TableMeta(type):
                 columns.append(value)
 
         attributes['columns'] = columns
+        attributes['tablename'] = tablename
         return super().__new__(mcs, name, parents, attributes)
 
     def __init__(cls, name, parents, dct, **kwargs):
@@ -283,6 +284,12 @@ class Table(metaclass=TableMeta):
                 statements.append(fmt)
 
         return '\n'.join(statements)
+
+    @classmethod
+    async def create(cls):
+        sql = cls.create_table(False)
+        async with MaybeAcquire() as con:
+            await con.execute(sql)
 
     @classmethod
     async def insert(cls, connection=None, **kwargs):
@@ -341,3 +348,7 @@ class Table(metaclass=TableMeta):
 
         async with MaybeAcquire(connection) as con:
             await con.execute(sql)
+
+    @classmethod
+    def all_tables(cls):
+        return cls.__subclasses__()

@@ -6,11 +6,11 @@ from discord.ext import commands
 from util.context import Context
 
 
-class Marks(db.Table):
-    id = db.PrimaryKeyColumn()
-    owner_id = db.Column(db.Integer(big=True))
-    name = db.Column(db.String(), index=True)
-    content = db.Column(db.String(length=1000))
+# class Marks(db.Table):
+#     id = db.PrimaryKeyColumn()
+#     owner_id = db.Column(db.Integer(big=True))
+#     name = db.Column(db.String(), index=True)
+#     content = db.Column(db.String(length=1000))
 
 
 class Mark(commands.Cog):
