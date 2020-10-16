@@ -13,6 +13,7 @@ def run_bot():
 
 def database():
     run = asyncio.get_event_loop().run_until_complete
+    print(f"Preparing to create {len(db.Table.all_tables())} tables.")
     for table in db.Table.all_tables():
         try:
             print(f"Creating table {table.tablename}")
