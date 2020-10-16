@@ -209,9 +209,9 @@ class MaybeAcquire:
             return self._connection.cursor()
         return None
 
-    def __init__(self, connection=None):
+    def __init__(self, connection=None, cleanup=True):
         self.connection = connection
-        self._cleanup = True
+        self._cleanup = cleanup
 
     async def __aenter__(self):
         if self.connection is None:
@@ -223,7 +223,9 @@ class MaybeAcquire:
 
     async def __aexit__(self, *args):
         if self._cleanup:
-            self.release()
+            if self._connection is not None:
+                self._connection.commit()
+                self._connection.close()
 
 
 class TableMeta(type):
@@ -296,10 +298,9 @@ class Table(metaclass=TableMeta):
         return '\n'.join(statements)
 
     @classmethod
-    async def create(cls):
+    async def create(cls, connection=None):
         sql = cls.create_table(overwrite=False)
-        async with MaybeAcquire() as con:
-            print(sql)
+        async with MaybeAcquire(connection=connection) as con:
             con.execute(sql)
 
     @classmethod

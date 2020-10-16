@@ -49,12 +49,25 @@ class VerifySettings(db.Table, table_name="verify_settings"):
     fields = db.Column(db.JSON())
     active = db.Column(db.Boolean(), default=True)
 
+    # @classmethod
+    # def create_table(cls, *, overwrite=False):
+    #     statement = super().create_table(overwrite=overwrite)
+    #     # create the unique index
+    #     # sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_settings_uniq_idx ON verify_settings (guild_id);"
+    #     return statement + '\n'
+
+
+class VerifyQueue(db.Table, table_name="verify_queue"):
+    guild_id = db.Column(db.Integer(big=True), primary_key=True)
+    user_id = db.Column(db.Integer(big=True), primary_key=True)
+    data = db.Column(db.JSON())
+
     @classmethod
     def create_table(cls, *, overwrite=False):
         statement = super().create_table(overwrite=overwrite)
         # create the unique index
-        # sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_settings_uniq_idx ON verify_settings (guild_id);"
-        return statement + '\n' # + sql
+        sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_queue_uniq_idx ON verify_queue (guild_id, user_id);"
+        return statement + '\n'
 
 
 class Verify(commands.Cog):
@@ -85,9 +98,14 @@ class Verify(commands.Cog):
         self.bot: commands.Bot = bot
 
     async def verify_queue(self, member: discord.Member, guild: discord.Guild):
-        db = Database()
-        settings = db.get_settings(str(guild.id))
-        db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
+        dab = Database()
+        settings = dab.get_settings(str(guild.id))
+        # db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
+        command = "INSERT INTO verify_queue(guild_id, user_id, data) " \
+                  "VALUES($${0}$$, $${1}$$, $${2}$$);"
+        command = command.format(str(guild.id), str(member.id), json.dumps(self.verifying[guild.id][member.id]['fields']))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
         if not check_verification(guild, settings):
             chan: discord.TextChannel = cache.get_setup_channel(guild)
             await chan.send("Error sending information. Contact staff!", delete_after=15)
@@ -486,20 +504,35 @@ class Verify(commands.Cog):
 
         Additionally you can lookup a specific user's ifo using 'list [user]'
         """
-        db = Database()
+        dab = Database()
         if len(args) >= 1:
             member = ctx.guild.get_member_named(' '.join(args[0:]))
             if member is None:
                 await ctx.send("User not found!")
                 return
-            data = db.get_unverified(str(ctx.guild.id), str(member.id))
+            command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
+            async with db.MaybeAcquire() as con:
+                con.execute(command)
+                row = con.fetchone()
+                if row is None:
+                    data = None
+                else:
+                    data = row[0]
+            if data is None:
+                return await ctx.send("User not found. Have they applied?")
+            # data = dab.get_unverified(str(ctx.guild.id), str(member.id))
             message = f"`{member.display_name}` data:"
             for d in data:
                 message = message + f"\n{get_key(d, self.names)}: `{data[d]}`"
             await ctx.send(message)
             return
 
-        unverified = db.get_all_unverified(str(ctx.guild.id))
+        # unverified = db.get_all_unverified(str(ctx.guild.id))
+        command = "SELECT user_id FROM verify_queue WHERE guild_id = {1} ORDER BY user_id;"
+        command = command.format(str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            unverified = con.fetchall()
 
         if unverified is None or len(unverified) == 0:
             await ctx.send("No people to verify at the moment!")
@@ -520,18 +553,24 @@ class Verify(commands.Cog):
         await ctx.send(embed=embed)
 
     async def verify_user(self, member: discord.Member, guild: discord.Guild, data):
-        db = Database()
+        dab = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
         info = {"fields": data}
-        db.delete_unverified(str(guild.id), str(member.id))
-        db.add_user(info, str(member.id), str(guild.id))
+
+        command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
+        command = command.format(str(guild.id), str(member.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        # dab.delete_unverified(str(guild.id), str(member.id))
+        dab.add_user(info, str(member.id), str(guild.id))
+
         join = ConfigData.join
         messages = join.data["messages"]
         message = random.choice(messages)
         message = message.replace("{user}", member.mention)
 
-        settings = db.get_settings(str(guild.id))
+        settings = dab.get_settings(str(guild.id))
 
         welcome: discord.TextChannel = guild.get_channel(int(settings["channels"]["welcome"]))
         await welcome.send(message)
@@ -561,11 +600,15 @@ class Verify(commands.Cog):
         :param member: Member to reject
         :param guild:  Guild that is rejecting
         """
-        db = Database()
+        dab = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
-        db.delete_unverified(str(guild.id), str(member.id))
-        settings = db.get_settings(str(guild.id))
+        command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
+        command = command.format(str(guild.id), str(member.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        # db.delete_unverified(str(guild.id), str(member.id))
+        settings = dab.get_settings(str(guild.id))
 
         if member.dm_channel is None:
             await member.create_dm()
@@ -595,8 +638,16 @@ class Verify(commands.Cog):
         member: discord.Member = guild.get_member_named(' '.join(args[0:]))
         if member is None:
             await ctx.send("User not found!")
-        db = Database()
-        user = db.get_unverified(str(guild.id), str(member.id))
+        # db = Database()
+        # user = db.get_unverified(str(guild.id), str(member.id))
+        command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            row = con.fetchone()
+            if row is None:
+                user = None
+            else:
+                user = row[0]
         if user is None:
             await ctx.send("User not in verify queue")
             return
@@ -622,8 +673,16 @@ class Verify(commands.Cog):
         member: discord.Member = guild.get_member_named(' '.join(args[0:]))
         if member is None:
             await ctx.send("User not found!")
-        db = Database()
-        user = db.get_unverified(str(guild.id), str(member.id))
+        # db = Database()
+        # user = db.get_unverified(str(guild.id), str(member.id))
+        command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            row = con.fetchone()
+            if row is None:
+                user = None
+            else:
+                user = row[0]
         if user is None:
             await ctx.send("User not in verify queue")
             return

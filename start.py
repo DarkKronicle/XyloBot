@@ -2,7 +2,10 @@ import argparse
 import asyncio
 import importlib
 import logging
+import os
 import traceback
+
+import psycopg2
 
 from storage import db
 from xylo_bot import XyloBot, startup_extensions
@@ -11,6 +14,9 @@ from xylo_bot import XyloBot, startup_extensions
 def run_bot():
     bot = XyloBot()
     bot.run()
+
+
+DATABASE_URL = os.environ['DATABASE_URL']
 
 
 def database():
@@ -27,14 +33,18 @@ def database():
             return
 
     print(f"Preparing to create {len(db.Table.all_tables())} tables.")
+    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
     for table in db.Table.all_tables():
         try:
             print(f"Creating table {table.tablename}")
-            run(table.create())
+            run(table.create(connection=connection))
             print(f"Created table {table.tablename}")
         except Exception:
             print(f"Failed creating table {table.tablename}")
             traceback.print_exc()
+    connection.commit()
+    connection.cursor().close()
+    connection.close()
 
 
 def main():
