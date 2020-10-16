@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import importlib
 import logging
+import traceback
 
 from storage import db
 from xylo_bot import XyloBot, startup_extensions
@@ -20,8 +21,10 @@ def database():
     for ext in cogs:
         try:
             importlib.import_module(ext)
-        except Exception:
+        except Exception as e:
             print(f'Could not load {ext}')
+            traceback.print_exc()
+            return
 
     print(f"Preparing to create {len(db.Table.all_tables())} tables.")
     for table in db.Table.all_tables():
