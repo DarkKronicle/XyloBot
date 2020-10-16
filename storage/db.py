@@ -298,7 +298,7 @@ class Table(metaclass=TableMeta):
         sql = cls.create_table(overwrite=False)
         async with MaybeAcquire() as con:
             print(sql)
-            await con.execute(sql)
+            con.execute(sql)
 
     @classmethod
     async def insert(cls, connection=None, **kwargs):
@@ -329,7 +329,7 @@ class Table(metaclass=TableMeta):
                                                            ', '.join(str(i) for i, _ in enumerate(verified, 1)))
 
         async with MaybeAcquire(connection) as con:
-            await con.execute(sql, *verified.values())
+            con.execute(sql, *verified.values())
 
     @classmethod
     async def remove(cls, connection=None, **kwargs):
@@ -356,7 +356,7 @@ class Table(metaclass=TableMeta):
         sql = 'REMOVE FROM {0} WHERE {1};'.format(cls.tablename, ' AND '.join(statements))
 
         async with MaybeAcquire(connection) as con:
-            await con.execute(sql)
+            con.execute(sql)
 
     @classmethod
     def all_tables(cls):
