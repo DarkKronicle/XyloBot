@@ -201,7 +201,11 @@ class MaybeAcquire:
             self._connection.close()
 
     def cursor(self):
-        return self.connection.cursor() if self.connection is not None else None
+        if self.connection is not None:
+            return self.connection.cursor()
+        if self._connection is not None:
+            return self._connection.cursor()
+        return None
 
     def __init__(self, connection=None):
         self.connection = connection
