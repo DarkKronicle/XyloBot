@@ -20,7 +20,7 @@ def database():
 
     for ext in cogs:
         try:
-            importlib.import_module(ext)
+            importlib.import_module("cogs." + ext)
         except Exception as e:
             print(f'Could not load {ext}')
             traceback.print_exc()
