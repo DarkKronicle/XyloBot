@@ -94,12 +94,12 @@ class VerifyConfig:
             # self.fields = data['fields']['fields']
             # self.unverified_role_id = data['unverified_role']
             # self.roles_data = data['roles']['roles']
-            self.setup_channel_id = data[1]
-            self.setup_log_id = data[2]
-            self.unverified_role_id = data[3]
-            self.roles_data = data[4]['roles']
-            self.fields = data[5]
-            self.active = data[6]
+            self.setup_channel_id = data[0]
+            self.setup_log_id = data[1]
+            self.unverified_role_id = data[2]
+            self.roles_data = data[3]['roles']
+            self.fields = data[4]
+            self.active = data[5]
         else:
             self.active = False
             self.setup_channel_id = None
@@ -370,7 +370,7 @@ class Verify(commands.Cog):
 
     @storage_cache.cache()
     async def get_verify_config(self, guild_id, *, connection=None):
-        command = "SELECT * FROM verify_settings WHERE guild_id={}"
+        command = "SELECT setup_channel, setup_log, unverified_role, roles, fields, active FROM verify_settings WHERE guild_id={}"
         command = command.format(str(guild_id))
         with MaybeAcquire(connection=connection) as con:
             con.execute(command)
