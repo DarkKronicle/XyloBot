@@ -326,7 +326,7 @@ class Verify(commands.Cog):
     @checks.is_mod()
     @commands.guild_only()
     async def mod_verify_current(self, ctx: Context):
-        settings: VerifyConfig = await self.get_verify_config(ctx.guild)
+        settings: VerifyConfig = await self.get_verify_config(ctx.guild.id)
 
         if settings.setup_channel_id is None:
             embed = discord.Embed(
