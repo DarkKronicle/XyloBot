@@ -204,7 +204,7 @@ class Verify(commands.Cog):
             role = ctx.guild.get_role(role_int)
             if role is None:
                 return await ctx.send(f"Could not find the role {role}")
-            roles.append(role)
+            roles.append(role_int)
 
         # Lists fields with a number by each for easy adding.
         message = "What fields should I ask for? Separate answers by using a space and using the numbers. (If you " \
