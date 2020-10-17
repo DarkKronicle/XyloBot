@@ -41,6 +41,18 @@ def get_key(val, settings):
     return "key doesn't exist"
 
 
+def is_verifier_user():
+    async def predicate(ctx):
+        bot: XyloBot = ctx.bot
+        cog = bot.get_cog('Verify')
+        settings = await cog.get_verify_config(ctx.guild)
+        if not checks.is_channel(ctx, settings.setup_channel):
+            return False
+        return await checks.check_permissions(ctx, {"send_messages": True})
+
+    return commands.check(predicate)
+
+
 class VerifySettings(db.Table, table_name="verify_settings"):
     guild_id = db.Column(db.Integer(big=True), index=True)
 
@@ -349,15 +361,6 @@ class Verify(commands.Cog):
             colour=discord.Colour.green()
         )
         await ctx.send(embed=embed)
-
-    def is_verifier_user(self):
-        async def predicate(ctx):
-            settings = await self.get_verify_config(ctx.guild)
-            if not checks.is_channel(ctx, settings.setup_channel):
-                return False
-            return await checks.check_permissions(ctx, {"send_messages": True})
-
-        return commands.check(predicate)
 
     @storage_cache.cache()
     async def get_verify_config(self, guild_id, *, connection=None):
