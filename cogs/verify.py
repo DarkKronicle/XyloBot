@@ -191,7 +191,7 @@ class Verify(commands.Cog):
             return await ctx.send("Could not find the role.")
 
         ask_roles = await ctx.ask("What roles should I give to the user when they join? (Separate by spaces and use "
-                                  "role ID's)", timeout=180)
+                                  "role ID's. Use `none` if you don't want any)", timeout=180)
         if ask_roles is None:
             return await ctx.timeout()
 
@@ -246,7 +246,7 @@ class Verify(commands.Cog):
         # Easy use for psql json
         roles_dict = {"roles": roles}
 
-        command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, unverified_role, roles, field, " \
+        command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, unverified_role, roles, fields, " \
                   "active) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}); "
         command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(unverified.id), json.dumps(roles_dict), json.dumps(fields), "TRUE")
         with db.MaybeAcquire() as con:
