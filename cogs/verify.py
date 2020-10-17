@@ -295,14 +295,14 @@ class Verify(commands.Cog):
         self.get_verify_config.invalidate(ctx.guild.id)
         await ctx.send("All data has been deleted from this server.")
 
-    def is_verifier(self):
-        async def predicate(ctx):
-            settings = await self.get_verify_config(ctx.guild)
-            if not checks.is_channel(ctx, settings.setup_channel):
-                return False
-            return await checks.check_permissions(ctx, {"send_messages": True})
-
-        return commands.check(predicate)
+    # def is_verifier(self):
+    #     async def predicate(ctx):
+    #         settings = await self.get_verify_config(ctx.guild)
+    #         if not checks.is_channel(ctx, settings.setup_channel):
+    #             return False
+    #         return await checks.check_permissions(ctx, {"send_messages": True})
+    #
+    #     return commands.check(predicate)
 
     @storage_cache.cache()
     async def get_verify_config(self, guild_id, *, connection=None):
