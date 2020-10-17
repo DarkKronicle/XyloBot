@@ -88,18 +88,18 @@ class VerifyConfig:
         self.bot: XyloBot = bot
 
         if data is not None:
-            # self.active = data['active']
-            # self.setup_channel_id = data['setup_channel']
-            # self.setup_log_id = data['setup_log']
-            # self.fields = data['fields']['fields']
-            # self.unverified_role_id = data['unverified_role']
-            # self.roles_data = data['roles']['roles']
-            self.setup_channel_id = data[0]
-            self.setup_log_id = data[1]
-            self.unverified_role_id = data[2]
-            self.roles_data = data[3]['roles']
-            self.fields = data[4]
-            self.active = data[5]
+            self.active = data['active']
+            self.setup_channel_id = data['setup_channel']
+            self.setup_log_id = data['setup_log']
+            self.fields = data['fields']['fields']
+            self.unverified_role_id = data['unverified_role']
+            self.roles_data = data['roles']['roles']
+            # self.setup_channel_id = data[0]
+            # self.setup_log_id = data[1]
+            # self.unverified_role_id = data[2]
+            # self.roles_data = data[3]['roles']
+            # self.fields = data[4]
+            # self.active = data[5]
         else:
             self.active = False
             self.setup_channel_id = None
@@ -353,9 +353,15 @@ class Verify(commands.Cog):
         else:
             active_str = "Disabled"
         message = "Current Verification settings. Edit with `>help !verify` commands.\n\nCurrent fields enabled:\n```"
+        def format_true(to_format):
+            if to_format:
+                return "Enabled"
+            else:
+                return "Disabled"
+
         for field in fields:
             name = get_key(field, self.names)
-            message = message + f"{name}\n"
+            message = message + f"{name} - {format_true(fields[field])}\n"
         message = message + f"```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
                             f"Unverified Role - {unverified_role.name}\n\nRoles on verification:"
         for role in roles:
