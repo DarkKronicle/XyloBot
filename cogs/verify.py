@@ -375,8 +375,6 @@ class Verify(commands.Cog):
         with MaybeAcquire(connection=connection) as con:
             con.execute(command)
             data = con.fetchone()
-        if data is not None:
-            data = data[0]
         return VerifyConfig(guild_id=guild_id, bot=self.bot, data=data)
 
     verifying = {}
