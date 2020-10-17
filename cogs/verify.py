@@ -45,7 +45,7 @@ def is_verifier_user():
     async def predicate(ctx):
         bot: XyloBot = ctx.bot
         cog = bot.get_cog('Verify')
-        settings = await cog.get_verify_config(ctx.guild)
+        settings = await cog.get_verify_config(ctx.guild.id)
         if not checks.is_channel(ctx, settings.setup_channel):
             return False
         return await checks.check_permissions(ctx, {"send_messages": True})
