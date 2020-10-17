@@ -91,7 +91,7 @@ class VerifyConfig:
             self.active = data['active']
             self.setup_channel_id = data['setup_channel']
             self.setup_log_id = data['setup_log']
-            self.fields = data['fields']['fields']
+            self.fields = data['fields']
             self.unverified_role_id = data['unverified_role']
             self.roles_data = data['roles']['roles']
             # self.setup_channel_id = data[0]
