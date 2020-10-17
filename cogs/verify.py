@@ -82,6 +82,13 @@ class VerifyConfig:
             self.fields = data['fields']['fields']
             self.unverified_role_id = data['unverified_role']
             self.roles_data = data['roles']['roles']
+        else:
+            self.active = False
+            self.setup_channel_id = None
+            self.setup_log_id = None
+            self.fields = None
+            self.unverified_role_id = None
+            self.roles_data = None
 
     @property
     def setup_channel(self):
