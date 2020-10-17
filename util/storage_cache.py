@@ -31,7 +31,17 @@ def cache(maxsize=64, strategy=Strategy.lru):
             _internal_cache = {}
 
         def create_key(*args, **kwargs):
-            return args + tuple(kwargs.items())
+            def _true_repr(o):
+                if o.__class__.__repr__ is object.__repr__:
+                    return f'<{o.__class__.__module__}.{o.__class__.__name__}>'
+                return repr(o)
+
+            key = [f'{func.__module__}.{func.__name__}']
+            key.extend(_true_repr(o) for o in args)
+            for k, v in kwargs.items():
+                key.append(_true_repr(k))
+                key.append(_true_repr(v))
+            return ':'.join(key)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
