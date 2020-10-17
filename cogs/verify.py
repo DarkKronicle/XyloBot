@@ -351,7 +351,7 @@ class Verify(commands.Cog):
         await ctx.send(embed=embed)
 
     def is_verifier_user(self):
-        async def predicate(self, ctx):
+        async def predicate(ctx):
             settings = await self.get_verify_config(ctx.guild)
             if not checks.is_channel(ctx, settings.setup_channel):
                 return False
