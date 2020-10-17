@@ -378,7 +378,7 @@ class Verify(commands.Cog):
     async def get_verify_config(self, guild_id, *, connection=None):
         command = "SELECT setup_channel, setup_log, unverified_role, roles, fields, active FROM verify_settings WHERE guild_id={}"
         command = command.format(str(guild_id))
-        with MaybeAcquire(connection=connection) as con:
+        async with MaybeAcquire(connection=connection) as con:
             con.execute(command)
             data = con.fetchone()
         return VerifyConfig(guild_id=guild_id, bot=self.bot, data=data)

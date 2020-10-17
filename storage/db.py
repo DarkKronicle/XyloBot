@@ -301,7 +301,7 @@ class Table(metaclass=TableMeta):
     @classmethod
     async def create(cls, connection=None):
         sql = cls.create_table(overwrite=False)
-        with MaybeAcquire(connection=connection) as con:
+        async with MaybeAcquire(connection=connection) as con:
             con.execute(sql)
 
     @classmethod
@@ -332,7 +332,7 @@ class Table(metaclass=TableMeta):
         sql = 'INSERT INTO {0} ({1}) VALUES ({2});'.format(cls.tablename, ', '.join(verified),
                                                            ', '.join(str(i) for i, _ in enumerate(verified, 1)))
 
-        with MaybeAcquire(connection) as con:
+        async with MaybeAcquire(connection=connection) as con:
             con.execute(sql, *verified.values())
 
     @classmethod
@@ -359,7 +359,7 @@ class Table(metaclass=TableMeta):
 
         sql = 'REMOVE FROM {0} WHERE {1};'.format(cls.tablename, ' AND '.join(statements))
 
-        with MaybeAcquire(connection) as con:
+        async with MaybeAcquire(connection=connection) as con:
             con.execute(sql)
 
     @classmethod
