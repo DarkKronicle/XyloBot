@@ -253,7 +253,8 @@ class Verify(commands.Cog):
 
         command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, unverified_role, roles, fields, " \
                   "active) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}); "
-        command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(unverified.id), json.dumps(roles_dict), json.dumps(fields), "TRUE")
+        command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(unverified.id),
+                                 json.dumps(roles_dict), json.dumps(fields), "TRUE")
         with db.MaybeAcquire() as con:
             con.execute(command)
 
@@ -313,7 +314,7 @@ class Verify(commands.Cog):
     @checks.is_mod()
     @commands.guild_only()
     async def mod_verify_current(self, ctx: Context):
-        settings: VerifyConfig = self.get_verify_config(ctx.guild)
+        settings: VerifyConfig = await self.get_verify_config(ctx.guild)
 
         if settings.setup_channel_id is None:
             embed = discord.Embed(
@@ -349,15 +350,14 @@ class Verify(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    def is_verifier_user(self):
+        async def predicate(self, ctx):
+            settings = await self.get_verify_config(ctx.guild)
+            if not checks.is_channel(ctx, settings.setup_channel):
+                return False
+            return await checks.check_permissions(ctx, {"send_messages": True})
 
-    # def is_verifier(self):
-    #     async def predicate(ctx):
-    #         settings = await self.get_verify_config(ctx.guild)
-    #         if not checks.is_channel(ctx, settings.setup_channel):
-    #             return False
-    #         return await checks.check_permissions(ctx, {"send_messages": True})
-    #
-    #     return commands.check(predicate)
+        return commands.check(predicate)
 
     @storage_cache.cache()
     async def get_verify_config(self, guild_id, *, connection=None):
@@ -546,7 +546,7 @@ class Verify(commands.Cog):
             await log.send(f":bell: `{member.display_name}` just joined!")
 
     @commands.group(name="verification")
-    @is_allowed()
+    @is_verifier_user()
     async def verification(self, context):
         """
         Customizes verification on the server.
@@ -757,8 +757,8 @@ class Verify(commands.Cog):
         else:
             await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 
-    @commands.group(name="auth")
-    @is_verifier()
+    @commands.group(name="auth", aliases=["verify", "authenticate"])
+    @is_verifier_user()
     async def auth(self, ctx: commands.Context):
         """
         Allows staff to verify/authorize users.
