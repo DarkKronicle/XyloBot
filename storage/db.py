@@ -214,7 +214,7 @@ class MaybeAcquire:
         self._connection = None
         self._cleanup = cleanup
 
-    async def __aenter__(self):
+    def __enter__(self):
         if self.connection is None:
             self._cleanup = True
             self._connection = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -222,7 +222,7 @@ class MaybeAcquire:
             return c
         return self.connection.cursor()
 
-    async def __aexit__(self, *args):
+    def __exit__(self, *args):
         if self._cleanup:
             if self._connection is not None:
                 self._connection.commit()
@@ -301,7 +301,7 @@ class Table(metaclass=TableMeta):
     @classmethod
     async def create(cls, connection=None):
         sql = cls.create_table(overwrite=False)
-        async with MaybeAcquire(connection=connection) as con:
+        with MaybeAcquire(connection=connection) as con:
             con.execute(sql)
 
     @classmethod
@@ -332,7 +332,7 @@ class Table(metaclass=TableMeta):
         sql = 'INSERT INTO {0} ({1}) VALUES ({2});'.format(cls.tablename, ', '.join(verified),
                                                            ', '.join(str(i) for i, _ in enumerate(verified, 1)))
 
-        async with MaybeAcquire(connection) as con:
+        with MaybeAcquire(connection) as con:
             con.execute(sql, *verified.values())
 
     @classmethod
@@ -359,7 +359,7 @@ class Table(metaclass=TableMeta):
 
         sql = 'REMOVE FROM {0} WHERE {1};'.format(cls.tablename, ' AND '.join(statements))
 
-        async with MaybeAcquire(connection) as con:
+        with MaybeAcquire(connection) as con:
             con.execute(sql)
 
     @classmethod

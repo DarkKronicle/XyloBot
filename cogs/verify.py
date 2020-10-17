@@ -1,9 +1,12 @@
 import asyncio
 import random
 
+from storage.db import MaybeAcquire
+from util import storage_cache
 from util.discord_util import *
 from discord.ext import commands
 from storage import cache, db
+from xylo_bot import XyloBot
 
 
 def id_in(id_int, check):
@@ -49,13 +52,6 @@ class VerifySettings(db.Table, table_name="verify_settings"):
     fields = db.Column(db.JSON())
     active = db.Column(db.Boolean(), default=True)
 
-    # @classmethod
-    # def create_table(cls, *, overwrite=False):
-    #     statement = super().create_table(overwrite=overwrite)
-    #     # create the unique index
-    #     # sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_settings_uniq_idx ON verify_settings (guild_id);"
-    #     return statement + '\n'
-
 
 class VerifyQueue(db.Table, table_name="verify_queue"):
     guild_id = db.Column(db.Integer(big=True), primary_key=True)
@@ -67,7 +63,46 @@ class VerifyQueue(db.Table, table_name="verify_queue"):
         statement = super().create_table(overwrite=overwrite)
         # create the unique index
         sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_queue_uniq_idx ON verify_queue (guild_id, user_id);"
-        return statement + '\n'
+        return statement + '\n' + sql
+
+
+class VerifyConfig:
+    __slots__ = ("bot", "guild_id", "setup_channel_id", "setup_log_id", "unverified_role_id", "roles_data", "fields", "active")
+
+    def __init__(self, *, guild_id, bot, data=None):
+        self.guild_id = guild_id
+        self.bot: XyloBot = bot
+
+        if data is not None:
+            self.active = data['active']
+            self.setup_channel_id = data['setup_channel']
+            self.setup_log_id = data['setup_log']
+            self.fields = data['fields']['fields']
+            self.unverified_role_id = data['unverified_role']
+            self.roles_data = data['roles']['roles']
+
+    @property
+    def setup_channel(self):
+        guild = self.bot.get_guild(self.guild_id)
+        return guild.get_channel(self.setup_channel_id)
+
+    @property
+    def log_channel(self):
+        guild = self.bot.get_guild(self.guild_id)
+        return guild.get_channel(self.setup_log_id)
+
+    @property
+    def unverified_role(self):
+        guild = self.bot.get_guild(self.guild_id)
+        return guild.get_role(self.unverified_role_id)
+
+    @property
+    def roles(self):
+        roles = []
+        guild = self.bot.get_guild(self.guild_id)
+        for role in self.roles_data:
+            roles.append(guild.get_role(role))
+        return roles
 
 
 class Verify(commands.Cog):
@@ -92,6 +127,15 @@ class Verify(commands.Cog):
         "extra": "What should I know about you?"
     }
 
+    @storage_cache.cache()
+    async def get_verify_config(self, guild_id, *, connection=None):
+        command = "SELECT * FROM verify_settings WHERE guild_id={}"
+        command = command.format(str(guild_id))
+        with MaybeAcquire(connection=connection) as con:
+            con.execute(command)
+            data = con.fetchone()
+        return VerifyConfig(guild_id=guild_id, bot=self.bot, data=data)
+
     verifying = {}
 
     def __init__(self, bot):
@@ -100,16 +144,17 @@ class Verify(commands.Cog):
     async def verify_queue(self, member: discord.Member, guild: discord.Guild):
         dab = Database()
         settings = dab.get_settings(str(guild.id))
-        # db.add_unverified(self.verifying[guild.id][member.id]['fields'], str(member.id), str(guild.id))
         command = "INSERT INTO verify_queue(guild_id, user_id, data) " \
                   "VALUES($${0}$$, $${1}$$, $${2}$$);"
         command = command.format(str(guild.id), str(member.id), json.dumps(self.verifying[guild.id][member.id]['fields']))
-        async with db.MaybeAcquire() as con:
+        with db.MaybeAcquire() as con:
             con.execute(command)
+
         if not check_verification(guild, settings):
             chan: discord.TextChannel = cache.get_setup_channel(guild)
             await chan.send("Error sending information. Contact staff!", delete_after=15)
             return
+
         channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
         message = f":bell: `{member.display_name}` just went through the verification process!"
         for field in self.verifying[guild.id][member.id]['fields']:
@@ -511,7 +556,8 @@ class Verify(commands.Cog):
                 await ctx.send("User not found!")
                 return
             command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
-            async with db.MaybeAcquire() as con:
+            command = command.format(str(ctx.guild.id), str(member.id))
+            with db.MaybeAcquire() as con:
                 con.execute(command)
                 row = con.fetchone()
                 if row is None:
@@ -530,7 +576,7 @@ class Verify(commands.Cog):
         # unverified = db.get_all_unverified(str(ctx.guild.id))
         command = "SELECT user_id FROM verify_queue WHERE guild_id = {0} ORDER BY user_id;"
         command = command.format(str(ctx.guild.id))
-        async with db.MaybeAcquire() as con:
+        with db.MaybeAcquire() as con:
             con.execute(command)
             unverified = con.fetchall()
 
@@ -560,7 +606,7 @@ class Verify(commands.Cog):
 
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
-        async with db.MaybeAcquire() as con:
+        with db.MaybeAcquire() as con:
             con.execute(command)
         # dab.delete_unverified(str(guild.id), str(member.id))
         dab.add_user(info, str(member.id), str(guild.id))
@@ -605,7 +651,7 @@ class Verify(commands.Cog):
             self.verifying[guild.id].pop(member.id)
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
-        async with db.MaybeAcquire() as con:
+        with db.MaybeAcquire() as con:
             con.execute(command)
         # db.delete_unverified(str(guild.id), str(member.id))
         settings = dab.get_settings(str(guild.id))
@@ -641,7 +687,7 @@ class Verify(commands.Cog):
         # db = Database()
         # user = db.get_unverified(str(guild.id), str(member.id))
         command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
-        async with db.MaybeAcquire() as con:
+        with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
             if row is None:
@@ -676,7 +722,7 @@ class Verify(commands.Cog):
         # db = Database()
         # user = db.get_unverified(str(guild.id), str(member.id))
         command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
-        async with db.MaybeAcquire() as con:
+        with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
             if row is None:

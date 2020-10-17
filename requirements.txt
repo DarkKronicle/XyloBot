@@ -8,3 +8,4 @@ aiohttp~=3.6.2
 requests~=2.24.0
 Pillow~=7.2.0
 pyowm~=3.1.1
+lru_dict
