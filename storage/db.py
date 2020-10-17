@@ -214,15 +214,15 @@ class MaybeAcquire:
         self._connection = None
         self._cleanup = cleanup
 
-    def __enter__(self):
+    async def __aenter__(self):
         if self.connection is None:
             self._cleanup = True
-            self._connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            self._connection = psycopg2.connect(DATABASE_URL, sslmode='require', async_=True)
             c = self._connection.cursor()
             return c
         return self.connection.cursor()
 
-    def __exit__(self, *args):
+    async def __aexit__(self, *args):
         if self._cleanup:
             if self._connection is not None:
                 self._connection.commit()

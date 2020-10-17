@@ -273,7 +273,7 @@ class Verify(commands.Cog):
                   "active) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}); "
         command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(unverified.id),
                                  json.dumps(roles_dict), json.dumps(fields), "TRUE")
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
 
         await ctx.send("You're all setup!")
@@ -295,7 +295,7 @@ class Verify(commands.Cog):
 
         command = "DELETE FROM verify_settings WHERE guild_id={};"
         command = command.format(str(ctx.guild.id))
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
         self.get_verify_config.invalidate(ctx.guild.id)
         await ctx.send("Settings have been reset for your guild!")
@@ -323,7 +323,7 @@ class Verify(commands.Cog):
         delete_users = delete_users.format(str(ctx.guild.id))
         delete_queue = delete_queue.format(str(ctx.guild.id))
         command = delete_settings + "\n" + delete_queue + "\n" + delete_users
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
         self.get_verify_config.invalidate(ctx.guild.id)
         await ctx.send("All data has been deleted from this server.")
@@ -363,7 +363,7 @@ class Verify(commands.Cog):
             name = get_key(field, self.names)
             message = message + f"{name} - {format_true(fields[field])}\n"
         message = message + f"```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
-                            f"Unverified Role - {unverified_role.name}\n\nRoles on verification:"
+                            f"Unverified Role - `{unverified_role.name}`\n\nRoles on verification:"
         for role in roles:
             message = message + f"`{role.name}` "
 
@@ -395,7 +395,7 @@ class Verify(commands.Cog):
                   "VALUES($${0}$$, $${1}$$, $${2}$$);"
         command = command.format(str(guild.id), str(member.id),
                                  json.dumps(self.verifying[guild.id][member.id]['fields']))
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
 
         if not check_verification(guild, settings):
@@ -805,7 +805,7 @@ class Verify(commands.Cog):
                 return
             command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
             command = command.format(str(ctx.guild.id), str(member.id))
-            with db.MaybeAcquire() as con:
+            async with db.MaybeAcquire() as con:
                 con.execute(command)
                 row = con.fetchone()
                 if row is None:
@@ -824,7 +824,7 @@ class Verify(commands.Cog):
         # unverified = db.get_all_unverified(str(ctx.guild.id))
         command = "SELECT user_id FROM verify_queue WHERE guild_id = {0} ORDER BY user_id;"
         command = command.format(str(ctx.guild.id))
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
             unverified = con.fetchall()
 
@@ -854,7 +854,7 @@ class Verify(commands.Cog):
 
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
         # dab.delete_unverified(str(guild.id), str(member.id))
         dab.add_user(info, str(member.id), str(guild.id))
@@ -899,7 +899,7 @@ class Verify(commands.Cog):
             self.verifying[guild.id].pop(member.id)
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
         # db.delete_unverified(str(guild.id), str(member.id))
         settings = dab.get_settings(str(guild.id))
@@ -935,7 +935,7 @@ class Verify(commands.Cog):
         # db = Database()
         # user = db.get_unverified(str(guild.id), str(member.id))
         command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
             if row is None:
@@ -970,7 +970,7 @@ class Verify(commands.Cog):
         # db = Database()
         # user = db.get_unverified(str(guild.id), str(member.id))
         command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
-        with db.MaybeAcquire() as con:
+        async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
             if row is None:
