@@ -369,7 +369,7 @@ class Verify(commands.Cog):
         with MaybeAcquire(connection=connection) as con:
             con.execute(command)
             data = con.fetchone()
-        return VerifyConfig(guild_id=guild_id, bot=self.bot, data=data)
+        return VerifyConfig(guild_id=guild_id, bot=self.bot, data=data[0])
 
     verifying = {}
 
