@@ -14,6 +14,7 @@ from collections import OrderedDict
 import os
 
 import psycopg2
+import psycopg2.extras
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -204,9 +205,9 @@ class MaybeAcquire:
 
     def cursor(self):
         if self.connection is not None:
-            return self.connection.cursor()
+            return self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if self._connection is not None:
-            return self._connection.cursor()
+            return self._connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
         return None
 
     def __init__(self, connection=None, cleanup=True):
@@ -218,7 +219,7 @@ class MaybeAcquire:
         if self.connection is None:
             self._cleanup = True
             self._connection = psycopg2.connect(DATABASE_URL, sslmode='require', async_=True)
-            c = self._connection.cursor()
+            c = self._connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
             return c
         return self.connection.cursor()
 

@@ -811,7 +811,7 @@ class Verify(commands.Cog):
                 if row is None:
                     data = None
                 else:
-                    data = row[0]
+                    data = row['data']
             if data is None:
                 return await ctx.send("User not found. Have they applied?")
             # data = dab.get_unverified(str(ctx.guild.id), str(member.id))
@@ -941,7 +941,7 @@ class Verify(commands.Cog):
             if row is None:
                 user = None
             else:
-                user = row[0]
+                user = row['data']
         if user is None:
             await ctx.send("User not in verify queue")
             return
@@ -976,7 +976,7 @@ class Verify(commands.Cog):
             if row is None:
                 user = None
             else:
-                user = row[0]
+                user = row['data']
         if user is None:
             await ctx.send("User not in verify queue")
             return
