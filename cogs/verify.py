@@ -528,7 +528,7 @@ class Verify(commands.Cog):
             return
 
         # unverified = db.get_all_unverified(str(ctx.guild.id))
-        command = "SELECT user_id FROM verify_queue WHERE guild_id = {1} ORDER BY user_id;"
+        command = "SELECT user_id FROM verify_queue WHERE guild_id = {0} ORDER BY user_id;"
         command = command.format(str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
