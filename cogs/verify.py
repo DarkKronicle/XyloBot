@@ -137,6 +137,7 @@ class Verify(commands.Cog):
     }
 
     @commands.group(name="!verify", aliases=["!verification", "!v"], invoke_without_command=True)
+    @commands.guild_only()
     async def mod_verify(self, ctx: Context):
         """
         Verification settings for your server.
@@ -145,6 +146,7 @@ class Verify(commands.Cog):
 
     @mod_verify.command(name="setup")
     @checks.is_mod()
+    @commands.guild_only()
     async def mod_verify_setup(self, ctx: Context):
         """
         Uses a setup wizard to get your verification system up and running!
@@ -213,7 +215,7 @@ class Verify(commands.Cog):
         i = 0
         for field in field_list:
             i = i + 1
-            message = message + f"`{i}: {field}`"
+            message = message + f"`{i}: {field}` "
 
         ask_fields = await ctx.ask(message, timeout=180, allow_none=True)
 
@@ -242,6 +244,9 @@ class Verify(commands.Cog):
                     fields[self.names[field]] = True
                 else:
                     fields[self.names[field]] = False
+        else:
+            for field in field_list:
+                fields[self.names[field]] = False
 
         # Easy use for psql json
         roles_dict = {"roles": roles}
@@ -256,6 +261,7 @@ class Verify(commands.Cog):
 
     @mod_verify.command(name="clearsettings")
     @checks.is_admin()
+    @commands.guild_only()
     async def mod_verify_clearsettings(self, ctx: Context):
         """
         Clears settings that are being used for verification.
@@ -277,6 +283,7 @@ class Verify(commands.Cog):
 
     @mod_verify.command(name="resetall")
     @checks.is_admin()
+    @commands.guild_only()
     async def mod_verify_reset(self, ctx: Context):
         """
         Resets ALL verification system inside of the database. This CANNOT be undone.
@@ -301,6 +308,47 @@ class Verify(commands.Cog):
             con.execute(command)
         self.get_verify_config.invalidate(ctx.guild.id)
         await ctx.send("All data has been deleted from this server.")
+
+    @mod_verify.command(name="current")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def mod_verify_current(self, ctx: Context):
+        settings: VerifyConfig = self.get_verify_config(ctx.guild)
+
+        if settings.setup_channel_id is None:
+            embed = discord.Embed(
+                title="No Verification Setup",
+                description="This server currently has no verification setup. To set it up use `!verify setup`.",
+                colour=discord.Colour.red()
+            )
+            return await ctx.send(embed=embed)
+
+        setup_channel = settings.setup_channel
+        setup_log = settings.log_channel
+        unverified_role = settings.unverified_role
+        roles = settings.roles
+        fields = settings.fields
+        active = settings.active
+        if active:
+            active_str = "Enabled"
+        else:
+            active_str = "Disabled"
+        message = "Current Verification settings. Edit with `>help !verify` commands.\n\nCurrent fields enabled:\n```"
+        for field in fields:
+            name = get_key(field, self.names)
+            message = message + f"{name}\n"
+        message = message + f"```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
+                            f"Unverified Role - {unverified_role.name}\n\nRoles on verification:"
+        for role in roles:
+            message = message + f"`{role.name}` "
+
+        embed = discord.Embed(
+            title=f"Verification {active_str}",
+            description=message,
+            colour=discord.Colour.green()
+        )
+        await ctx.send(embed=embed)
+
 
     # def is_verifier(self):
     #     async def predicate(ctx):
