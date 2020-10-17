@@ -218,7 +218,7 @@ class MaybeAcquire:
     async def __aenter__(self):
         if self.connection is None:
             self._cleanup = True
-            self._connection = psycopg2.connect(DATABASE_URL, sslmode='require', async_=True)
+            self._connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             c = self._connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
             return c
         return self.connection.cursor()
