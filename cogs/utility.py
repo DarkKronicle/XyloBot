@@ -1,3 +1,4 @@
+import asyncio
 from io import StringIO
 from json import detect_encoding
 
@@ -66,7 +67,23 @@ class Utility(commands.Cog):
 
     @commands.command(name="ping")
     async def ping(self, ctx: Context):
-        await ctx.send("Pong!")
+        sent = await ctx.send("Pinging")
+        time0 = sent.created_at.microsecond * 1000
+        await asyncio.sleep(0.5)
+        await sent.edit(content="Pinging.")
+        time1 = sent._edited_timestamp.microsecond * 1000
+        await asyncio.sleep(0.5)
+        await sent.edit(content="Pinging..")
+        time2 = sent._edited_timestamp.microsecond * 1000
+        await asyncio.sleep(0.5)
+        await sent.edit(content="Pinging...")
+        time3 = sent._edited_timestamp.microsecond * 1000
+        await asyncio.sleep(0.5)
+        dif1 = time1 - (time0 + 500)
+        dif2 = time2 - (time1 + 500)
+        dif3 = time3 - (time2 + 500)
+        av = (dif1 + dif2 + dif3) / 3
+        await sent.edit(content=f"Pong! Average pinging time was {av}ms")
 
     @commands.command(name="grade")
     async def grade(self, ctx: Context, *args):
