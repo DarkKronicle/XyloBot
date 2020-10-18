@@ -439,7 +439,7 @@ class Verify(commands.Cog):
             for field in field_list:
                 fields[self.names[field]] = False
 
-        command = "UPDATE verify_settings SET data=$${0}$$ WHERE guild_id={1};"
+        command = "UPDATE verify_settings SET fields=$${0}$$ WHERE guild_id={1};"
         command = command.format(json.dumps(fields), str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
@@ -567,7 +567,7 @@ class Verify(commands.Cog):
         for field in fields:
             name = get_key(field, self.names)
             message = message + f"{name} - {format_true(fields[field])}\n"
-        message = message + f"```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
+        message = message + f"\n```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
                             f"Unverified Role - `{unverified_role.name}`\n\nRoles on verification:"
         for role in roles:
             message = message + f"`{role.name}` "
