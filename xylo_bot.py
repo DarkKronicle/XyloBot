@@ -192,8 +192,9 @@ class XyloBot(commands.Bot):
             return
 
         cog = self.get_cog("CommandSettings")
-        if not await cog.is_command_enabled(ctx):
-            await ctx.send("You shouldn't do that ;-;")
+        if cog is not None and not await cog.is_command_enabled(ctx):
+            # Command is disabled
+            return
         await self.invoke(ctx)
         ctx.release()
 
