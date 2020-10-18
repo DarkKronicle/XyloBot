@@ -151,7 +151,7 @@ class CommandSettings(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(delete + "\n" + insert)
 
-        self.get_command_config._invalidate(guild_id)
+        self.get_command_config.invalidate(self, guild_id)
 
     async def enable_command(self, guild_id, name, channel_id=None):
         delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
@@ -171,7 +171,7 @@ class CommandSettings(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(delete + "\n" + insert)
 
-        self.get_command_config._invalidate(guild_id)
+        self.get_command_config.invalidate(self, guild_id)
 
     async def reset_channel(self, guild_id, name, channel_id=None):
         delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
@@ -184,7 +184,7 @@ class CommandSettings(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(delete)
 
-        self.get_command_config._invalidate(guild_id)
+        self.get_command_config.invalidate(self, guild_id)
 
     async def is_command_enabled(self, ctx):
         if ctx.guild is None:
