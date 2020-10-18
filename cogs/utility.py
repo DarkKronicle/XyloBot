@@ -229,7 +229,7 @@ class Utility(commands.Cog):
         dif: timedelta = now - boot
 
         total_seconds = dif.total_seconds()
-        seconds = total_seconds % 60
+        seconds = math.floor(total_seconds % 60)
         minutes = math.floor(total_seconds / 60) % 60
         hours = math.floor(total_seconds / 3600) % 24
         days = math.floor(total_seconds / (3600 * 24))
