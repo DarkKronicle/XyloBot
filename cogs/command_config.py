@@ -211,7 +211,7 @@ class CommandSettings(commands.Cog):
 
     @commandconfig.command(name="enable")
     @checks.is_mod()
-    async def enable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
+    async def config_enable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                              command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
@@ -227,7 +227,7 @@ class CommandSettings(commands.Cog):
 
     @commandconfig.command(name="disable")
     @checks.is_mod()
-    async def disable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
+    async def config_disable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                              command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
@@ -243,7 +243,7 @@ class CommandSettings(commands.Cog):
 
     @commandconfig.command(name="resetcmd")
     @checks.is_mod()
-    async def reset_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
+    async def config_reset_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                              command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
