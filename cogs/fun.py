@@ -1,18 +1,7 @@
 import random
 
 from util.discord_util import *
-from storage import cache
 from storage.config import *
-
-
-def lober():
-    async def predicate(context: commands.Context):
-        fields = cache.get_fun(context.guild)
-        if fields is not None and fields["lober"]:
-            return True
-        return False
-
-    return commands.check(predicate)
 
 
 class Fun(commands.Cog, name="Fun"):
@@ -20,24 +9,14 @@ class Fun(commands.Cog, name="Fun"):
     Fun commands for Xylo. These each may be disabled by staff.
     """
 
-    @commands.group(name="lober", usage="<fact|image>")
-    @lober()
+    @commands.group(name="lober", invoke_without_command=True)
     async def lober(self, ctx: commands.Context):
         """
         Lober command. Send's lober information for
         """
-        if ctx.invoked_subcommand is None:
-            embed = discord.Embed(
-                title="Lober Help",
-                description="What lober commands I got.",
-                colour=discord.Colour.purple()
-            )
-            embed.add_field(name="`>lober fact`", value="View a random lober fact!")
-            embed.add_field(name="`>lober image`", value="View a lober image!")
-            await ctx.send(embed=embed)
+        await ctx.send_help('lober')
 
     @lober.command(name="fact")
-    @commands.guild_only()
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def fact(self, ctx: commands.Context):
         """
@@ -52,7 +31,6 @@ class Fun(commands.Cog, name="Fun"):
         await ctx.send(embed=embed)
 
     @lober.command(name="image")
-    @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, ctx: commands.Context):
         """
