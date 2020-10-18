@@ -58,7 +58,7 @@ class QOTD(commands.Cog):
                 return
 
             if args[0] == "send":
-                await self.send_qotd()
+                await self.send_qotd(None)
                 embed = discord.Embed(
                     title="QOTD sent!",
                     colour=discord.Colour.green()
