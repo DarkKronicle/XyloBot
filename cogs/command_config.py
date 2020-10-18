@@ -122,6 +122,9 @@ class CommandPermissions:
 
 
 class CommandSettings(commands.Cog):
+    """
+    Disable specific commands per channel or guild.
+    """
 
     # This will be called a lot
     @storage_cache.cache(maxsize=512)
@@ -201,18 +204,23 @@ class CommandSettings(commands.Cog):
         guild_perms = await self.get_command_config(ctx.guild.id)
         return guild_perms.is_allowed(ctx)
 
-    @commands.group("!commandconfig", aliases=["!ccommand", "!cc"])
+    @commands.group("!commandconfig", aliases=["!ccommand", "!cc"], invoke_without_command=True)
+    @commands.guild_only()
     @checks.is_mod()
     async def commandconfig(self, ctx: Context):
         """
         Disables/Enables commands for guild or channel
         """
-        pass
+        await ctx.send_help('!commandconfig')
 
     @commandconfig.command(name="enable")
+    @commands.guild_only()
     @checks.is_mod()
     async def config_enable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                                     command: CommandName = None):
+        """
+        Enables a command. If you don't specify the channel it will do the full server.
+        """
         if command is None:
             return await ctx.send("Please put in a proper command!")
         if channel is None:
@@ -226,9 +234,13 @@ class CommandSettings(commands.Cog):
         await ctx.send(f"Successfully enabled for {name}!")
 
     @commandconfig.command(name="disable")
+    @commands.guild_only()
     @checks.is_mod()
     async def config_disable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                                      command: CommandName = None):
+        """
+        Disables a command. If you don't specify the channel it will do the full server.
+        """
         if command is None:
             return await ctx.send("Please put in a proper command!")
         if channel is None:
@@ -243,8 +255,12 @@ class CommandSettings(commands.Cog):
 
     @commandconfig.command(name="resetcmd")
     @checks.is_mod()
+    @commands.guild_only()
     async def config_reset_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                                    command: CommandName = None):
+        """
+        Clears a current setting from the database. If channel is not specified it will do the guild.
+        """
         if command is None:
             return await ctx.send("Please put in a proper command!")
         if channel is None:
