@@ -226,7 +226,7 @@ class Utility(commands.Cog):
         now.replace(microsecond=0)
         boot = bot.boot
         boot.replace(microsecond=0)
-        dif: timedelta = boot - now
+        dif: timedelta = now - boot
 
         total_seconds = dif.total_seconds()
         seconds = total_seconds % 60
