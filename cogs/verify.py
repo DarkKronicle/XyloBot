@@ -74,12 +74,15 @@ class VerifyQueue(db.Table, table_name="verify_queue"):
     @classmethod
     def create_table(cls, *, overwrite=False):
         statement = super().create_table(overwrite=overwrite)
-        # create the unique index
+        # create the unique index for guild_id and user_id for SPPEEEEEEDDD
         sql = "CREATE UNIQUE INDEX IF NOT EXISTS verify_queue_uniq_idx ON verify_queue (guild_id, user_id);"
         return statement + '\n' + sql
 
 
 class VerifyConfig:
+    """
+    Stores data on how verification is setup for a guild.
+    """
     __slots__ = (
         "bot", "guild_id", "setup_channel_id", "setup_log_id", "unverified_role_id", "roles_data", "fields", "active")
 
@@ -94,12 +97,6 @@ class VerifyConfig:
             self.fields = data['fields']
             self.unverified_role_id = data['unverified_role']
             self.roles_data = data['roles']['roles']
-            # self.setup_channel_id = data[0]
-            # self.setup_log_id = data[1]
-            # self.unverified_role_id = data[2]
-            # self.roles_data = data[3]['roles']
-            # self.fields = data[4]
-            # self.active = data[5]
         else:
             self.active = False
             self.setup_channel_id = None
@@ -216,15 +213,16 @@ class Verify(commands.Cog):
             return await ctx.timeout()
 
         roles = []
-        for role in ask_roles.split(' '):
-            try:
-                role_int = int(role)
-            except ValueError:
-                return await ctx.send(f"Please put in just an int for the role: {role}")
-            role = ctx.guild.get_role(role_int)
-            if role is None:
-                return await ctx.send(f"Could not find the role {role}")
-            roles.append(role_int)
+        if ask_roles != False:
+            for role in ask_roles.split(' '):
+                try:
+                    role_int = int(role)
+                except ValueError:
+                    return await ctx.send(f"Please put in just an int for the role: {role}")
+                role = ctx.guild.get_role(role_int)
+                if role is None:
+                    return await ctx.send(f"Could not find the role {role}")
+                roles.append(role_int)
 
         # Lists fields with a number by each for easy adding.
         message = "What fields should I ask for? Separate answers by using a space and using the numbers. (If you " \
@@ -277,6 +275,169 @@ class Verify(commands.Cog):
             con.execute(command)
 
         await ctx.send("You're all setup!")
+
+    @mod_verify.command(name="roles")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def mod_verify_roles(self, ctx: Context):
+        """
+        Sets up the roles Xylo uses for unverified and what to give verified.
+        """
+        settings = await self.get_verify_config(ctx.guild.id)
+        if settings.setup_channel_id is None:
+            return await ctx.send(embed=discord.Embed(
+                title="No Verification Setup",
+                description="To edit specific fields you need to go through `!verify setup`.",
+                colour=discord.Colour.red()
+            ))
+
+        ask_unverified = await ctx.ask(
+            "What's the ID of the role I should give to unverified users? (Enable developer mode and copy ID)",
+            timeout=120)
+        if ask_unverified is None:
+            return await ctx.timeout()
+        try:
+            role_int = int(ask_unverified)
+        except ValueError:
+            return await ctx.send("Make sure to put in just the integer.")
+        unverified = ctx.guild.get_role(role_int)
+        if unverified is None:
+            return await ctx.send("Could not find the role.")
+
+        ask_roles = await ctx.ask("What roles should I give to the user when they join? (Separate by spaces and use "
+                                  "role ID's. Use `none` if you don't want any)", timeout=180)
+        if ask_roles is None:
+            return await ctx.timeout()
+
+        roles = []
+        if ask_roles != False:
+            for role in ask_roles.split(' '):
+                try:
+                    role_int = int(role)
+                except ValueError:
+                    return await ctx.send(f"Please put in just an int for the role: {role}")
+                role = ctx.guild.get_role(role_int)
+                if role is None:
+                    return await ctx.send(f"Could not find the role {role}")
+                roles.append(role_int)
+
+        roles_dict = {"roles": roles}
+
+        command = "UPDATE verify_settings SET unverified_role = {0}, roles = $${1}$$ WHERE guild_id = {2};"
+        command = command.format(str(unverified.id), json.dumps(roles_dict), str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        self.get_verify_config.invalidate(ctx.guild.id)
+        await self.mod_verify_current(ctx)
+
+    @mod_verify.command(name="channels")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def mod_verify_channels(self, ctx: Context):
+        """
+        Changes the setup channel and the setup-log channel.
+
+        Setup channel: Where unverified users will see and send messages in to verify.
+        Setup log: Where updates about verification gets sent. User joins, user goes through process, verified, rejected
+        """
+        settings = await self.get_verify_config(ctx.guild.id)
+        if settings.setup_channel_id is None:
+            return await ctx.send(embed=discord.Embed(
+                title="No Verification Setup",
+                description="To edit specific fields you need to go through `!verify setup`.",
+                colour=discord.Colour.red()
+            ))
+
+        ask_channel = await ctx.raw_ask("What channel should users put in their information? (Use a `#channel` "
+                                        "mention.)")
+        if ask_channel is None:
+            return await ctx.timeout()
+        # Use built in discord.py feature to get channel mentions from a message.
+        channels = ask_channel.channel_mentions
+        if channels is None or len(channels) != 1:
+            return await ctx.send("Make sure to put in just one correct channel!")
+        channel = channels[0]
+
+        ask_log = await ctx.raw_ask(
+            "What channel should I send verification updates to? (User join, user queue, accept users) To "
+            "accept/reject a person you have to have permissions to send messages in this channel.")
+        if ask_log is None:
+            return await ctx.timeout()
+        channels = ask_log.channel_mentions
+        if channels is None or len(channels) != 1:
+            return await ctx.send("Make sure to put in just one correct channel!")
+        log = channels[0]
+
+        command = "UPDATE verify_settings SET setup_channel = {0}, setup_log = {1} WHERE guild_id = {2};"
+        command = command.format(str(channel.id), str(log.id), str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        self.get_verify_config.invalidate(ctx.guild.id)
+        await self.mod_verify_current(ctx)
+
+    @mod_verify.command(name="fields")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def mod_verify_fields(self, ctx: Context):
+        """
+        Configures what fields you want Xylo to ask for.
+
+        Basically is just the step for the setup.
+        """
+        settings = await self.get_verify_config(ctx.guild.id)
+        if settings.setup_channel_id is None:
+            return await ctx.send(embed=discord.Embed(
+                title="No Verification Setup",
+                description="To edit specific fields you need to go through `!verify setup`.",
+                colour=discord.Colour.red()
+            ))
+
+        message = "What fields should I ask for? Separate answers by using a space and using the numbers. (If you " \
+                  "don't want any fields just use `none`) Allowed fields are:\n "
+        field_list = list(self.names)
+        i = 0
+        for field in field_list:
+            i = i + 1
+            message = message + f"`{i}: {field}` "
+
+        ask_fields = await ctx.ask(message, timeout=180, allow_none=True)
+
+        if ask_fields is None:
+            return await ctx.timeout()
+
+        fields = {}
+
+        # Have to check all of them to make sure it works.
+        if not ask_fields == False:
+            fs = ask_fields.split(' ')
+            filist = []
+            for f in fs:
+                try:
+                    fi = int(f)
+                except ValueError:
+                    return await ctx.send(f"Make sure you specify an int. Error happened with: `{f}`")
+                if fi > i or i < 1:
+                    return await ctx.send("Number not in range of possible fields!")
+                filist.append(fi)
+
+            i = 0
+            for field in field_list:
+                i = i + 1
+                if i in filist:
+                    fields[self.names[field]] = True
+                else:
+                    fields[self.names[field]] = False
+        else:
+            for field in field_list:
+                fields[self.names[field]] = False
+
+        command = "UPDATE verify_settings SET data=$${0}$$ WHERE guild_id={1};"
+        command = command.format(json.dumps(fields), str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        self.get_verify_config.invalidate(ctx.guild.id)
+        await self.mod_verify_current(ctx)
+
 
     @mod_verify.command(name="clearsettings")
     @checks.is_admin()
