@@ -37,7 +37,7 @@ cogs_dir = "cogs"
 startup_extensions = [
     "data_commands", "auto_reactions", "qotd", "roles", "verify", "statistics",
     "settings", "fun", "utility", "mark", "user_settings", "api", "game", "image",
-    "random_commands", "text", "new_guild, command_config"
+    "random_commands", "text", "new_guild", "command_config"
 ]
 
 # bot.remove_command('help')
