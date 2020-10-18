@@ -82,10 +82,11 @@ class XyloBot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         intents.guilds = True
-        super().__init__(command_prefix=get_prefix, intents=intents, description=description, case_insensitive=True)
+        super().__init__(command_prefix=get_prefix, intents=intents, description=description, case_insensitive=True, owner_id=523605852557672449)
         self.help_command = Help()
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
         self.session = aiohttp.ClientSession(loop=self.loop)
+        self.boot = datetime.now()
         for extension in startup_extensions:
             try:
                 self.load_extension(cogs_dir + "." + extension)

@@ -12,6 +12,8 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from pytz import timezone
 
+from xylo_bot import XyloBot
+
 
 def get_time():
     zone = timezone('US/Mountain')
@@ -25,7 +27,7 @@ class Utility(commands.Cog):
     """
     Commands to make life easier.
     """
-    
+
     @commands.command(name="invite")
     @commands.guild_only()
     @commands.cooldown(1, 600, commands.BucketType.member)
@@ -41,12 +43,12 @@ class Utility(commands.Cog):
                 if channel is None:
                     await ctx.send("Error creating invite. Invite channel not found!")
                     return
-                
+
                 invite = await channel.create_invite(max_age=1800)
                 if invite is None:
                     await ctx.send("Error creating invite. It just didn't create!")
                     return
-                
+
                 else:
                     await ctx.send(f"Here's your invite link!\n\n{str(invite)}")
                     log = cache.get_log_channel(ctx.guild)
@@ -77,7 +79,7 @@ class Utility(commands.Cog):
         await asyncio.sleep(0.5)
         await sent.edit(content="Pinging...")
         await asyncio.sleep(0.5)
-        dif1 = time1 - (time0)
+        dif1 = time1 - time0
         await sent.edit(content=f"Pong! Pinging time was {dif1}ms")
 
     @commands.command(name="grade")
@@ -140,7 +142,8 @@ class Utility(commands.Cog):
         """
 
         if len(args) == 0:
-            return await ctx.send("Make sure to add arguments with | dividing key from value. Like `>json 'KEY|VALUE' 'KEY|VALUE'...`")
+            return await ctx.send(
+                "Make sure to add arguments with | dividing key from value. Like `>json 'KEY|VALUE' 'KEY|VALUE'...`")
 
         questions = {}
         message = "Building your file...\n\n```Question | Answer\n-----"
@@ -177,7 +180,7 @@ class Utility(commands.Cog):
         file = discord.File(fp=buffer, filename="file.txt")
         await ctx.send("*Bing bada boom!* Here's your file!", file=file)
 
-    @commands.command(name="paste", usage = "[FORMAT]")
+    @commands.command(name="paste", usage="[FORMAT]")
     @commands.cooldown(1, 10, commands.BucketType.member)
     async def paste(self, ctx: Context):
         """
@@ -216,6 +219,65 @@ class Utility(commands.Cog):
             return await ctx.send("File too big!")
         message = f"```{file_type}\n{data}\n```"
         await ctx.send(message)
+
+    def get_time_up(self, bot):
+        now = datetime.now()
+        now.replace(microsecond=0)
+        boot = bot.boot
+        boot.replace(microsecond=0)
+        dif: datetime = boot - now
+
+        seconds = dif.second
+        minutes = dif.minute
+        hours = dif.hour
+        days = dif.day
+
+        return f"{days} Days, {hours} hours, {minutes}, and {seconds} seconds."
+
+    @commands.command(name="uptime")
+    async def uptime(self, ctx: Context):
+        embed = discord.Embed(
+            description="I have been up for " + self.get_time_up(ctx.bot),
+            colour=discord.Colour.purple()
+        )
+        embed.set_author(name="Current Up Time")
+        await ctx.send(embed=embed)
+
+    @commands.command(name="about")
+    async def about(self, ctx):
+        """
+        Info about the bot.
+        """
+
+        bot: XyloBot = ctx.bot
+
+        users = 0
+        unique_users = len(ctx.bot.users)
+        text = 0
+        voice = 0
+        guilds = 0
+
+        uptime = self.get_time_up(ctx.bot)
+
+        for guild in bot.guilds:
+            guild: discord.Guild
+            guilds = guilds + 1
+            users = users + guild.member_count
+            for channel in guild.channels():
+                if isinstance(channel, discord.TextChannel):
+                    text = text + 1
+                elif isinstance(channel, discord.VoiceChannel):
+                    voice = voice + 1
+
+        embed = discord.Embed(
+            title="Current Stats",
+            colour=discord.Colour.purple()
+        )
+        owner = bot.get_user(bot.owner_id)
+        embed.set_author(name=str(owner), icon_url=owner.avatar_url)
+        message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice Channels: `{voice}`\n\nUptime: `{uptime}`"
+        embed.description = message
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
