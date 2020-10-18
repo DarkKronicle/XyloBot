@@ -68,7 +68,7 @@ class Utility(commands.Cog):
     @commands.command(name="ping")
     async def ping(self, ctx: Context):
         sent = await ctx.send("Pinging")
-        time0 = sent.created_at.microsecond * 1000
+        time0 = sent.created_at.microsecond / 1000
         await asyncio.sleep(0.5)
         await sent.edit(content="Pinging.")
         time1 = sent._edited_timestamp.microsecond / 1000
