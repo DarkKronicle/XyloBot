@@ -142,7 +142,7 @@ class CommandSettings(commands.Cog):
         if channel_id is None:
             delete = delete + " IS NULL;"
         else:
-            delete = delete + f"={str(channel_id)}"
+            delete = delete + f"={str(channel_id)};"
 
         if channel_id is None:
             insert = "INSERT INTO command_config(guild_id, allow, name) VALUES ({0}, FALSE, $${1}$$);"
@@ -162,7 +162,7 @@ class CommandSettings(commands.Cog):
         if channel_id is None:
             delete = delete + " IS NULL;"
         else:
-            delete = delete + f"={str(channel_id)}"
+            delete = delete + f"={str(channel_id)};"
 
         if channel_id is None:
             insert = "INSERT INTO command_config(guild_id, allow, name) VALUES ({0}, TRUE, $${1}$$);"
@@ -182,7 +182,7 @@ class CommandSettings(commands.Cog):
         if channel_id is None:
             delete = delete + " IS NULL;"
         else:
-            delete = delete + f"={str(channel_id)}"
+            delete = delete + f"={str(channel_id)};"
 
         async with db.MaybeAcquire() as con:
             con.execute(delete)
