@@ -66,7 +66,7 @@ class CommandPermissions:
                 channel_id = guild_id
 
             # Put it in...
-            if self._storage[channel_id] is None:
+            if channel_id not in self._storage[channel_id]:
                 self._storage[channel_id] = self._PermissionData()
 
             # Add info baby.
@@ -212,7 +212,7 @@ class CommandSettings(commands.Cog):
     @commandconfig.command(name="enable")
     @checks.is_mod()
     async def config_enable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
-                             command: CommandName = None):
+                                    command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
         if channel is None:
@@ -228,7 +228,7 @@ class CommandSettings(commands.Cog):
     @commandconfig.command(name="disable")
     @checks.is_mod()
     async def config_disable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
-                             command: CommandName = None):
+                                     command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
         if channel is None:
@@ -244,7 +244,7 @@ class CommandSettings(commands.Cog):
     @commandconfig.command(name="resetcmd")
     @checks.is_mod()
     async def config_reset_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
-                             command: CommandName = None):
+                                   command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
         if channel is None:
