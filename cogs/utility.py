@@ -234,7 +234,7 @@ class Utility(commands.Cog):
         hours = math.floor(total_seconds / 3600) % 24
         days = math.floor(total_seconds / (3600 * 24))
 
-        return f"{days} Days, {hours} hours, {minutes}, and {seconds} seconds."
+        return f"{days} Days, {hours} hours, {minutes} minutes, and {seconds} seconds."
 
     @commands.command(name="uptime")
     async def uptime(self, ctx: Context):
@@ -265,7 +265,7 @@ class Utility(commands.Cog):
             guild: discord.Guild
             guilds = guilds + 1
             users = users + guild.member_count
-            for channel in guild.channels():
+            for channel in guild.channels:
                 if isinstance(channel, discord.TextChannel):
                     text = text + 1
                 elif isinstance(channel, discord.VoiceChannel):
