@@ -10,6 +10,7 @@ Rapptz did in RoboDanny.
 
 Tutorial on how this stuff works: https://realpython.com/primer-on-python-decorators/#caching-return-values
 """
+import asyncio
 import enum
 from functools import wraps
 import inspect
@@ -75,8 +76,10 @@ def cache(maxsize=64, strategy=Strategy.lru):
                 if len(_internal_cache) > maxsize:
                     to_del = list(_internal_cache)[0]
                     del _internal_cache[to_del]
+            if asyncio.iscoroutinefunction(func):
+                return _wrap_new_coroutine(value)
             return value
-
+        
         def _invalidate(*args, **kwargs):
             key = create_key(args, kwargs)
             if key in _internal_cache:
