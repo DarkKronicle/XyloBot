@@ -66,7 +66,7 @@ class CommandPermissions:
                 channel_id = guild_id
 
             # Put it in...
-            if channel_id not in self._storage[channel_id]:
+            if channel_id not in self._storage:
                 self._storage[channel_id] = self._PermissionData()
 
             # Add info baby.
