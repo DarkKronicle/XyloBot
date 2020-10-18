@@ -256,3 +256,6 @@ class CommandSettings(commands.Cog):
 
         await self.enable_command(ctx.guild.id, command, channel_id)
         await ctx.send(f"Successfully deleted for {name}!")
+
+def setup(bot):
+    bot.add_cog(CommandSettings())
