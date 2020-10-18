@@ -222,7 +222,7 @@ class CommandSettings(commands.Cog):
             channel_id = channel.id
             name = channel.mention
 
-        await self.enable_command(ctx.guild.id, command, channel_id)
+        await self.enable_command(ctx.guild.id, command, channel_id=channel_id)
         await ctx.send(f"Successfully enabled for {name}!")
 
     @commandconfig.command(name="disable")
@@ -238,7 +238,7 @@ class CommandSettings(commands.Cog):
             channel_id = channel.id
             name = channel.mention
 
-        await self.disable_command(ctx.guild.id, command, channel_id)
+        await self.disable_command(ctx.guild.id, command, channel_id=channel_id)
         await ctx.send(f"Successfully disabled for {name}!")
 
     @commandconfig.command(name="resetcmd")
@@ -254,7 +254,7 @@ class CommandSettings(commands.Cog):
             channel_id = channel.id
             name = channel.mention
 
-        await self.enable_command(ctx.guild.id, command, channel_id)
+        await self.reset_channel(ctx.guild.id, command, channel_id=channel_id)
         await ctx.send(f"Successfully deleted for {name}!")
 
 
