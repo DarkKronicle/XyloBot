@@ -227,7 +227,7 @@ class CommandSettings(commands.Cog):
 
     @commandconfig.command(name="disable")
     @checks.is_mod()
-    async def enable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
+    async def disable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                              command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
@@ -243,7 +243,7 @@ class CommandSettings(commands.Cog):
 
     @commandconfig.command(name="resetcmd")
     @checks.is_mod()
-    async def enable_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
+    async def reset_command(self, ctx: Context, channel: Optional[discord.TextChannel], *,
                              command: CommandName = None):
         if command is None:
             return await ctx.send("Please put in a proper command!")
@@ -256,6 +256,7 @@ class CommandSettings(commands.Cog):
 
         await self.enable_command(ctx.guild.id, command, channel_id)
         await ctx.send(f"Successfully deleted for {name}!")
+
 
 def setup(bot):
     bot.add_cog(CommandSettings())
