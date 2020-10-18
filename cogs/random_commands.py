@@ -9,6 +9,10 @@ from util.context import Context
 
 
 class RandomCommands(commands.Cog, name="Random"):
+    """
+    Fun commands that may be seeded...
+    """
+
     random_values = JSONReader("data/random.json").data
 
     def seeded_int(self, obj_id, min_int=0, max_int=1):

@@ -117,6 +117,8 @@ class XyloBot(commands.Bot):
         if isinstance(error, MissingRole):
             await ctx.send("You don't have permission to do that!", delete_after=15)
             return
+        if isinstance(error, commands.NoPrivateMessage):
+            return await ctx.send("Sorry, this command can't be used in private messages.")
         if isinstance(error, CommandOnCooldown):
             message = f"**Hold up** {ctx.author.mention}! You're still on cooldown!"
             await ctx.message.delete()
@@ -189,6 +191,9 @@ class XyloBot(commands.Bot):
         if ctx.command is None:
             return
 
+        cog = self.get_cog("CommandSettings")
+        if not await cog.is_command_enabled(ctx):
+            await ctx.send("You shouldn't do that ;-;")
         await self.invoke(ctx)
         ctx.release()
 

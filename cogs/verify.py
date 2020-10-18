@@ -637,6 +637,10 @@ class Verify(commands.Cog):
         if message.author.bot:
             return
 
+        # Why would we want to verify a dm?
+        if message.guild is None:
+            return
+
         settings = await self.get_verify_config(message.guild.id)
 
         # Check to see if it's active.
