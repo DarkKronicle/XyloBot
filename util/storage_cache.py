@@ -79,7 +79,7 @@ def cache(maxsize=64, strategy=Strategy.lru):
             if asyncio.iscoroutinefunction(func):
                 return _wrap_new_coroutine(value)
             return value
-        
+
         def _invalidate(*args, **kwargs):
             key = create_key(args, kwargs)
             if key in _internal_cache:

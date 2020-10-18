@@ -23,14 +23,13 @@ def key_or_false(data: dict, key: str):
     return False
 
 
-def get_true(guild):
-    field: dict = cache.get_fields(guild)
-    if field is None:
+def get_true(sets):
+    if sets is None:
         return None
-    for f in list(field):
-        if not field[f]:
-            field.pop(f)
-    return field
+    for f in list(sets):
+        if not sets[f]:
+            sets.pop(f)
+    return sets
 
 
 def get_key(val, settings):
@@ -84,13 +83,16 @@ class VerifyConfig:
     Stores data on how verification is setup for a guild.
     """
     __slots__ = (
-        "bot", "guild_id", "setup_channel_id", "setup_log_id", "unverified_role_id", "roles_data", "fields", "active")
+        "bot", "guild_id", "setup_channel_id", "setup_log_id", "unverified_role_id", "roles_data", "fields", "active",
+        "config"
+    )
 
     def __init__(self, *, guild_id, bot, data=None):
         self.guild_id = guild_id
         self.bot: XyloBot = bot
 
         if data is not None:
+            self.config = True
             self.active = data['active']
             self.setup_channel_id = data['setup_channel']
             self.setup_log_id = data['setup_log']
@@ -98,6 +100,7 @@ class VerifyConfig:
             self.unverified_role_id = data['unverified_role']
             self.roles_data = data['roles']['roles']
         else:
+            self.config = False
             self.active = False
             self.setup_channel_id = None
             self.setup_log_id = None
@@ -132,6 +135,10 @@ class VerifyConfig:
 class Verify(commands.Cog):
     """
     Verify new members.
+    """
+
+    """
+    Start of configuration section for verification.
     """
 
     # TODO get this working with correct capitals.
@@ -169,7 +176,7 @@ class Verify(commands.Cog):
         # Kind of a mess right here... but it works.
         settings = await self.get_verify_config(ctx.guild.id)
         # Don't want to override old preferences, they can still edit using other commands.
-        if settings.setup_channel_id is not None:
+        if not settings.config:
             return await ctx.send(
                 "This server has already been setup! Have an admin use `!verify clearsettings` if you want to "
                 "re-setup the settings.")
@@ -275,6 +282,7 @@ class Verify(commands.Cog):
             con.execute(command)
 
         await ctx.send("You're all setup!")
+        await self.mod_verify_current(ctx)
 
     @mod_verify.command(name="roles")
     @checks.is_mod()
@@ -284,7 +292,7 @@ class Verify(commands.Cog):
         Sets up the roles Xylo uses for unverified and what to give verified.
         """
         settings = await self.get_verify_config(ctx.guild.id)
-        if settings.setup_channel_id is None:
+        if not settings.config:
             return await ctx.send(embed=discord.Embed(
                 title="No Verification Setup",
                 description="To edit specific fields you need to go through `!verify setup`.",
@@ -341,7 +349,7 @@ class Verify(commands.Cog):
         Setup log: Where updates about verification gets sent. User joins, user goes through process, verified, rejected
         """
         settings = await self.get_verify_config(ctx.guild.id)
-        if settings.setup_channel_id is None:
+        if not settings.config:
             return await ctx.send(embed=discord.Embed(
                 title="No Verification Setup",
                 description="To edit specific fields you need to go through `!verify setup`.",
@@ -385,7 +393,7 @@ class Verify(commands.Cog):
         Basically is just the step for the setup.
         """
         settings = await self.get_verify_config(ctx.guild.id)
-        if settings.setup_channel_id is None:
+        if not settings.config:
             return await ctx.send(embed=discord.Embed(
                 title="No Verification Setup",
                 description="To edit specific fields you need to go through `!verify setup`.",
@@ -438,7 +446,6 @@ class Verify(commands.Cog):
         self.get_verify_config.invalidate(ctx.guild.id)
         await self.mod_verify_current(ctx)
 
-
     @mod_verify.command(name="clearsettings")
     @checks.is_admin()
     @commands.guild_only()
@@ -489,6 +496,42 @@ class Verify(commands.Cog):
         self.get_verify_config.invalidate(ctx.guild.id)
         await ctx.send("All data has been deleted from this server.")
 
+    @mod_verify.command(name="enable")
+    async def mod_verify_enable(self, ctx: Context):
+        settings = await self.get_verify_config(ctx.guild.id)
+        if not settings.config:
+            return await ctx.send(embed=discord.Embed(
+                title="No Verification Setup",
+                description="To enable/disable you need to go through `!verify setup`.",
+                colour=discord.Colour.red()
+            ))
+
+        if settings.active:
+            return await ctx.send("Verification was already enabled.")
+        command = "UPDATE verify_settings SET active=TRUE WHERE guild_id={}"
+        command = command.format(str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        await ctx.send("Verification has been enabled!")
+
+    @mod_verify.command(name="disable")
+    async def mod_verify_enable(self, ctx: Context):
+        settings = await self.get_verify_config(ctx.guild.id)
+        if not settings.config:
+            return await ctx.send(embed=discord.Embed(
+                title="No Verification Setup",
+                description="To enable/disable you need to go through `!verify setup`.",
+                colour=discord.Colour.red()
+            ))
+
+        if settings.active:
+            return await ctx.send("Verification was already enabled.")
+        command = "UPDATE verify_settings SET active=FALSE WHERE guild_id={}"
+        command = command.format(str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        await ctx.send("Verification has been disabled!")
+
     @mod_verify.command(name="current")
     @checks.is_mod()
     @commands.guild_only()
@@ -514,6 +557,7 @@ class Verify(commands.Cog):
         else:
             active_str = "Disabled"
         message = "Current Verification settings. Edit with `>help !verify` commands.\n\nCurrent fields enabled:\n```"
+
         def format_true(to_format):
             if to_format:
                 return "Enabled"
@@ -544,14 +588,17 @@ class Verify(commands.Cog):
             data = con.fetchone()
         return VerifyConfig(guild_id=guild_id, bot=self.bot, data=data)
 
+    """
+    Verification settings done.
+    """
+
     verifying = {}
 
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
     async def verify_queue(self, member: discord.Member, guild: discord.Guild):
-        dab = Database()
-        settings = dab.get_settings(str(guild.id))
+        settings = await self.get_verify_config(guild.id)
         command = "INSERT INTO verify_queue(guild_id, user_id, data) " \
                   "VALUES($${0}$$, $${1}$$, $${2}$$);"
         command = command.format(str(guild.id), str(member.id),
@@ -559,48 +606,58 @@ class Verify(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(command)
 
-        if not check_verification(guild, settings):
-            chan: discord.TextChannel = cache.get_setup_channel(guild)
-            await chan.send("Error sending information. Contact staff!", delete_after=15)
-            return
-
-        channel = guild.get_channel(int(settings["channels"]["setup-logs"]))
+        channel = settings.log_channel
         message = f":bell: `{member.display_name}` just went through the verification process!"
         for field in self.verifying[guild.id][member.id]['fields']:
             message = message + f"\n-    {get_key(field, self.names)}: `{self.verifying[guild.id][member.id]['fields'][field]}`"
         await channel.send(message)
 
-    def is_done(self, member, guild):
+    async def is_done(self, member, guild):
+        # If they are already in the system for verification no need to check the database.
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             return self.verifying[guild.id][member.id]["done"]
         else:
-            db = Database()
-            info = db.get_unverified(str(guild.id), str(member.id))
-            if info is not None:
-                return True
+            return await self._done_cache(guild.id, member.id)
+
+    @storage_cache.cache()
+    async def _done_cache(self, guild_id, user_id):
+        command = "SELECT user_id FROM verify_queue WHERE guild_id={0} AND user_id={0};"
+        command = command.format(str(guild_id), str(user_id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            user = con.fetchone()
+        if user is None:
             return False
+        else:
+            return True
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        # Can't verify bots...
         if message.author.bot:
             return
 
-        if not cache.get_enabled(message.guild):
+        settings = await self.get_verify_config(message.guild.id)
+
+        # Check to see if it's active.
+        if not settings.config or not settings.active:
             return
 
-        role = cache.get_unverified_role(message.guild)
+        role = settings.unverified_role
         if role not in message.author.roles:
             return
 
-        channel: discord.TextChannel = cache.get_setup_channel(message.guild)
+        channel: discord.TextChannel = settings.setup_channel
         if channel is None or message.channel is not channel:
             return
 
+        # Time to start verifying!
         if message.guild.id not in self.verifying:
             self.verifying[message.guild.id] = {}
 
-        fields = get_true(message.guild)
+        fields = get_true(settings.fields)
 
+        # From here on out logic is a bit of a mess... but it works.
         if self.is_done(message.author, message.guild):
             done = discord.Embed(
                 title="Verification Process Complete!",
@@ -611,21 +668,25 @@ class Verify(commands.Cog):
             await channel.send(embed=done, delete_after=15)
             return
 
+        # Current data we have on them.
         if message.author.id in self.verifying[message.guild.id]:
             current = self.verifying[message.guild.id][message.author.id]
         else:
             self.verifying[message.guild.id][message.author.id] = {
-                "step": 0,
+                "step": False,
                 "done": False,
                 "fields": {}
             }
             current = self.verifying[message.guild.id][message.author.id]
 
-        if current["step"] > 0:
+        # Are they doing something with verification already.
+        if current["step"]:
             return
 
+        await message.delete()
+
+        # If there are no fields enabled we just let staff know that they actually do exist.
         if len(fields) == 0:
-            await message.delete()
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
@@ -635,9 +696,10 @@ class Verify(commands.Cog):
             await self.verify_queue(message.author, message.guild)
             return
 
-        await message.delete()
-        self.verifying[message.guild.id][message.author.id]["step"] = 1
+        self.verifying[message.guild.id][message.author.id]["step"] = True
+        # TODO I really need to convert this to Context.ask(). Could probably shave off a lot of code.
         for value in fields:
+            # Ask them for each field what they are.
             prompt = await channel.send(self.prompts[value])
             try:
                 answer = await self.bot.wait_for(
@@ -656,6 +718,7 @@ class Verify(commands.Cog):
                 return
 
         if self.verifying[message.guild.id][message.author.id] is not None:
+            # Format a response of all of their settings.
             response = discord.Embed(
                 title="Is this info correct?",
                 description="Respond `yes` or `no`",
@@ -685,9 +748,11 @@ class Verify(commands.Cog):
                 return
 
         if self.verifying[message.guild.id][message.author.id] is not None:
-            self.verifying[message.guild.id][message.author.id]["step"] = 0
+            # They're done, but not in progress of anything anymore.
+            self.verifying[message.guild.id][message.author.id]["step"] = False
             self.verifying[message.guild.id][message.author.id]["done"] = True
             await self.verify_queue(message.author, message.guild)
+            self._done_cache.invalidate(message.guild.id, message.author.id)
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
@@ -697,6 +762,7 @@ class Verify(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        # TODO right here also.
         if member.bot:
             return
         db = Database()
@@ -720,218 +786,6 @@ class Verify(commands.Cog):
 
             log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
             await log.send(f":bell: `{member.display_name}` just joined!")
-
-    @commands.group(name="verification")
-    @is_verifier_user()
-    async def verification(self, context):
-        """
-        Customizes verification on the server.
-        """
-        if context.invoked_subcommand is None:
-            embed = discord.Embed(
-                title="Verification Help",
-                description="View commands for verification.",
-                colour=discord.Colour.purple()
-            )
-            embed.add_field(name="`info`", value="View what verification settings are enabled.")
-            embed.add_field(name="`reset`", value="Reset verification information for your server.")
-            embed.add_field(name="`fields`", value="Toggle a verification setting.")
-            embed.add_field(name="`toggle`", value="Toggle verification on/off")
-            embed.add_field(name="`role`", value="Roles to give when verified")
-            await context.send(embed=embed)
-
-    @verification.command(name="reset")
-    @commands.guild_only()
-    async def reset(self, ctx: commands.Context):
-        """
-        Reset current verification settings to default.
-        """
-        db = Database()
-        if db.guild_exists(str(ctx.guild.id)):
-            settings = db.get_settings(str(ctx.guild.id))
-            settings["verification"] = ConfigData.defaultsettings.data["verification"]
-            db.set_settings(str(ctx.guild.id), settings)
-        else:
-            db.default_settings(str(ctx.guild.id))
-        await ctx.send("Reset verification information!")
-
-    @verification.command(name="info")
-    @commands.guild_only()
-    async def info(self, ctx: commands.Context):
-        """
-        Gets current information on the verification process.
-
-        Shows what is enabled and what is not. If no settings are there, it is created.
-        """
-        db = Database()
-        settings = db.get_settings(str(ctx.guild.id))
-        if settings is None:
-            db.default_settings(str(ctx.guild.id))
-            await ctx.send("You didn't have settings. Creating now.")
-        if "verification" in settings and "fields" in settings["verification"]:
-            info = discord.Embed(
-                title="Information",
-                description="What you have enabled.",
-                colour=discord.Colour.purple()
-            )
-            settings = settings["verification"]["fields"]
-            info.add_field(name="Enabled", value=str(key_or_false(settings, "enabled")))
-            info.add_field(name="First Name", value=str(key_or_false(settings, "first")))
-            info.add_field(name="Last Name", value=str(key_or_false(settings, "last")))
-            info.add_field(name="School", value=str(key_or_false(settings, "school")))
-            info.add_field(name="Extra Information", value=str(key_or_false(settings, "extra")))
-            info.add_field(name="Birthday", value=str(key_or_false(settings, "birthday")))
-            await ctx.send(embed=info)
-
-        else:
-            await ctx.send(
-                "No verification settings found. Please use `verification reset` to reset verification info.")
-
-    @verification.command(name="fields", usage="<setting> <value>")
-    @commands.guild_only()
-    async def fields(self, ctx: commands.Context, *args):
-        if len(args) == 0:
-            error = discord.Embed(
-                title="Incorrect Usage",
-                description="`>verification field <SETTING>`",
-                colour=discord.Colour.red()
-            )
-            await ctx.send(embed=error)
-            return
-        db = Database()
-        settings = db.get_settings(str(ctx.guild.id))
-        if "verification" in settings and "fields" in settings["verification"]:
-            full_setting = ' '.join(args[0:]).lower()
-            name = []
-            for sets in self.names:
-                name.append(sets.lower())
-            if full_setting in name:
-                setting = self.names[full_setting]
-                if setting in settings["verification"]["fields"]:
-                    enabled = settings["verification"]["fields"][setting]
-                else:
-                    enabled = False
-                settings["verification"]["fields"][setting] = not enabled
-                db.set_settings(str(ctx.guild.id), settings)
-                if enabled:
-                    await ctx.send(f"Toggling off {args[0]}.")
-                else:
-                    await ctx.send(f"Toggling on {args[0]}.")
-            else:
-                await ctx.send("No setting found by that name. Look through `>verification info`. `>verification "
-                               "field <SETTING>`")
-        else:
-            await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
-
-    @verification.group(name="role", usage="<current|reset|add|remove>")
-    async def role(self, ctx: commands.Context, *args):
-        """
-        Configure what roles will be added on verify.
-
-        Make sure that the roles are BELOW Xylo's role.
-        """
-        if len(args) == 0:
-            error = discord.Embed(
-                title="Role Help",
-                description="`role <current/add/remove/reset> <role>",
-                colour=discord.Colour.purple()
-            )
-            await ctx.send(embed=error)
-            return
-        db = Database()
-
-        if args[0] == "current":
-            settings = db.get_settings(str(ctx.guild.id))
-            if "roles" not in settings["verification"] or len(settings["verification"]["roles"]) == 0:
-                await ctx.send("No roles currently setup.")
-                return
-
-            message = "Current roles:"
-            for role in settings["verification"]["roles"]:
-                r = ctx.guild.get_role(role)
-                if r is not None:
-                    message = message + f"-   `{r.name}`"
-                else:
-                    message = message + f"-   `{str(role)}`"
-
-            await ctx.send(message)
-            return
-
-        if args[0] == "reset":
-            settings = db.get_settings(str(ctx.guild.id))
-            settings["verification"]["roles"] = []
-            db.set_settings(str(ctx.guild.id), settings)
-            await ctx.send("Roles cleared!")
-            return
-
-        try:
-            role: discord.Role = ctx.guild.get_role(int(args[1]))
-        except ValueError:
-            await ctx.send("Provide the Role ID for the `<role>` argument.")
-            return
-
-        if role is None:
-            await ctx.send("Role not found.")
-            return
-
-        if args[0] == "add":
-            if len(args) == 1:
-                await ctx.send("Not enough arguments!")
-                return
-            settings = db.get_settings(str(ctx.guild.id))
-            if "roles" not in settings["verification"]:
-                settings["verification"]["roles"] = []
-            settings["verification"]["roles"].append(role.id)
-            db.set_settings(str(ctx.guild.id), settings)
-            await ctx.send(f"`{role.name}` added!")
-            return
-
-        if args[0] == "remove":
-            if len(args) == 1:
-                await ctx.send("Not enough arguments!")
-                return
-            settings = db.get_settings(str(ctx.guild.id))
-            if "roles" not in settings["verification"]:
-                settings["roles"] = []
-            if role.id in settings["verification"]["roles"]:
-                settings["verification"]["roles"].remove(role.id)
-            else:
-                await ctx.send(f"`{role.name}` not found in role settings!")
-                return
-            db.set_settings(str(ctx.guild.id), settings)
-            await ctx.send(f"`{role.name}` removed!")
-            return
-
-        error = discord.Embed(
-            title="Command not found",
-            description="`role <add/remove/reset> <role>",
-            colour=discord.Colour.purple()
-        )
-        await ctx.send(embed=error)
-        return
-
-    @verification.group(name="toggle", usage="<field>")
-    async def toggle(self, ctx: commands.Context):
-        """
-        Toggles a specific verification field.
-        """
-        db = Database()
-        settings = db.get_settings(str(ctx.guild.id))
-        if not set_check_verification(ctx.guild):
-            await ctx.send("You need to setup the channels `setup` and `setup-logs` before you can "
-                           "enable! `>settings channel`")
-            return
-
-        if "verification" in settings:
-            enabled = key_or_false(settings["verification"], "enabled")
-            settings["verification"]["enabled"] = not enabled
-            if enabled:
-                await ctx.send("Turning off verification!")
-            else:
-                await ctx.send("Turning on verification!")
-            db.set_settings(str(ctx.guild.id), settings)
-        else:
-            await ctx.send("No verification settings found. Please use `verify reset` to reset verification info.")
 
     @commands.group(name="auth", aliases=["verify", "authenticate"])
     @is_verifier_user()
@@ -958,7 +812,6 @@ class Verify(commands.Cog):
 
         Additionally you can lookup a specific user's ifo using 'list [user]'
         """
-        dab = Database()
         if len(args) >= 1:
             member = ctx.guild.get_member_named(' '.join(args[0:]))
             if member is None:
@@ -1008,6 +861,7 @@ class Verify(commands.Cog):
         await ctx.send(embed=embed)
 
     async def verify_user(self, member: discord.Member, guild: discord.Guild, data):
+        # TODO Still use Database() over here a lot...
         dab = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
@@ -1015,9 +869,10 @@ class Verify(commands.Cog):
 
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
+
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        # dab.delete_unverified(str(guild.id), str(member.id))
+
         dab.add_user(info, str(member.id), str(guild.id))
 
         join = ConfigData.join
@@ -1055,24 +910,25 @@ class Verify(commands.Cog):
         :param member: Member to reject
         :param guild:  Guild that is rejecting
         """
-        dab = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        # db.delete_unverified(str(guild.id), str(member.id))
+
+        self._done_cache.invalidate(guild.id, member.id)
+
+        dab = Database()
         settings = dab.get_settings(str(guild.id))
 
         if member.dm_channel is None:
             await member.create_dm()
         dm: discord.DMChannel = member.dm_channel
 
+        # TODO Messages ba ba boi
         verify: str = settings["messages"]["reject-message"]
         verify = verify.replace("{server}", guild.name)
-        # if message is not None:
-        #     verify = verify + "\n\nStaff message: " + message
         await dm.send(verify)
 
     @auth.command(name="accept", usage="<user>")
@@ -1082,32 +938,29 @@ class Verify(commands.Cog):
         Accepts a user into the server.
         """
         if len(args) == 0:
-            embed = discord.Embed(
-                title="Auth Accept",
-                description="`>auth accept <NAME>`",
-                colour=discord.Colour.purple()
-            )
-            await ctx.send(embed=embed)
-            return
+            return await ctx.send_help('auth accept')
         guild: discord.Guild = ctx.guild
         member: discord.Member = guild.get_member_named(' '.join(args[0:]))
         if member is None:
             await ctx.send("User not found!")
-        # db = Database()
-        # user = db.get_unverified(str(guild.id), str(member.id))
         command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
             if row is None:
-                user = None
+                data = None
             else:
-                user = row['data']
-        if user is None:
+                data = row['data']
+
+        if data is None:
             await ctx.send("User not in verify queue")
             return
-        await self.verify_user(member, guild, user)
-        log = cache.get_setup_log_channel(ctx.guild)
+        await self.verify_user(member, guild, data)
+
+        self._done_cache.invalidate(guild.id, member.id)
+
+        settings = await self.get_verify_config(ctx.guild.id)
+        log = settings.log_channel
         await log.send(f":bell: {ctx.author.mention} just verified `{member.display_name}`!")
 
     @auth.command(name="reject", usage="<user>")
@@ -1117,19 +970,11 @@ class Verify(commands.Cog):
         Rejects a user and sends DM
         """
         if len(args) == 0:
-            embed = discord.Embed(
-                title="Auth Accept",
-                description="`>auth reject <NAME>`",
-                colour=discord.Colour.purple()
-            )
-            await ctx.send(embed=embed)
-            return
+            return await ctx.send_help('auth reject')
         guild: discord.Guild = ctx.guild
         member: discord.Member = guild.get_member_named(' '.join(args[0:]))
         if member is None:
             await ctx.send("User not found!")
-        # db = Database()
-        # user = db.get_unverified(str(guild.id), str(member.id))
         command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
         async with db.MaybeAcquire() as con:
             con.execute(command)
@@ -1139,10 +984,14 @@ class Verify(commands.Cog):
             else:
                 user = row['data']
         if user is None:
-            await ctx.send("User not in verify queue")
+            await ctx.send("User not in verify queue.")
             return
         await self.reject_user(member, guild)
-        log = cache.get_setup_log_channel(ctx.guild)
+        settings = await self.get_verify_config(ctx.guild)
+
+        self._done_cache.invalidate(guild.id, member.id)
+
+        log = settings.log_channel
         await log.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")
 
 
