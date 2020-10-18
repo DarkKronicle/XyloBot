@@ -12,8 +12,25 @@ Tutorial on how this stuff works: https://realpython.com/primer-on-python-decora
 """
 import enum
 from functools import wraps
+import inspect
 
 from lru import LRU
+
+
+def _wrap_and_store_coroutine(cache, key, coro):
+    async def func():
+        value = await coro
+        cache[key] = value
+        return value
+
+    return func()
+
+
+def _wrap_new_coroutine(value):
+    async def new_coroutine():
+        return value
+
+    return new_coroutine()
 
 
 class Strategy(enum.Enum):
@@ -50,6 +67,8 @@ def cache(maxsize=64, strategy=Strategy.lru):
                 value = _internal_cache[key]
             else:
                 value = func(*args, **kwargs)
+                if inspect.isawaitable(value):
+                    return _wrap_and_store_coroutine(_internal_cache, key, value)
                 _internal_cache[key] = value
 
             if strategy is Strategy.raw:
@@ -74,4 +93,5 @@ def cache(maxsize=64, strategy=Strategy.lru):
         wrapper.invalidate = _invalidate
         wrapper.invalidate_containing = _invalidate_containing
         return wrapper
+
     return decorator
