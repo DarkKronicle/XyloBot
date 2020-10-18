@@ -14,16 +14,6 @@ from util.context import Context
 from storage import cache
 
 
-def is_game_channel():
-    async def predicate(context: commands.Context):
-        channel = cache.get_game_channel(context.guild)
-        if channel is not None:
-            return context.channel is channel
-        return True
-
-    return commands.check(predicate)
-
-
 class Games(commands.Cog):
     """
     Games that users can play.
@@ -42,7 +32,6 @@ class Games(commands.Cog):
 
     @commands.command(name="duel", usage="<user>", aliases=["gun", "wordduel"])
     @commands.guild_only()
-    @is_game_channel()
     async def fire_draw(self, ctx: Context, user: discord.Member = None):
         """
         First person to type out a random set of characters.
@@ -80,7 +69,6 @@ class Games(commands.Cog):
 
     @cah.command(name="start", usage="<all/categories>")
     @commands.guild_only()
-    @is_game_channel()
     async def cah_start(self, ctx, *args):
         """
         Start a game of Cards Against Humanity. You can send it again to force it to start.
@@ -151,7 +139,6 @@ class Games(commands.Cog):
 
     @cah.command(name="join")
     @commands.guild_only()
-    @is_game_channel()
     async def cah_join(self, ctx):
         if ctx.channel not in self.current_games or "cah" not in self.current_games[ctx.channel]:
             return await ctx.send("No games currently going on. Start one with `cah start`")
@@ -246,7 +233,6 @@ class Games(commands.Cog):
 
     @quiz.command(name="join")
     @commands.guild_only()
-    @is_game_channel()
     async def quiz_join(self, ctx):
         if ctx.channel not in self.current_games or "quiz" not in self.current_games[ctx.channel]:
             return await ctx.send("No games currently going on. Start one with `cah quiz`")
