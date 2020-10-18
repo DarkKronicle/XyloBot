@@ -134,7 +134,7 @@ class CommandSettings(commands.Cog):
         return CommandPermissions(guild_id, rows)
 
     async def disable_command(self, guild_id, name, channel_id=None):
-        delete = "DELETE FROM command_config WHERE guild_id={0} AND name={1} AND channel_id"
+        delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
         delete = delete.format(str(guild_id), str(name))
         if channel_id is None:
             delete = delete + " IS NULL;"
@@ -154,7 +154,7 @@ class CommandSettings(commands.Cog):
         self.get_command_config.invalidate(guild_id)
 
     async def enable_command(self, guild_id, name, channel_id=None):
-        delete = "DELETE FROM command_config WHERE guild_id={0} AND name={1} AND channel_id"
+        delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
         delete = delete.format(str(guild_id), str(name))
         if channel_id is None:
             delete = delete + " IS NULL;"
@@ -174,7 +174,7 @@ class CommandSettings(commands.Cog):
         self.get_command_config.invalidate(guild_id)
 
     async def reset_channel(self, guild_id, name, channel_id=None):
-        delete = "DELETE FROM command_config WHERE guild_id={0} AND name={1} AND channel_id"
+        delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
         delete = delete.format(str(guild_id), str(name))
         if channel_id is None:
             delete = delete + " IS NULL;"
