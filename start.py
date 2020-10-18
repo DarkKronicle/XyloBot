@@ -36,9 +36,7 @@ def database():
     connection = psycopg2.connect(DATABASE_URL, sslmode='require')
     for table in db.Table.all_tables():
         try:
-            print(f"Creating table {table.tablename}")
             run(table.create(connection=connection))
-            print(f"Created table {table.tablename}")
         except Exception:
             print(f"Failed creating table {table.tablename}")
             traceback.print_exc()

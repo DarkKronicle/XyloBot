@@ -335,7 +335,7 @@ class Verify(commands.Cog):
         command = command.format(str(unverified.id), json.dumps(roles_dict), str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        self.get_verify_config.invalidate(ctx.guild.id)
+        self.get_verify_config.invalidate(self, ctx.guild.id)
         await self.mod_verify_current(ctx)
 
     @mod_verify.command(name="channels")
@@ -380,7 +380,7 @@ class Verify(commands.Cog):
         command = command.format(str(channel.id), str(log.id), str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        self.get_verify_config.invalidate(ctx.guild.id)
+        self.get_verify_config.invalidate(self, ctx.guild.id)
         await self.mod_verify_current(ctx)
 
     @mod_verify.command(name="fields")
@@ -443,7 +443,7 @@ class Verify(commands.Cog):
         command = command.format(json.dumps(fields), str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        self.get_verify_config.invalidate(ctx.guild.id)
+        self.get_verify_config.invalidate(self, ctx.guild.id)
         await self.mod_verify_current(ctx)
 
     @mod_verify.command(name="clearsettings")
@@ -465,7 +465,7 @@ class Verify(commands.Cog):
         command = command.format(str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        self.get_verify_config.invalidate(ctx.guild.id)
+        self.get_verify_config.invalidate(self, ctx.guild.id)
         await ctx.send("Settings have been reset for your guild!")
 
     @mod_verify.command(name="resetall")
@@ -493,7 +493,7 @@ class Verify(commands.Cog):
         command = delete_settings + "\n" + delete_queue + "\n" + delete_users
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        self.get_verify_config.invalidate(ctx.guild.id)
+        self.get_verify_config.invalidate(self, ctx.guild.id)
         await ctx.send("All data has been deleted from this server.")
 
     @mod_verify.command(name="enable")
@@ -756,7 +756,7 @@ class Verify(commands.Cog):
             self.verifying[message.guild.id][message.author.id]["step"] = False
             self.verifying[message.guild.id][message.author.id]["done"] = True
             await self.verify_queue(message.author, message.guild)
-            self._done_cache.invalidate(message.guild.id, message.author.id)
+            self._done_cache.invalidate(self, message.guild.id, message.author.id)
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
@@ -921,7 +921,7 @@ class Verify(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(command)
 
-        self._done_cache.invalidate(guild.id, member.id)
+        self._done_cache.invalidate(self, guild.id, member.id)
 
         dab = Database()
         settings = dab.get_settings(str(guild.id))
@@ -961,7 +961,7 @@ class Verify(commands.Cog):
             return
         await self.verify_user(member, guild, data)
 
-        self._done_cache.invalidate(guild.id, member.id)
+        self._done_cache.invalidate(self, guild.id, member.id)
 
         settings = await self.get_verify_config(ctx.guild.id)
         log = settings.log_channel
@@ -993,7 +993,7 @@ class Verify(commands.Cog):
         await self.reject_user(member, guild)
         settings = await self.get_verify_config(ctx.guild)
 
-        self._done_cache.invalidate(guild.id, member.id)
+        self._done_cache.invalidate(self, guild.id, member.id)
 
         log = settings.log_channel
         await log.send(f":bell: {ctx.author.mention} just rejected `{member.display_name}`!")

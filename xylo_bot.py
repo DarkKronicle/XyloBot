@@ -90,7 +90,6 @@ class XyloBot(commands.Bot):
         for extension in startup_extensions:
             try:
                 self.load_extension(cogs_dir + "." + extension)
-                print(f'{extension} has been loaded!')
 
             except (discord.ClientException, ModuleNotFoundError):
                 print(f'Failed to load extension {extension}.')
