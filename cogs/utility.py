@@ -1,4 +1,5 @@
 import asyncio
+import math
 from io import StringIO
 from json import detect_encoding
 
@@ -225,12 +226,13 @@ class Utility(commands.Cog):
         now.replace(microsecond=0)
         boot = bot.boot
         boot.replace(microsecond=0)
-        dif: datetime = boot - now
+        dif: timedelta = boot - now
 
-        seconds = dif.second
-        minutes = dif.minute
-        hours = dif.hour
-        days = dif.day
+        total_seconds = dif.total_seconds()
+        seconds = total_seconds % 60
+        minutes = math.floor(total_seconds / 60) % 60
+        hours = math.floor(total_seconds / 3600) % 24
+        days = math.floor(total_seconds / (3600 * 24))
 
         return f"{days} Days, {hours} hours, {minutes}, and {seconds} seconds."
 
