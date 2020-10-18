@@ -37,7 +37,7 @@ class CommandName(commands.Converter):
         bot: XyloBot = ctx.bot
 
         for cmd in bot.walk_commands():
-            if cmd.cog_name not in ('Config') and not cmd.hidden:
+            if cmd.cog_name != 'CommandSettings' and not cmd.hidden:
                 commands.append(cmd.qualified_name)
 
         if lowered not in commands:
