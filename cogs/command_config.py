@@ -322,15 +322,19 @@ class CommandSettings(commands.Cog):
         data = settings.get_data(channel_id=channel_id)
         if data is None or (len(data.allowed) == 0 and len(data.denied) == 0):
             return await ctx.send("No command settings for this!")
-        message = "Allowed:\n```"
-        for perms in data.allowed:
-            message = message + f"{perms}\n"
+        message = ""
+        if len(data.allowed) != 0:
+            message = "Allowed:\n```"
+            for perms in data.allowed:
+                message = message + f"{perms}\n"
+            message = message + "```\n"
 
-        message = message + "```\nDenied\n```"
-        for perms in data.denied:
-            message = message + f"{perms}"
+        if len(data.denied) != 0:
+            message = message + "Denied\n```"
+            for perms in data.denied:
+                message = message + f"{perms}\n"
 
-        message = message + "```"
+            message = message + "```"
         return await ctx.send(message)
 
     @commands.group(name="!groupcommandconfig", aliases=["!gcc", "!groupcc", "!mcc"], invoke_without_command=True)
