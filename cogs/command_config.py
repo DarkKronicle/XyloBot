@@ -120,6 +120,12 @@ class CommandPermissions:
 
         return self._is_command_allowed(ctx.command.qualified_name, ctx.channel.id)
 
+    def get_data(self, channel_id=None):
+        if channel_id is None:
+            channel_id = self.guild_id
+
+        return self._storage[channel_id]
+
 
 class CommandSettings(commands.Cog):
     """
@@ -301,6 +307,30 @@ class CommandSettings(commands.Cog):
             return await ctx.send_help('!commandconfig whitelistcmd')
         await self.disable_command(ctx.guild.id, command, channel_id=channel.id)
         await self.enable_command(ctx.guild.id, command, channel_id=channel.id)
+
+    @commandconfig.command(name="info")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def config_info(self, ctx: Context, channel: Optional[discord.TextChannel]):
+        settings = await self.get_command_config(ctx.guild.id)
+        if channel is None:
+            channel_id = None
+        else:
+            channel_id = channel.id
+        data = settings.get_data(channel_id=channel_id)
+        if len(data) == 0:
+            return await ctx.send("No command settings for this!")
+        message = "Allowed:\n```"
+        for perms in data.allowed:
+            message = message + f"{perms}\n"
+
+        message = message + "```\nDenied\n```"
+        for perms in data.denied:
+            message = message + f"{perms}"
+
+        message = message + "```"
+        return await ctx.send(message)
+
 
     @commands.group(name="!groupcommandconfig", aliases=["!gcc", "!groupcc", "!mcc"], invoke_without_command=True)
     @checks.is_mod()
