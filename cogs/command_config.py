@@ -123,7 +123,8 @@ class CommandPermissions:
     def get_data(self, channel_id=None):
         if channel_id is None:
             channel_id = self.guild_id
-
+        if channel_id not in self._storage:
+            return None
         return self._storage[channel_id]
 
 
@@ -296,7 +297,8 @@ class CommandSettings(commands.Cog):
     @commandconfig.command(name="whitelistcmd", aliases=["white", "whitelist", "wcmd"])
     @checks.is_mod()
     @commands.guild_only()
-    async def config_whitelist_command(self, ctx: Context, channel: discord.TextChannel = None, *, command: CommandName = None):
+    async def config_whitelist_command(self, ctx: Context, channel: discord.TextChannel = None, *,
+                                       command: CommandName = None):
         """
         Whitelists the command to the specified channel.
 
@@ -318,7 +320,7 @@ class CommandSettings(commands.Cog):
         else:
             channel_id = channel.id
         data = settings.get_data(channel_id=channel_id)
-        if len(data) == 0:
+        if data is None or (len(data.allowed) and len(data.denied)) == 0:
             return await ctx.send("No command settings for this!")
         message = "Allowed:\n```"
         for perms in data.allowed:
@@ -330,7 +332,6 @@ class CommandSettings(commands.Cog):
 
         message = message + "```"
         return await ctx.send(message)
-
 
     @commands.group(name="!groupcommandconfig", aliases=["!gcc", "!groupcc", "!mcc"], invoke_without_command=True)
     @checks.is_mod()
