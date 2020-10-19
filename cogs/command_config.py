@@ -320,7 +320,7 @@ class CommandSettings(commands.Cog):
         else:
             channel_id = channel.id
         data = settings.get_data(channel_id=channel_id)
-        if data is None or (len(data.allowed) and len(data.denied)) == 0:
+        if data is None or (len(data.allowed) == 0 and len(data.denied) == 0):
             return await ctx.send("No command settings for this!")
         message = "Allowed:\n```"
         for perms in data.allowed:
