@@ -3,6 +3,7 @@ A class to allow server moderators to disable/enable commands for specific chann
 
 This is loosely based off of https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/config.py.
 """
+from io import StringIO
 from typing import Optional
 
 import discord
@@ -326,15 +327,21 @@ class CommandSettings(commands.Cog):
         if len(data.allowed) != 0:
             message = "Allowed:\n```\n"
             for perms in data.allowed:
-                message = message + f"{perms}\n"
+                message = message + f"- {perms}\n"
             message = message + "```\n"
 
         if len(data.denied) != 0:
-            message = message + "Denied\n```\n"
+            message = message + "Denied:\n```\n"
             for perms in data.denied:
-                message = message + f"{perms}\n"
+                message = message + f"- {perms}\n"
 
             message = message + "```"
+        if len(message) > 2000:
+            buffer = StringIO()
+            buffer.write(message)
+            buffer.seek(0)
+            file = discord.File(fp=buffer, filename="file.txt")
+            return await ctx.send("There message was too big! Here it is in text.", file=file)
         return await ctx.send(message)
 
     @commands.group(name="!groupcommandconfig", aliases=["!gcc", "!groupcc", "!mcc"], invoke_without_command=True)

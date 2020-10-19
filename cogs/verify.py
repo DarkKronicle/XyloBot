@@ -64,6 +64,8 @@ class VerifySettings(db.Table, table_name="verify_settings"):
     fields = db.Column(db.JSON())
     active = db.Column(db.Boolean(), default=True)
 
+    messages = db.Column(db.JSON())
+
 
 class VerifyQueue(db.Table, table_name="verify_queue"):
     guild_id = db.Column(db.Integer(big=True), primary_key=True)
@@ -84,7 +86,7 @@ class VerifyConfig:
     """
     __slots__ = (
         "bot", "guild_id", "setup_channel_id", "setup_log_id", "unverified_role_id", "roles_data", "fields", "active",
-        "config"
+        "config", "reject_message", "accept_message"
     )
 
     def __init__(self, *, guild_id, bot, data=None):
@@ -99,6 +101,8 @@ class VerifyConfig:
             self.fields = data['fields']
             self.unverified_role_id = data['unverified_role']
             self.roles_data = data['roles']['roles']
+            self.reject_message = data['messages']['reject']
+            self.accept_message = data['messages']['accept']
         else:
             self.config = False
             self.active = False
@@ -107,6 +111,8 @@ class VerifyConfig:
             self.fields = None
             self.unverified_role_id = None
             self.roles_data = None
+            self.reject_message = None
+            self.accept_message = None
 
     @property
     def setup_channel(self):
@@ -273,11 +279,15 @@ class Verify(commands.Cog):
 
         # Easy use for psql json
         roles_dict = {"roles": roles}
+        messages = {
+            "accept": f"You have been accepted into {ctx.guild.name}!",
+            "reject": f"You have been rejected from {ctx.guild.name}. Try again or contact a staff member if you believe this is a mistake."
+        }
 
         command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, unverified_role, roles, fields, " \
-                  "active) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}); "
+                  "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}, $${7}$$); "
         command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(unverified.id),
-                                 json.dumps(roles_dict), json.dumps(fields), "TRUE")
+                                 json.dumps(roles_dict), json.dumps(fields), "TRUE", json.dumps(messages))
         async with db.MaybeAcquire() as con:
             con.execute(command)
 
@@ -497,7 +507,12 @@ class Verify(commands.Cog):
         await ctx.send("All data has been deleted from this server.")
 
     @mod_verify.command(name="enable")
+    @checks.is_mod()
+    @commands.guild_only()
     async def mod_verify_enable(self, ctx: Context):
+        """
+        Enable verification on the server.
+        """
         settings = await self.get_verify_config(ctx.guild.id)
         if not settings.config:
             return await ctx.send(embed=discord.Embed(
@@ -508,14 +523,19 @@ class Verify(commands.Cog):
 
         if settings.active:
             return await ctx.send("Verification was already enabled.")
-        command = "UPDATE verify_settings SET active=TRUE WHERE guild_id={}"
+        command = "UPDATE verify_settings SET active=TRUE WHERE guild_id={};"
         command = command.format(str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
         await ctx.send("Verification has been enabled!")
 
     @mod_verify.command(name="disable")
-    async def mod_verify_enable(self, ctx: Context):
+    @checks.is_mod()
+    @commands.guild_only()
+    async def mod_verify_disable(self, ctx: Context):
+        """
+        Disable verification on the server.
+        """
         settings = await self.get_verify_config(ctx.guild.id)
         if not settings.config:
             return await ctx.send(embed=discord.Embed(
@@ -526,11 +546,37 @@ class Verify(commands.Cog):
 
         if settings.active:
             return await ctx.send("Verification was already enabled.")
-        command = "UPDATE verify_settings SET active=FALSE WHERE guild_id={}"
+        command = "UPDATE verify_settings SET active=FALSE WHERE guild_id={};"
         command = command.format(str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
         await ctx.send("Verification has been disabled!")
+
+    @mod_verify.command(name="messages")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def mod_verify_message(self, ctx: Context):
+        """
+        Configure the messages that are sent with verification.
+        """
+        reject = await ctx.ask("What message should I send when a user is rejected?")
+        if reject is None:
+            return await ctx.timeout()
+        if len(reject) > 1000:
+            return await ctx.send("Message was too big!")
+
+        accept = await ctx.ask("What message should I send when a user is accepted?")
+        if accept is None:
+            return await ctx.timeout()
+        if len(accept) > 1000:
+            return await ctx.send("Message was too big!")
+
+        data = {"accept": accept, "reject": reject}
+        command = "UPDATE verify_settings SET messages=$${0}$$ WHERE guild_id={1};"
+        command = command.format(json.dumps(data), str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        await ctx.send("Messages updated!")
 
     @mod_verify.command(name="current")
     @checks.is_mod()
@@ -552,6 +598,9 @@ class Verify(commands.Cog):
         roles = settings.roles
         fields = settings.fields
         active = settings.active
+        join = settings.join_message
+        accept = settings.accept_message
+        reject = settings.reject_message
         if active:
             active_str = "Enabled"
         else:
@@ -568,7 +617,8 @@ class Verify(commands.Cog):
             name = get_key(field, self.names)
             message = message + f"{name} - {format_true(fields[field])}\n"
         message = message + f"\n```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
-                            f"Unverified Role - `{unverified_role.name}`\n\nRoles on verification:"
+                            f"Unverified Role - `{unverified_role.name}`\n\nCurrent Messages:\nOn join:`{join}" \
+                            f"`\nOn accept:`{accept}`\nOn reject:`{reject}`\n\nRoles on verification:"
         for role in roles:
             message = message + f"`{role.name}` "
 
@@ -581,7 +631,8 @@ class Verify(commands.Cog):
 
     @storage_cache.cache()
     async def get_verify_config(self, guild_id, *, connection=None):
-        command = "SELECT setup_channel, setup_log, unverified_role, roles, fields, active FROM verify_settings WHERE guild_id={}"
+        command = "SELECT setup_channel, setup_log, unverified_role, roles, fields, active, messages FROM " \
+                  "verify_settings WHERE guild_id={};"
         command = command.format(str(guild_id))
         async with MaybeAcquire(connection=connection) as con:
             con.execute(command)
