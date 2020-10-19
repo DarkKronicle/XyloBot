@@ -934,7 +934,7 @@ class Verify(commands.Cog):
         message = random.choice(messages)
         message = message.replace("{user}", member.mention)
 
-        settings = dab.get_settings(str(guild.id))
+        settings = await self.get_verify_config(guild.id)
 
         welcome: discord.TextChannel = guild.get_channel(int(settings["channels"]["welcome"]))
         await welcome.send(message)
@@ -943,8 +943,7 @@ class Verify(commands.Cog):
             await member.create_dm()
         dm: discord.DMChannel = member.dm_channel
 
-        verify: str = settings["messages"]["verify-message"]
-        verify = verify.replace("{server}", guild.name)
+        verify: str = settings.accept_message
         await dm.send(verify)
         await member.remove_roles(cache.get_unverified_role(guild))
         if "first" in info["fields"]:
@@ -973,16 +972,13 @@ class Verify(commands.Cog):
 
         self._done_cache.invalidate(self, guild.id, member.id)
 
-        dab = Database()
-        settings = dab.get_settings(str(guild.id))
+        settings = await self.get_verify_config(guild.id)
 
         if member.dm_channel is None:
             await member.create_dm()
         dm: discord.DMChannel = member.dm_channel
 
-        # TODO Messages ba ba boi
-        verify: str = settings["messages"]["reject-message"]
-        verify = verify.replace("{server}", guild.name)
+        verify = settings.reject_message
         await dm.send(verify)
 
     @auth.command(name="accept", usage="<user>")
