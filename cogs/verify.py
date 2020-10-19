@@ -598,7 +598,6 @@ class Verify(commands.Cog):
         roles = settings.roles
         fields = settings.fields
         active = settings.active
-        join = settings.join_message
         accept = settings.accept_message
         reject = settings.reject_message
         if active:
