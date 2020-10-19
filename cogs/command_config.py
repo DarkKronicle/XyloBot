@@ -324,13 +324,13 @@ class CommandSettings(commands.Cog):
             return await ctx.send("No command settings for this!")
         message = ""
         if len(data.allowed) != 0:
-            message = "Allowed:\n```"
+            message = "Allowed:\n```\n"
             for perms in data.allowed:
                 message = message + f"{perms}\n"
             message = message + "```\n"
 
         if len(data.denied) != 0:
-            message = message + "Denied\n```"
+            message = message + "Denied\n```\n"
             for perms in data.denied:
                 message = message + f"{perms}\n"
 
