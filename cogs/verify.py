@@ -616,7 +616,7 @@ class Verify(commands.Cog):
             name = get_key(field, self.names)
             message = message + f"{name} - {format_true(fields[field])}\n"
         message = message + f"\n```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
-                            f"Unverified Role - `{unverified_role.name}`\n\nCurrent Messages:\nOn join:`{join}" \
+                            f"Unverified Role - `{unverified_role.name}`\n" \
                             f"`\nOn accept:`{accept}`\nOn reject:`{reject}`\n\nRoles on verification:"
         for role in roles:
             message = message + f"`{role.name}` "
