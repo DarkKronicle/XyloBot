@@ -791,7 +791,7 @@ class Verify(commands.Cog):
             log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
             await log.send(f":bell: `{member.display_name}` just joined!")
 
-    @commands.group(name="auth", aliases=["verify", "authenticate"])
+    @commands.group(name="auth", aliases=["ver", "authenticate"])
     @is_verifier_user()
     async def auth(self, ctx: commands.Context):
         """

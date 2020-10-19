@@ -156,6 +156,20 @@ class CommandSettings(commands.Cog):
 
         self.get_command_config.invalidate(self, guild_id)
 
+    async def bulk_disable_command(self, guild_id, commands):
+        delete = "DELETE FROM command_config WHERE guild_id={0} AND name IN ($${1}$$) AND channel_id IS NULL;"
+        delete = delete.format(str(guild_id), '$$, $$'.join(commands))
+        insert = "INSERT INTO command_config(guild_id, allow, name) VALUES "
+        val = "({0}, FALSE $${1}$$)"
+        inserts = []
+        for command in commands:
+            inserts.append(val.format(str(guild_id), command))
+        insert = insert + ', '.join(inserts) + ";"
+        async with db.MaybeAcquire() as con:
+            con.execute(delete + "\n" + insert)
+
+        self.get_command_config.invalidate(self, guild_id)
+
     async def enable_command(self, guild_id, name, channel_id=None):
         delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
         delete = delete.format(str(guild_id), str(name))
@@ -272,6 +286,63 @@ class CommandSettings(commands.Cog):
 
         await self.reset_channel(ctx.guild.id, command, channel_id=channel_id)
         await ctx.send(f"Successfully deleted for {name}!")
+
+    @commandconfig.command(name="whitelistcmd", aliases=["white", "whitelist", "wcmd"])
+    @checks.is_mod()
+    @commands.guild_only()
+    async def config_whitelist_command(self, ctx: Context, channel: discord.TextChannel = None, *, command: CommandName = None):
+        """
+        Whitelists the command to the specified channel.
+
+        Essentially disables the command on the guild then enables it on this channel. Whitelisting one command multiple
+        times will add for all.
+        """
+        if channel is None or command is None:
+            return await ctx.send_help('!commandconfig whitelistcmd')
+        await self.disable_command(ctx.guild.id, command, channel_id=channel.id)
+        await self.enable_command(ctx.guild.id, command, channel_id=channel.id)
+
+    @commands.group(name="!groupcommandconfig", aliases=["!gcc", "!groupcc", "!mcc"], invoke_without_command=True)
+    @checks.is_mod()
+    @commands.guild_only()
+    async def group_config(self, ctx: Context):
+        """
+        Shortcuts for disabling different modules of commands.
+        """
+        await ctx.send_help('!groupcommandconfig')
+
+    @group_config.command(name="verify")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def group_verify(self, ctx: Context):
+        """
+        Disables all verification settings for guild as well as data settings.
+        """
+        commands = ["!verify", "auth", "whoami", "whois", "social", "edit", "editother"]
+        await self.bulk_disable_command(ctx.guild.id, commands)
+        await ctx.send("Successfully disabled commands:\n\n" + ', '.join(commands))
+
+    @group_config.command(name="games")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def group_verify(self, ctx: Context):
+        """
+        Disables all verification settings for guild as well as data settings.
+        """
+        commands = ["cah", "quiz", "duel"]
+        await self.bulk_disable_command(ctx.guild.id, commands)
+        await ctx.send("Successfully disabled commands:\n\n" + ', '.join(commands))
+
+    @group_config.command(name="random")
+    @checks.is_mod()
+    @commands.guild_only()
+    async def group_verify(self, ctx: Context):
+        """
+        Disables all verification settings for guild as well as data settings.
+        """
+        commands = ["president", "ship", "product", "idea", "rate"]
+        await self.bulk_disable_command(ctx.guild.id, commands)
+        await ctx.send("Successfully disabled commands:\n\n" + ', '.join(commands))
 
 
 def setup(bot):
