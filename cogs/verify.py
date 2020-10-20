@@ -45,7 +45,7 @@ def is_verifier_user():
         bot: XyloBot = ctx.bot
         cog = bot.get_cog('Verify')
         settings = await cog.get_verify_config(ctx.guild.id)
-        if ctx.channel.id is not settings.setup_log_id:
+        if ctx.channel.id != settings.setup_log_id:
             return False
         return await checks.check_permissions(ctx, {"send_messages": True})
 
@@ -842,6 +842,7 @@ class Verify(commands.Cog):
 
     @commands.group(name="auth", aliases=["ver", "authenticate"])
     @is_verifier_user()
+    @commands.guild_only()
     async def auth(self, ctx: commands.Context):
         """
         Allows staff to verify/authorize users.
