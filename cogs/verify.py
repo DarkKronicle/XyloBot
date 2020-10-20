@@ -45,7 +45,7 @@ def is_verifier_user():
         bot: XyloBot = ctx.bot
         cog = bot.get_cog('Verify')
         settings = await cog.get_verify_config(ctx.guild.id)
-        if not checks.is_channel(ctx, settings.setup_channel):
+        if ctx.channel.id is not settings.setup_channel_id:
             return False
         return await checks.check_permissions(ctx, {"send_messages": True})
 
@@ -718,7 +718,6 @@ class Verify(commands.Cog):
                 description="You're all set! You'll get a DM from me when you get processed.",
                 colour=discord.Colour.green()
             )
-            await message.delete()
             await channel.send(embed=done, delete_after=15)
             return
 
