@@ -4,9 +4,9 @@ from io import StringIO
 from json import detect_encoding
 
 import discord
-from storage import cache
+from storage import cache, db
 from storage.database import Database
-from util import discord_util
+from util import discord_util, storage_cache, checks
 from util.context import Context
 from util.discord_util import *
 from discord.ext import commands
@@ -24,10 +24,134 @@ def get_time():
     return curtime
 
 
+class UtilitySettings(db.Table, table_name="utility_settings"):
+    guild_id = db.Column(db.Integer(big=True), primary_key=True, index=True)
+    invite_channel = db.Column(db.Integer(big=True))
+    log_channel = db.Column(db.Integer(big=True))
+    join_message = db.Column(db.String(length=2000))
+
+
+class UtilityConfig:
+    __slots__ = ("guild_id", "invite_channel_id", "log_channel_id", "join_message", "config", "bot")
+
+    def __init__(self, bot, guild_id, data):
+        self.guild_id = guild_id
+        self.bot: XyloBot = bot
+        if data is not None:
+            self.config = True
+            self.invite_channel_id = data['invite_channel']
+            self.log_channel_id = data['log_channel']
+            self.join_message = data['join_message']
+        else:
+            self.config = False
+            self.invite_channel_id = None
+            self.log_channel_id = None
+            self.join_message = None
+
+    @property
+    def invite_channel(self):
+        guild = self.bot.get_guild(self.guild_id)
+        return guild.get_channel(self.invite_channel_id)
+
+    @property
+    def log_channel(self):
+        guild = self.bot.get_guild(self.guild_id)
+        return guild.get_channel(self.log_channel_id)
+
+
 class Utility(commands.Cog):
     """
     Commands to make life easier.
     """
+
+    def __init__(self, bot):
+        self.bot: XyloBot = bot
+
+    @storage_cache.cache()
+    async def get_utility_config(self, guild_id):
+        command = "SELECT * FROM utility_settings WHERE guild_id={};"
+        command = command.format(str(guild_id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            row = con.fetchone()
+        if row is not None:
+            row = row[0]
+
+        return UtilityConfig(self.bot, guild_id, row)
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        settings = await self.get_utility_config(member.guild.id)
+        if settings.join_message is not None:
+            if member.dm_channel is None:
+                await member.create_dm()
+            dm = member.dm_channel
+
+            await dm.send(settings)
+
+    async def insert_blank_config(self, guild_id):
+        command = "INSERT INTO utility_settings(guild_id) VALUES ({});"
+        command = command.format(str(guild_id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+
+    @commands.group(name="!utility", aliases=["!util", "!u"])
+    @commands.guild_only()
+    @checks.is_mod()
+    async def utility(self, ctx: Context):
+        """
+        Configure utility commands and features.
+        """
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help('!utility')
+
+        settings = await self.get_utility_config(ctx.guild.id)
+        if not settings.config:
+            await self.insert_blank_config(ctx.guild.id)
+
+    @utility.command(name="invite")
+    @commands.guild_only()
+    @checks.is_mod()
+    async def invite_config(self, ctx: Context, channel: discord.TextChannel = None):
+        """
+        Set the channel for the invite command.
+
+        If the log channel is setup it will send to there. To disable this just disable the invite command.
+        """
+        if channel is None:
+            return await ctx.send("Invalid Text Channel specified.")
+
+        command = "UPDATE utility_settings SET invite_channel={0} WHERE guild_id={1};"
+        command = command.format(str(ctx.guild.id), str(channel.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+
+        await ctx.send(f"Invite channel has been set to {channel.mention}!")
+
+    @utility.command(name="join")
+    @commands.guild_only()
+    @checks.is_mod()
+    async def join(self, ctx: Context):
+        """
+        Configure what message should be sent to a member on join?
+        """
+        answer = await ctx.ask('What message should I send to a new member on join? (Use `none` if you want to disable it.)')
+        if answer is None:
+            await ctx.timeout()
+
+        if answer == False:
+            command = "UPDATE utility_settings SET join_message=NULL WHERE guild_id={0};"
+            command = command.format(str(ctx.guild.id))
+            async with db.MaybeAcquire() as con:
+                con.execute(command)
+            return ctx.send("On join message disabled!")
+
+        answer = answer.replace("$", "\\$")
+        command = "UPDATE utility_settings SET join_message=$${0}$$ WHERE guild_id={1};"
+        command = command.format(answer, str(ctx.guild.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+        return ctx.send("On join message disabled!")
 
     @commands.command(name="invite")
     @commands.guild_only()
@@ -36,32 +160,28 @@ class Utility(commands.Cog):
         """
         Creates an invite to the server using specific staff settings.
         """
-        db = Database()
-        settings = db.get_settings(str(ctx.guild.id))
-        if "utility" in settings and "invite" in settings["utility"]:
-            if settings["utility"]["invite"]["enabled"]:
-                channel: discord.TextChannel = ctx.guild.get_channel(settings["utility"]["invite"]["channel"])
-                if channel is None:
-                    await ctx.send("Error creating invite. Invite channel not found!")
-                    return
+        settings = await self.get_utility_config(ctx.guild.id)
+        if settings.invite_channel is not None:
+            channel: discord.TextChannel = settings.invite_channel
 
-                invite = await channel.create_invite(max_age=1800)
-                if invite is None:
-                    await ctx.send("Error creating invite. It just didn't create!")
-                    return
+            invite = await channel.create_invite(max_age=1800)
+            if invite is None:
+                await ctx.send("Error creating invite. It just didn't create!")
+                return
 
-                else:
-                    await ctx.send(f"Here's your invite link!\n\n{str(invite)}")
-                    log = cache.get_log_channel(ctx.guild)
-                    if log is not None:
-                        embed = discord.Embed(
-                            title=f"New Invite Created {str(ctx.author)}: {str(invite)}",
-                            description="",
-                            timestamp=get_time()
-                        )
-                        await log.send(embed=embed)
-                        # embed.set_footer(text=f"Today at {get_time().strftime('%I:%M $p')}")
-                    return
+            else:
+                await ctx.send(f"Here's your invite link!\n\n{str(invite)}")
+                log = cache.get_log_channel(ctx.guild)
+                if log is not None:
+                    embed = discord.Embed(
+                        title=f"New Invite Created {str(ctx.author)}: {str(invite)}",
+                        description="",
+                        timestamp=get_time()
+                    )
+                    await log.send(embed=embed)
+                return
+        else:
+            await ctx.send("No invite channel setup!")
 
     @commands.command(name="dmme")
     async def dmme(self, ctx: Context):
@@ -283,4 +403,4 @@ class Utility(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Utility())
+    bot.add_cog(Utility(bot))
