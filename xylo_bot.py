@@ -2,6 +2,8 @@ from discord.ext import tasks
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, \
     MemberNotFound
 import traceback
+
+from cogs import api
 from util.discord_util import *
 from storage.database import *
 from storage import cache
@@ -100,7 +102,11 @@ class XyloBot(commands.Bot):
 
     async def on_ready(self):
         print(f"{self.user} has connected to Discord!")
-        self.status.start()
+        # self.status.start()
+        lines = api.LineCount("DarkKronicle", "XyloBot").raw_lines()
+        if lines is not None and not lines:
+            act = discord.Activity(name=f"with my {str(lines)} lines of code.", type=discord.ActivityType.playing, state="Working Hard")
+            await self.change_presence(status=discord.Status.online, activity=act)
         self.setup_loop.start()
         join = ConfigData.join
         messages = join.data["wakeup"]

@@ -4,6 +4,73 @@ from util import context
 from util import streaming
 from util.context import Context
 import requests
+from functools import wraps
+
+
+def check_request(func):
+    # Checks to make sure that the request was actually successful before doing anything.
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if self.data is None:
+            return None
+        elif not self.data:
+            return False
+
+        return func(self, *args, **kwargs)
+
+    return wrapper
+
+
+class LineCount:
+    """
+    https://codetabs.com/count-loc/count-loc-online.html
+
+    A class that gets the amount of lines from a GitHub repo and can format it.
+    """
+
+    def __init__(self, user, repo):
+        self.user = user
+        self.repo = repo
+        self.data = self.get_lines()
+
+    def get_lines(self):
+        """
+        Gets the lines of code from a github repository. Returns a dict if everything went well, False if there was an error,
+        None if there was no data.
+        """
+        url = f"https://api.codetabs.com/v1/loc/?github={self.user}/{self.repo}"
+        r = requests.get(url)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            # Probably a 429 (Too many requests)
+            return False
+        data = r.json()
+        if "error" in data:
+            # Something didn't work well with this.
+            return None
+
+        return data
+
+    def get_data_cat(self, category):
+        category = category.lower()
+        for d in self.data:
+            if "language" in d and d["language"].lower() == category:
+                return d
+        return None
+
+    def get_total(self):
+        total = self.get_data_cat("total")
+
+    @check_request
+    def raw_lines(self):
+        return self.get_data_cat("total")["lines"]
+
+    def format(self, d):
+        language = d["language"]
+        files = d["files"]
+        lines = d["lines"]
+        code = d["linesOfCode"]
 
 
 class API(commands.Cog):
@@ -30,6 +97,11 @@ class API(commands.Cog):
             colour=discord.Colour.purple()
         )
         await ctx.send(embed=embed)
+
+    @commands.command(name="cloc")
+    async def cloc(self, ctx: Context, *args):
+        if len(args) == 0:
+            return await ctx.send("You need to specify a github repo. `<user>/<project>`.")
 
     @commands.command(name="lmgtfy", aliases=["lemmegoogle"])
     async def lmgtfy(self, ctx: Context, *args):
