@@ -109,6 +109,49 @@ class Utility(commands.Cog):
         if not settings.config:
             await self.insert_blank_config(ctx.guild.id)
 
+    @utility.command(name="current")
+    @commands.guild_only()
+    @checks.is_mod()
+    async def utility_current(self, ctx: Context):
+        """
+        Lists information about the current utility settings set.
+        """
+        settings = await self.get_utility_config(ctx.guild.id)
+        invite = settings.invite_channel
+        log = settings.log_channel
+        join_message = settings.join_message
+
+        embed = discord.Embed(
+            title="Utility Settings",
+            description="All of these can be changed by using the `!utility` command.",
+            colour=discord.Colour.purple()
+        )
+        if log is not None:
+            embed.add_field(name="Log Channel", value=f"Logs go to {log.mention}.")
+        if invite is not None:
+            embed.add_field(name="Invite Channel", value=f"`invite` goes to {invite.mention}.")
+        if join_message is not None:
+            embed.add_field(name="Join Message DM", value=join_message)
+
+        await ctx.send(embed=embed)
+
+    @utility.command(name="log")
+    @commands.guild_only()
+    @checks.is_mod()
+    async def invite_config(self, ctx: Context, channel: discord.TextChannel = None):
+        """
+        Sets the log channel for the server.
+        """
+        if channel is None:
+            return await ctx.send("Invalid Text Channel specified.")
+
+        command = "UPDATE utility_settings SET log_channel={0} WHERE guild_id={1};"
+        command = command.format(str(ctx.guild.id), str(channel.id))
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+
+        await ctx.send(f"Log channel has been set to {channel.mention}!")
+
     @utility.command(name="invite")
     @commands.guild_only()
     @checks.is_mod()
@@ -171,7 +214,7 @@ class Utility(commands.Cog):
 
             else:
                 await ctx.send(f"Here's your invite link!\n\n{str(invite)}")
-                log = cache.get_log_channel(ctx.guild)
+                log = settings.log_channel
                 if log is not None:
                     embed = discord.Embed(
                         title=f"New Invite Created {str(ctx.author)}: {str(invite)}",
