@@ -815,29 +815,9 @@ class Verify(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        # TODO right here also.
-        if member.bot:
-            return
-        db = Database()
-        db.add_new_user(str(member.id))
-        settings = db.get_settings(str(member.guild.id))
-        if "verification" in settings and "enabled" in settings["verification"] and settings["verification"][
-            "enabled"]:
-            if member.dm_channel is None:
-                await member.create_dm()
-            dm = member.dm_channel
-
-            setup_channel: discord.TextChannel = member.guild.get_channel(int(settings["channels"]["setup"]))
-
-            # Send message. If there is an extra staff message that will be added.
-            content: str = settings["messages"]["join-message"]
-            content = content.replace("{server}", member.guild.name)
-            content = content.replace("{channel}", setup_channel.mention)
-
-            await dm.send(content)
-            await member.add_roles(cache.get_unverified_role(member.guild))
-
-            log = member.guild.get_channel(int(settings["channels"]["setup-logs"]))
+        settings = await self.get_verify_config(member.guild.id)
+        if settings.active:
+            log = settings.log_channel
             await log.send(f":bell: `{member.display_name}` just joined!")
 
     @commands.group(name="auth", aliases=["ver", "authenticate"])

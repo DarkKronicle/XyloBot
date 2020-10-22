@@ -85,7 +85,7 @@ class Utility(commands.Cog):
                 await member.create_dm()
             dm = member.dm_channel
 
-            await dm.send(settings)
+            await dm.send(settings.join_message)
 
     async def insert_blank_config(self, guild_id):
         command = "INSERT INTO utility_settings(guild_id) VALUES ({});"

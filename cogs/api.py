@@ -158,9 +158,9 @@ class API(commands.Cog):
             return await ctx.send("Make sure you specify the user and the project! `<user>/<project>`.")
         async with ctx.typing():
             data = LineCount(split[0], split[1])
-            if data is None:
+            if data.data is None:
                 return await ctx.send("No repository found with that name.")
-            if not data:
+            if not data.data:
                 return await ctx.send("Too many requests in the past 5 seconds. Try again later.")
             embed = discord.Embed(
                 title=f"Line count for {args[0]}",
