@@ -76,7 +76,7 @@ class LineCount:
             language = "total"
 
         # Remove 0's and language stats.
-        for f, v in cat:
+        for f, v in cat.items():
             if v == 0:
                 cat.pop(f)
             if f == "language":
