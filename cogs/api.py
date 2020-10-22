@@ -109,7 +109,7 @@ class API(commands.Cog):
         Send a passive agressive google it review.
         """
         if len(args) == 0:
-            return ctx.send_help('lmgtfy')
+            return await ctx.send_help('lmgtfy')
         content = ' '.join(args)
         url = f"<https://lmgtfy.app/?q={content}&iie=1>"
         url = url.replace(' ', '+')
@@ -121,7 +121,7 @@ class API(commands.Cog):
         Sends a google search link
         """
         if len(args) == 0:
-            return ctx.send_help('google')
+            return await ctx.send_help('google')
         content = ' '.join(args)
         url = f"<https://google.com/search?q={content}>"
         url = url.replace(' ', '%20')
@@ -133,7 +133,7 @@ class API(commands.Cog):
         Sends a google search link
         """
         if len(args) == 0:
-            return ctx.send_help('imagegoogle')
+            return await ctx.send_help('imagegoogle')
         content = ' '.join(args)
         url = f"<https://www.google.com/search?tbm=isch&q={content}>"
         url = url.replace(' ', '%20')

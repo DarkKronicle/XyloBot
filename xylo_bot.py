@@ -107,6 +107,8 @@ class XyloBot(commands.Bot):
         if lines is not None and not lines:
             act = discord.Activity(name=f"with my {str(lines)} lines of code.", type=discord.ActivityType.playing, state="Working Hard")
             await self.change_presence(status=discord.Status.online, activity=act)
+        else:
+            print(f"Setting status didn't work. Line: {str(lines)}")
         self.setup_loop.start()
         join = ConfigData.join
         messages = join.data["wakeup"]
