@@ -94,6 +94,7 @@ class Utility(commands.Cog):
         command = command.format(str(guild_id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
+        self.get_utility_config.invalidate(self, ctx.guild.id)
 
     @commands.group(name="!utility", aliases=["!util", "!u"])
     @commands.guild_only()
@@ -151,6 +152,7 @@ class Utility(commands.Cog):
             con.execute(command)
 
         await ctx.send(f"Log channel has been set to {channel.mention}!")
+        self.get_utility_config.invalidate(self, ctx.guild.id)
 
     @utility.command(name="invite")
     @commands.guild_only()
@@ -170,6 +172,7 @@ class Utility(commands.Cog):
             con.execute(command)
 
         await ctx.send(f"Invite channel has been set to {channel.mention}!")
+        self.get_utility_config.invalidate(self, ctx.guild.id)
 
     @utility.command(name="join")
     @commands.guild_only()
@@ -181,6 +184,8 @@ class Utility(commands.Cog):
         answer = await ctx.ask('What message should I send to a new member on join? (Use `none` if you want to disable it.)')
         if answer is None:
             await ctx.timeout()
+
+        self.get_utility_config.invalidate(self, ctx.guild.id)
 
         if answer == False:
             command = "UPDATE utility_settings SET join_message=NULL WHERE guild_id={0};"
@@ -194,7 +199,7 @@ class Utility(commands.Cog):
         command = command.format(answer, str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        return ctx.send("On join message disabled!")
+        await ctx.send(f"On join message set to:\n\n{answer}")
 
     @commands.command(name="invite")
     @commands.guild_only()
