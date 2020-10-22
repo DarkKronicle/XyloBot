@@ -63,6 +63,7 @@ class LineCount:
 
     def get_total(self):
         total = self.get_data_cat("total")
+        return total
 
     @check_request
     def raw_lines(self):
@@ -116,6 +117,7 @@ class LineCount:
         message = ""
         for d in self.data:
             message = message + self.format(d) + "\n"
+        return message
 
 
 class API(commands.Cog):
