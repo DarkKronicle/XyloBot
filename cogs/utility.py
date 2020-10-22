@@ -92,7 +92,7 @@ class Utility(commands.Cog):
         command = command.format(str(guild_id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        self.get_utility_config.invalidate(self, ctx.guild.id)
+        self.get_utility_config.invalidate(self, guild_id)
 
     @commands.group(name="!utility", aliases=["!util", "!u"])
     @commands.guild_only()
