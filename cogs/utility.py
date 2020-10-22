@@ -74,8 +74,6 @@ class Utility(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
-        if row is not None:
-            row = row[0]
 
         return UtilityConfig(self.bot, guild_id, row)
 
