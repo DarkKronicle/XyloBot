@@ -105,7 +105,7 @@ class XyloBot(commands.Bot):
         # self.status.start()
         lines = api.LineCount("DarkKronicle", "XyloBot").raw_lines()
         if lines is not None and lines:
-            act = discord.Activity(name=f"with my {str(lines)} lines of code.", type=discord.ActivityType.playing, state="Working Hard")
+            act = discord.Activity(name=f"{str(lines)} lines of code.", type=discord.ActivityType.watching, state="Working Hard")
             await self.change_presence(status=discord.Status.online, activity=act)
         else:
             print(f"Setting status didn't work. Line: {str(lines)}")
