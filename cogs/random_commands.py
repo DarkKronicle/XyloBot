@@ -171,6 +171,35 @@ class RandomCommands(commands.Cog, name="Random"):
         message = "{0} is clearly worth ${1}."
         await ctx.send(message.format(user.display_name, price))
 
+    @commands.command(name="decide", aliases=["choose"])
+    async def decide(self, ctx: Context, *args):
+        if len(args) != 2:
+            return await ctx.send("Make sure to only specify two arguments.")
+
+        one = args[0]
+        two = args[1]
+        if one.lower == two.lower():
+            return await ctx.send("These are the same!")
+        if len(one) > len(two):
+            rone = one
+            rtwo = two
+        elif len(two) > len(one):
+            rone = two
+            rtwo = one
+        else:
+            tosort = [one.lower(), two.lower()]
+            s = sorted(tosort)
+            rone = s[0]
+            rtwo = s[1]
+
+        choice = self.seeded_int(rone.lower() + rtwo.lower() , 0, 1)
+        if choice == 0:
+            choice = rone
+        else:
+            choice = rtwo
+
+        await ctx.send(f"After much deliberation, I am certain {choice} is better.")
+
 
 def setup(bot):
     bot.add_cog(RandomCommands())
