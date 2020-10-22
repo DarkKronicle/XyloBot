@@ -144,7 +144,7 @@ class Utility(commands.Cog):
         if channel is None:
             return await ctx.send("Invalid Text Channel specified.")
 
-        command = "UPDATE utility_settings SET log_channel={0} WHERE guild_id={1};"
+        command = "UPDATE utility_settings SET log_channel={1} WHERE guild_id={0};"
         command = command.format(str(ctx.guild.id), str(channel.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
@@ -164,7 +164,7 @@ class Utility(commands.Cog):
         if channel is None:
             return await ctx.send("Invalid Text Channel specified.")
 
-        command = "UPDATE utility_settings SET invite_channel={0} WHERE guild_id={1};"
+        command = "UPDATE utility_settings SET invite_channel={1} WHERE guild_id={0};"
         command = command.format(str(ctx.guild.id), str(channel.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)

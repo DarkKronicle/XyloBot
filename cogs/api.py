@@ -77,7 +77,7 @@ class LineCount:
             language = "total"
 
         # Remove 0's and language stats.
-        for f, v in list(cat.items()):
+        for f, v in cat.copy().items():
             if v == 0:
                 cat.pop(f)
             if f == "language":
@@ -110,7 +110,10 @@ class LineCount:
         files = d["files"]
         lines = d["lines"]
         code = d["linesOfCode"]
-        message = f"**{language}:**\nFiles: `{files}`. Lines: `{lines}`. Lines of code: `{code}`."
+        comments = d["comments"]
+        blanks = d["blanks"]
+        message = f"**{language}:**\nFiles: `{files}`. Lines: `{lines}`. Lines of code: `{code}`. Comments: " \
+                  f"`{comments}`. Blanks: `{blanks}`. "
         return message
 
     def format_all(self):
