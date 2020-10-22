@@ -104,7 +104,7 @@ class XyloBot(commands.Bot):
         print(f"{self.user} has connected to Discord!")
         # self.status.start()
         lines = api.LineCount("DarkKronicle", "XyloBot").raw_lines()
-        if lines is not None and not lines:
+        if lines is not None and lines:
             act = discord.Activity(name=f"with my {str(lines)} lines of code.", type=discord.ActivityType.playing, state="Working Hard")
             await self.change_presence(status=discord.Status.online, activity=act)
         else:
