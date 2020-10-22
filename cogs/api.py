@@ -167,6 +167,7 @@ class API(commands.Cog):
                 description=data.format_all(),
                 colour=discord.Colour.green()
                                   )
+            embed.url = f"https://github.com/{split[0]}/{split[1]}/"
             await ctx.send(embed=embed)
 
     @commands.command(name="lmgtfy", aliases=["lemmegoogle"])
