@@ -137,7 +137,7 @@ class Utility(commands.Cog):
     @utility.command(name="log")
     @commands.guild_only()
     @checks.is_mod()
-    async def invite_config(self, ctx: Context, channel: discord.TextChannel = None):
+    async def log_config(self, ctx: Context, channel: discord.TextChannel = None):
         """
         Sets the log channel for the server.
         """
