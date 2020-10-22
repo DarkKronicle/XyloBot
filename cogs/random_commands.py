@@ -163,7 +163,7 @@ class RandomCommands(commands.Cog, name="Random"):
         price = self.seeded_int(user.id, 0, 100000)
 
         message = "{0} is clearly worth ${1}."
-        await ctx.send(message.format(user.display_name), price)
+        await ctx.send(message.format(user.display_name, price))
 
 
 def setup(bot):
