@@ -149,6 +149,22 @@ class RandomCommands(commands.Cog, name="Random"):
         message = "So, basically, it's like a {} for {}."
         await ctx.send(message.format(data["this"], data["that"]))
 
+    @commands.command(name="worth", aliases=["price"])
+    async def worth(self, ctx: Context, *, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
+
+        if user.id == ctx.bot.user.id:
+            return await ctx.send("I am clearly worth approximately $10*5^29^31.")
+
+        if await ctx.bot.is_owner(user):
+            return await ctx.send("For my humble master, his worth is unmeasurable.")
+
+        price = self.seeded_int(user.id, 0, 100000)
+
+        message = "{0} is clearly worth ${1}."
+        await ctx.send(message.format(user.display_name), price)
+
 
 def setup(bot):
     bot.add_cog(RandomCommands())
