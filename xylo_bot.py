@@ -96,19 +96,14 @@ class XyloBot(commands.Bot):
             except (discord.ClientException, ModuleNotFoundError):
                 print(f'Failed to load extension {extension}.')
                 traceback.print_exc()
+        self.lines = api.LineCount("DarkKronicle", "XyloBot")
 
     def run(self):
         super().run(os.getenv('DISCORD_BOT_TOKEN'), reconnect=True, bot=True)
 
     async def on_ready(self):
         print(f"{self.user} has connected to Discord!")
-        # self.status.start()
-        lines = api.LineCount("DarkKronicle", "XyloBot").raw_lines()
-        if lines is not None and lines:
-            act = discord.Activity(name=f"{str(lines)} lines of code.", type=discord.ActivityType.watching, state="Working Hard")
-            await self.change_presence(status=discord.Status.online, activity=act)
-        else:
-            print(f"Setting status didn't work. Line: {str(lines)}")
+        self.status.start()
         self.setup_loop.start()
         join = ConfigData.join
         messages = join.data["wakeup"]
@@ -143,19 +138,9 @@ class XyloBot(commands.Bot):
         """
         Used for setting a random status for the bot.
         """
-        num = random.randint(1, 4)
-        if num == 1:
-            act = discord.Activity(name="the world burn.", type=discord.ActivityType.watching)
-            await self.change_presence(status=discord.Status.online, activity=act)
-        elif num == 2:
-            act = discord.Activity(name="the Marimba.", type=discord.ActivityType.listening)
-            await self.change_presence(status=discord.Status.online, activity=act)
-        elif num == 3:
-            act = discord.Activity(name="lets bully Elcinor.", type=discord.ActivityType.playing)
-            await self.change_presence(status=discord.Status.online, activity=act)
-        elif num == 4:
-            act = discord.Activity(name="the Terminator.", type=discord.ActivityType.watching)
-            await self.change_presence(status=discord.Status.online, activity=act)
+        act = discord.Activity(name=self.lines.format_random(), type=discord.ActivityType.watching,
+                               state="Working Hard")
+        await self.change_presence(status=discord.Status.online, activity=act)
 
     loops = {}
 

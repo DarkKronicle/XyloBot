@@ -1,3 +1,5 @@
+import random
+
 from discord.ext import commands
 import discord
 from util import context
@@ -66,11 +68,54 @@ class LineCount:
     def raw_lines(self):
         return self.get_data_cat("total")["lines"]
 
+    @check_request
+    def format_random(self):
+        cat: dict = random.choice(self.data)
+        language = cat["language"]
+        if language == "Total":
+            language = "total"
+
+        # Remove 0's and language stats.
+        for f, v in cat:
+            if v == 0:
+                cat.pop(f)
+            if f == "language":
+                cat.pop(f)
+        fields = list(cat)
+
+        # This is what will be formatted.
+        field = random.choice(fields)
+        value = cat[field]
+
+        # 0 is language, 1 is the data
+        names = {
+            "files": "{1} {0} files",
+            "lines": "{1} lines of {0}",
+            "blanks": "{1} blanks in {0}",
+            "comments": "{1} comments in {0}",
+            "linesOfCode": "{1} lines of code in {0}"
+        }
+        if field in names:
+            message = names[field].format(str(language), str(value))
+        else:
+            # If all goes wrong, just give it to them raw
+            message = "{1} {2} in {0}"
+            message = message.format(str(language), str(value), str(field))
+
+        return message
+
     def format(self, d):
         language = d["language"]
         files = d["files"]
         lines = d["lines"]
         code = d["linesOfCode"]
+        message = f"**{language}:**\nFiles: `{files}`. Lines: `{lines}`. Lines of code: `{code}`."
+        return message
+
+    def format_all(self):
+        message = ""
+        for d in self.data:
+            message = message + self.format(d) + "\n"
 
 
 class API(commands.Cog):
@@ -102,6 +147,22 @@ class API(commands.Cog):
     async def cloc(self, ctx: Context, *args):
         if len(args) == 0:
             return await ctx.send("You need to specify a github repo. `<user>/<project>`.")
+
+        split = args[0].split("/")
+        if len(split) != 2:
+            return await ctx.send("Make sure you specify the user and the project! `<user>/<project>`.")
+        async with ctx.typing():
+            data = LineCount(split[0], split[1])
+            if data is None:
+                return await ctx.send("No repository found with that name.")
+            if not data:
+                return await ctx.send("Too many requests in the past 5 seconds. Try again later.")
+            embed = discord.Embed(
+                title=f"Line count for {args[0]}",
+                description=data.format_all(),
+                colour=discord.Colour.green()
+                                  )
+            await ctx.send(embed=embed)
 
     @commands.command(name="lmgtfy", aliases=["lemmegoogle"])
     async def lmgtfy(self, ctx: Context, *args):
