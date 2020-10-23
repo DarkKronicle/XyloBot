@@ -57,6 +57,7 @@ class VerifySettings(db.Table, table_name="verify_settings"):
 
     setup_channel = db.Column(db.Integer(big=True))
     setup_log = db.Column(db.Integer(big=True))
+    welcome_channel = db.Column(db.Integer(big=True))
 
     unverified_role = db.Column(db.Integer(big=True))
     roles = db.Column(db.JSON())
@@ -86,7 +87,7 @@ class VerifyConfig:
     """
     __slots__ = (
         "bot", "guild_id", "setup_channel_id", "setup_log_id", "unverified_role_id", "roles_data", "fields", "active",
-        "config", "reject_message", "accept_message"
+        "config", "reject_message", "accept_message", "welcome_channel_id"
     )
 
     def __init__(self, *, guild_id, bot, data=None):
@@ -98,6 +99,7 @@ class VerifyConfig:
             self.active = data['active']
             self.setup_channel_id = data['setup_channel']
             self.setup_log_id = data['setup_log']
+            self.welcome_channel_id = data['welcome_channel']
             self.fields = data['fields']
             self.unverified_role_id = data['unverified_role']
             self.roles_data = data['roles']['roles']
@@ -108,11 +110,17 @@ class VerifyConfig:
             self.active = False
             self.setup_channel_id = None
             self.setup_log_id = None
+            self.welcome_channel_id = None
             self.fields = None
             self.unverified_role_id = None
             self.roles_data = None
             self.reject_message = None
             self.accept_message = None
+
+    @property
+    def welcome_channel(self):
+        guild = self.bot.get_guild(self.guild_id)
+        return guild.get_channel(self.welcome_channel_id)
 
     @property
     def setup_channel(self):
@@ -207,6 +215,15 @@ class Verify(commands.Cog):
             return await ctx.send("Make sure to put in just one correct channel!")
         log = channels[0]
 
+        ask_welcome = await ctx.raw_ask(
+            "What channel should I send welcome messages for when a user is verified?")
+        if ask_welcome is None:
+            return await ctx.timeout()
+        channels = ask_welcome.channel_mentions
+        if channels is None or len(channels) != 1:
+            return await ctx.send("Make sure to put in just one correct channel!")
+        welcome = channels[0]
+
         ask_unverified = await ctx.ask(
             "What's the ID of the role I should give to unverified users? (Enable developer mode and copy ID)",
             timeout=120)
@@ -281,12 +298,14 @@ class Verify(commands.Cog):
         roles_dict = {"roles": roles}
         messages = {
             "accept": f"You have been accepted into {ctx.guild.name}!",
-            "reject": f"You have been rejected from {ctx.guild.name}. Try again or contact a staff member if you believe this is a mistake."
+            "reject": f"You have been rejected from {ctx.guild.name}. Try again or contact a staff member if you "
+                      f"believe this is a mistake. "
         }
 
-        command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, unverified_role, roles, fields, " \
+        command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, welcome_channel, unverified_role, " \
+                  "roles, fields, " \ 
                   "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}, $${7}$$); "
-        command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(unverified.id),
+        command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(welcome.id), str(unverified.id),
                                  json.dumps(roles_dict), json.dumps(fields), "TRUE", json.dumps(messages))
         async with db.MaybeAcquire() as con:
             con.execute(command)
@@ -386,8 +405,17 @@ class Verify(commands.Cog):
             return await ctx.send("Make sure to put in just one correct channel!")
         log = channels[0]
 
-        command = "UPDATE verify_settings SET setup_channel = {0}, setup_log = {1} WHERE guild_id = {2};"
-        command = command.format(str(channel.id), str(log.id), str(ctx.guild.id))
+        ask_welcome = await ctx.raw_ask(
+            "What channel should I send welcome messages for when a user is verified?")
+        if ask_welcome is None:
+            return await ctx.timeout()
+        channels = ask_welcome.channel_mentions
+        if channels is None or len(channels) != 1:
+            return await ctx.send("Make sure to put in just one correct channel!")
+        welcome = channels[0]
+
+        command = "UPDATE verify_settings SET setup_channel = {0}, setup_log = {1}, welcome_channel = {2} WHERE guild_id = {3};"
+        command = command.format(str(channel.id), str(log.id), str(welcome.id), str(ctx.guild.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
         self.get_verify_config.invalidate(self, ctx.guild.id)
@@ -600,6 +628,7 @@ class Verify(commands.Cog):
         active = settings.active
         accept = settings.accept_message
         reject = settings.reject_message
+        welcome = settings.welcome_channel
         if active:
             active_str = "Enabled"
         else:
@@ -615,7 +644,8 @@ class Verify(commands.Cog):
         for field in fields:
             name = get_key(field, self.names)
             message = message + f"{name} - {format_true(fields[field])}\n"
-        message = message + f"\n```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}\n" \
+        message = message + f"\n```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}" \
+                            f"\nWelcome Channel - {welcome.mention}\n" \ 
                             f"Unverified Role - `{unverified_role.name}`\n" \
                             f"\nOn accept:`{accept}`\nOn reject:`{reject}`\n\nRoles on verification:"
         for role in roles:
@@ -916,8 +946,9 @@ class Verify(commands.Cog):
 
         settings = await self.get_verify_config(guild.id)
 
-        welcome: discord.TextChannel = guild.get_channel(int(settings["channels"]["welcome"]))
-        await welcome.send(message)
+        welcome: discord.TextChannel = settings.welcome_channel
+        if elcome is not None:
+            await welcome.send(message)
 
         if member.dm_channel is None:
             await member.create_dm()

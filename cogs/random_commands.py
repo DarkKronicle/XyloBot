@@ -178,7 +178,7 @@ class RandomCommands(commands.Cog, name="Random"):
 
         one = args[0]
         two = args[1]
-        if one.lower == two.lower():
+        if one.lower() == two.lower():
             return await ctx.send("These are the same!")
         if len(one) > len(two):
             rone = one
@@ -192,7 +192,7 @@ class RandomCommands(commands.Cog, name="Random"):
             rone = s[0]
             rtwo = s[1]
 
-        choice = self.seeded_int(rone.lower() + rtwo.lower() , 0, 1)
+        choice = self.seeded_int(rone.lower() + rtwo.lower(), 0, 1)
         if choice == 0:
             choice = rone
         else:
