@@ -22,6 +22,7 @@ class StandardEmoji(commands.Converter):
 
         data = match.group(1)
         if data not in all_emojis:
+            print(data)
             return None
 
         return all_emojis[data]
