@@ -303,7 +303,7 @@ class Verify(commands.Cog):
         }
 
         command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, welcome_channel, unverified_role, " \
-                  "roles, fields, " \ 
+                  "roles, fields, " \
                   "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}, $${7}$$); "
         command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(welcome.id), str(unverified.id),
                                  json.dumps(roles_dict), json.dumps(fields), "TRUE", json.dumps(messages))
@@ -645,7 +645,7 @@ class Verify(commands.Cog):
             name = get_key(field, self.names)
             message = message + f"{name} - {format_true(fields[field])}\n"
         message = message + f"\n```\nSetup Channel - {setup_channel.mention}\nSetup Log Channel - {setup_log.mention}" \
-                            f"\nWelcome Channel - {welcome.mention}\n" \ 
+                            f"\nWelcome Channel - {welcome.mention}\n" \
                             f"Unverified Role - `{unverified_role.name}`\n" \
                             f"\nOn accept:`{accept}`\nOn reject:`{reject}`\n\nRoles on verification:"
         for role in roles:
