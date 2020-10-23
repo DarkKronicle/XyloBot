@@ -11,7 +11,6 @@ from cogs.games.cah import CAHGameInstance
 from storage.json_reader import JSONReader
 from util import discord_util
 from util.context import Context
-from storage import cache
 
 
 class Games(commands.Cog):
@@ -69,7 +68,7 @@ class Games(commands.Cog):
 
     @cah.command(name="start", usage="<all/categories>")
     @commands.guild_only()
-    async def cah_start(self, ctx, *args):
+    async def cah_start(self, ctx: Context, *args):
         """
         Start a game of Cards Against Humanity. You can send it again to force it to start.
         """
@@ -88,8 +87,8 @@ class Games(commands.Cog):
             return
         started = discord.Embed(
             title="Cards Against Humanity - Setting up...",
-            description=f"The game is being setup, get people to join using `{cache.get_prefix(ctx.guild)}cah join`. "
-                        f"When everyone is you can `{cache.get_prefix(ctx.guild)}cah start` again to force start. The "
+            description=f"The game is being setup, get people to join using `{ctx.prefix}cah join`. "
+                        f"When everyone is you can `{ctx.prefix}cah start` again to force start. The "
                         f"game will start in **one minute**.",
             colour=discord.Colour.green()
         )

@@ -4,7 +4,6 @@ from io import StringIO
 from json import detect_encoding
 
 import discord
-from storage import cache, db
 from storage.database import Database
 from util import discord_util, storage_cache, checks
 from util.context import Context

@@ -43,45 +43,6 @@ class Database:
             data = row[0]
             return data
 
-    def guild_exists(self, guild_id):
-        guild = "$$" + guild_id + "$$"
-        command = "SELECT id FROM guild_storage WHERE id = {} ORDER BY id;"
-        return self.exists(command.format(guild))
-
-    def set_prefix(self, guild_id, prefix):
-        guild_id = "$$" + guild_id + "$$"
-        prefix = "$$" + prefix + "$$"
-        command = """
-                UPDATE guild_storage SET prefix = {} WHERE id = {}; 
-                """
-        command = command.format(prefix, guild_id)
-        self.send_commands([command])
-
-    def get_prefix(self, guild_id):
-        command = "SELECT prefix FROM guild_storage WHERE id = {} ORDER BY id;"
-        command = command.format("$$" + guild_id + "$$")
-        conn = None
-        row = None
-        try:
-            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
-
-            c = conn.cursor()
-
-            c.execute(command)
-            row = c.fetchone()
-            c.close()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if row is None:
-            return None
-        else:
-            return row[0]
-
     def get_settings(self, guild_id):
         command = "SELECT settings FROM guild_storage WHERE id = {} ORDER BY id;"
         command = command.format("$$" + guild_id + "$$")
@@ -109,51 +70,6 @@ class Database:
             data = row[0]
             return data
 
-    def exists(self, command):
-        conn = None
-        row = None
-        try:
-            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
-
-            c = conn.cursor()
-
-            c.execute(command)
-            row = c.fetchone()
-            c.close()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if row is None:
-            return False
-        else:
-            return True
-
-    def add_user_storage(self, values: dict):
-        columns = values.keys()
-        insert = values.values()
-        if "user_id" not in columns or "guild_id" not in columns:
-            raise ValueError("guild_id or user_id cannot be NoneType")
-        command = ["""
-         
-        """]
-        self.send_commands([command])
-
-    def new_guild(self, guild_id, prefix):
-        guild_id = "$$" + guild_id + "$$"
-        prefix = "$$" + prefix + "$$"
-        command = """
-                    INSERT INTO guild_storage(id, prefix)
-                    VALUES({}, {});
-                    """
-
-        command = command.format(guild_id, prefix)
-
-        self.send_commands([command])
-
     def send_commands(self, commands):
         # print("Connecting to database...")
         conn = None
@@ -171,10 +87,6 @@ class Database:
         finally:
             if conn is not None:
                 conn.close()
-
-    def add_new_user(self, user_id):
-        command = f"INSERT INTO user_storage(id) VALUES ($${user_id}$$) ON CONFLICT DO NOTHING;"
-        self.send_commands([command])
 
     def add_mark(self, guild_id, name, text="", files=None):
         if files is None:
@@ -270,36 +182,4 @@ class Database:
 
     def remove_mark(self, guild_id, name):
         command = f"DELETE FROM mark_entries WHERE guild_id = $${guild_id}$$ AND name = $${name}$$;"
-        self.send_commands([command])
-
-    def get_user_social(self, user_id):
-        command = f"SELECT social FROM user_storage WHERE id = $${user_id}$$;"
-        conn = None
-        row = None
-        try:
-            conn = psycopg2.connect(self.DATABASE_URL, sslmode='require')
-
-            c = conn.cursor()
-
-            c.execute(command)
-            row = c.fetchone()
-            c.close()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if row is None:
-            return None
-        else:
-            return row[0]
-
-    def set_user_social(self, user_id, settings: dict):
-        user_id = "$$" + user_id + "$$"
-        command = """
-                   UPDATE user_storage SET social = {} WHERE id = {}; 
-                   """
-        command = command.format("$$" + json.dumps(settings) + "$$", user_id)
         self.send_commands([command])

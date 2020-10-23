@@ -5,7 +5,6 @@ from util.discord_util import *
 from storage.database import *
 from discord.ext.commands import has_permissions
 import json
-from storage import cache
 
 
 def check_admin(ctx, **perms):

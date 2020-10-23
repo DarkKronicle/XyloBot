@@ -2,7 +2,6 @@ from discord.ext import commands
 import discord
 from util.context import Context
 from storage.database import Database
-from storage import cache
 
 
 class UserSettings(commands.Cog):

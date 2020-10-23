@@ -30,7 +30,6 @@ from abc import ABC
 from discord.ext import menus
 
 from util.discord_util import *
-from storage import cache
 import math
 
 from util.paginator import Pages
@@ -74,7 +73,8 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
         return description + ' '.join(page) + "\n" + end_note.format(str(left))
 
     async def format_page(self, menu, cogs):
-        top = f"Prefixes you can use: `{cache.get_prefix(self.help_command.context.guild)}`, `x>`\nUse `help [" \
+        prefix = await self.help_command.context.bot.get_guild_prefix(self.help_command.context.guild.id)
+        top = f"Prefixes you can use: `{prefix}`, `x>`\nUse `help [" \
               f"command]` for " \
               f"specific info on a command.\nUse `help [category]` for specific info in a category. \n" \
               f"*Use the reactions to look through commands*"

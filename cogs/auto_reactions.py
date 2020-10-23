@@ -1,22 +1,49 @@
-from discord.ext import commands
-import discord
 import enum
-from storage.config import ConfigData
+import re
+
+import typing
+
+from storage import db
+from util.context import Context
 from util.discord_util import *
 
 
-# class AutoReactionsDB(db.Table, table_name="auto_reactions"):
-#     id = db.Column(db.Integer(big=True, auto_increment=True), primary_key=True)
-#     guild_id = db.Column(db.Integer(big=True))
-#     filter = db.Column(db.String(length=20))
-#     emoji_id = db.Column(db.String(length=100))
-#     uses = db.Column(db.Integer(), default=0)
-#
-#     @classmethod
-#     def create_table(cls, overwrite=False):
-#         statement = super().create_table(overwrite=overwrite)
-#
-#         return statement + "\n" + stq
+all_emojis = JSONReader("data/emojis.json").data
+
+
+class StandardEmoji(commands.Converter):
+    async def convert(self, ctx, argument):
+        lowered = argument.lower()
+        pattern = r"\:(.*?)\:"
+        match = re.search(pattern, lowered)
+        if not match:
+            # Needs to fit for :emoji_here:
+            return None
+
+        data = match.group(1)
+        if data not in all_emojis:
+            return None
+
+        return all_emojis[data]
+
+
+class AutoReactionsDB(db.Table, table_name="auto_reactions"):
+    id = db.Column(db.Integer(big=True, auto_increment=True), primary_key=True)
+    guild_id = db.Column(db.Integer(big=True), index=True)
+    filter = db.Column(db.String(length=50))
+    # 0 case sensitive anywhere.
+    # 1 case insensitive anywhere.
+    # 2 case sensitive only.
+    # 3 case insensitive only.
+    filter_type = db.Column(db.Integer(small=True))
+
+    reaction = db.Column(db.String(length=500))
+    # 0 Emojis
+    # 1 Text
+    reaction_type = db.Column(db.Integer(small=True))
+
+    uses = db.Column(db.Integer(), default=0)
+
 
 class TextType(enum.Enum):
     command = "command",
@@ -159,6 +186,16 @@ class AutoReactions(commands.Cog):
             embed.add_field(name=reaction.trigger, value=value, inline=True)
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="emoji")
+    async def emoji(self, ctx: Context, emoji_found: typing.Union[discord.Emoji, StandardEmoji] = None):
+        if emoji_found is None:
+            return await ctx.send("No emoji in that text!")
+
+        if isinstance(emoji_found, discord.Emoji):
+            return await ctx.send(f"This is a custom emoji with the name {emoji_found.name}")
+
+        await ctx.send(f"Here's your standard emoji! f{emoji_found}")
 
 
 def setup(bot):

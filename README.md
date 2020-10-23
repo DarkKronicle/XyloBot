@@ -14,6 +14,8 @@ Open source bots that are extremely cool and helped me understand some really co
 
 - [Xiao](https://github.com/dragonfire535/xiao) - Amazing open source bot with a ton of amazing features.
 
+- [Vexs Emoji List](https://gist.github.com/Vexs/629488c4bb4126ad2a9909309ed6bd71)
+
 ## Contributing
 
 If you have anything, feel free to send a pull request, as well as any bugs you may find.

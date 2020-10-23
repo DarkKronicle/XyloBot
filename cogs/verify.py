@@ -6,7 +6,7 @@ from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
 from discord.ext import commands
-from storage import cache, db
+from storage import db
 from xylo_bot import XyloBot
 
 
