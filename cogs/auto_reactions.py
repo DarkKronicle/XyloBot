@@ -16,7 +16,8 @@ class StandardEmoji(commands.Converter):
         lowered = argument.lower()
         pattern = r"\:(.*?)\:"
         match = re.search(pattern, lowered)
-        if not match:
+        if match is None:
+            print(lowered)
             # Needs to fit for :emoji_here:
             return None
 
