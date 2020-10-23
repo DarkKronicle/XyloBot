@@ -225,7 +225,9 @@ class XyloBot(commands.Bot):
         async with db.MaybeAcquire() as con:
             con.execute(command)
             rows = con.fetchall()
-        for guild_id, announcement_id in rows.items():
+        for row in rows:
+            guild_id = row['guild_id']
+            announcement_id = ['announcements']
             guild = self.get_guild(guild_id)
             if guild is not None:
                 channel = guild.get_channel(announcement_id)
