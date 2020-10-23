@@ -4,9 +4,10 @@ from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRol
 import traceback
 
 from cogs import api
+from util import storage_cache
 from util.discord_util import *
 from storage.database import *
-from storage import cache
+from storage import cache, db
 from datetime import datetime, timedelta, timezone
 from pytz import timezone
 
@@ -18,20 +19,21 @@ from cogs.help import Help
 
 def get_prefix(dbot, message: discord.Message):
     user_id = dbot.user.id
-    prefixes = ["x>", f"<@{user_id}> "]
-    space = ["x> ", f"<@{user_id}> "]
+    prefixes = ["x>", f"<@{user_id}> ", dbot.user.mention + " "]
+    space = ["x> ", f"<@{user_id}> ", dbot.user.mention + " "]
     if message.guild is None:
         prefix = ">"
     else:
-        prefix = cache.get_prefix(message.guild)
-    if prefix is not None:
-        content: str = message.content
-        if content.startswith("x> "):
-            return space
-        if content.startswith(prefix + " "):
-            space.append(prefix + " ")
-            return space
-        prefixes.append(prefix)
+        prefix = dbot.get_guild_prefix(message.guild.id)
+        if prefix is None:
+            prefix = ">"
+    content: str = message.content
+    if content.startswith("x> "):
+        return space
+    if content.startswith(prefix + " "):
+        space.append(prefix + " ")
+        return space
+    prefixes.append(prefix)
     return prefixes
 
 
@@ -39,7 +41,7 @@ cogs_dir = "cogs"
 startup_extensions = [
     "data_commands", "auto_reactions", "qotd", "roles", "verify", "statistics",
     "settings", "fun", "utility", "mark", "user_settings", "api", "game", "image",
-    "random_commands", "text", "new_guild", "command_config"
+    "random_commands", "text", "guild_config", "command_config"
 ]
 
 # bot.remove_command('help')
@@ -200,3 +202,30 @@ class XyloBot(commands.Bot):
     async def close(self):
         await super().close()
         await self.session.close()
+
+    async def get_log_channel(self, guild_id):
+        util = self.get_cog('Utility')
+        if util is None:
+            return None
+        return await util.get_utility_config(guild_id)
+
+    @storage_cache.cache(maxsize=1024)
+    async def get_guild_prefix(self, guild_id):
+        command = "SELECT prefix FROM guild_config WHERE guild_id = {};"
+        command = command.format(guild_id)
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            row = con.fetchone()
+        return row['prefix']
+
+    async def send_announcement(self, message):
+        command = "SELECT guild_id, announcements FROM guild_config WHERE announcements is NOT NULL;"
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            rows = con.fetchall()
+        for guild_id, announcement_id in rows.items():
+            guild = self.get_guild(guild_id)
+            if guild is not None:
+                channel = guild.get_channel(announcement_id)
+                if channel is not None:
+                    await channel.send(message)

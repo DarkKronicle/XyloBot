@@ -69,22 +69,6 @@ def get_channel(channel, guild, bot):
     return channel
 
 
-def get_db_role(guild: discord.Guild, role):
-    db = Database()
-    settings: dict = db.get_settings(str(guild.id))
-    if "roles" in settings and role in settings["roles"]:
-        return guild.get_role(settings["roles"][role])
-    return None
-
-
-def get_db_channel(guild: discord.Guild, channel):
-    db = Database()
-    settings: dict = db.get_settings(str(guild.id))
-    if "channels" in settings and channel in settings["channels"]:
-        return guild.get_channel(settings["channels"][channel])
-    return None
-
-
 async def get_user_id(discord_id: str, guild: discord.Guild):
     """
     Get user based off of their ID
@@ -122,61 +106,6 @@ async def get_data_from_url(url: str):
                 return None
             data = io.BytesIO(await resp.read())
             return data
-
-
-def check_verification(guild: discord.Guild, settings):
-    if "channels" in settings and "setup" in settings["channels"] and "setup-logs" in settings["channels"] and "welcome" in settings["channels"]:
-        if guild.get_channel(int(settings["channels"]["setup"])) is None or guild.get_channel(
-                int(settings["channels"]["setup-logs"])) is None or guild.get_channel(int(settings["channels"]["welcome"])) is None:
-            return False
-    else:
-        return False
-    if "roles" in settings and "verifier" in settings["roles"] and "unverified" in settings["roles"]:
-        if guild.get_role(int(settings["roles"]["verifier"])) is None or guild.get_role(
-                int(settings["roles"]["unverified"])) is None:
-            return False
-    else:
-        return False
-
-    return True
-
-
-def set_check_verification(guild: discord.Guild):
-    db = Database()
-    settings: dict = db.get_settings(str(guild.id))
-    return check_verification(guild, settings)
-
-
-def is_allowed():
-    permission = commands.has_permissions(administrator=True).predicate
-
-    async def predicate(context: commands.Context):
-        # if await context.bot.is_owner(context.author):
-        #     return True
-        if await permission(context):
-            return True
-        role = get_db_role(context.guild, "botmanager")
-        if role is not None:
-            comm = commands.has_role(int(role)).predicate
-            return await comm(context)
-        return False
-
-    return commands.check(predicate)
-
-
-def is_verifier():
-    permission = commands.has_permissions(administrator=True).predicate
-
-    async def predicate(context: commands.Context):
-        if await permission(context):
-            return True
-        role = get_db_role(context.guild, "verifier")
-        if role is not None:
-            comm = commands.has_role(int(role)).predicate
-            return await comm(context)
-        return False
-
-    return commands.check(predicate)
 
 
 def get_member(guild: discord.Guild, member_id):

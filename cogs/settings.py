@@ -12,32 +12,7 @@ class Settings(commands.Cog):
     """
 
     # TODO Two commands left!
-    @commands.command(name="!prefix", usage="<new_prefix>", aliases=["!p", "!pre"])
-    @checks.is_mod()
-    @commands.guild_only()
-    async def prefix(self, ctx: Context, *args):
-        if len(args) == 1:
-            await ctx.send_help('settings prefix')
-            return
 
-        prefix = ' '.join(args[1:])
-        if len(prefix) > 10:
-            await ctx.send("Prefix too large!")
-            return
-
-        if "$" in prefix:
-            prefix = prefix.replace("$", "\\$")
-
-        db = Database()
-        db.set_prefix(str(ctx.guild.id), prefix)
-        success = discord.Embed(
-            title="Xylo prefix changed!",
-            description=f"Prefix changed to `{prefix}`!",
-            colour=discord.Colour.green()
-        )
-        cache.clear_prefix_cache(ctx.guild)
-        await ctx.send(embed=success)
-        return
 
     # @util.command(name="weather", usage="<loc>")
     # @is_allowed()

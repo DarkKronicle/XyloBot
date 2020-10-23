@@ -1,0 +1,10 @@
+Thanks for adding me to {0.name}! I've started by setting your server's default prefix to `>`. Here's the bare minimum you need to know:
+
+`>help` - The help command. It shows *all* commands that you can use, and the usage on how to use it. You can also get more specific help per command.
+
+`>settings` - This is how you configure what the prefix is, what fun modules are active, utility commands, and more!
+
+`>verification` - Get verification on your server setup! You will then use the `>auth` command to verify users.\n\n`>marks` - Probably my best feature.
+
+Finally, if you have any questions or requests, come check out my
+f"repository! https://github.com/DarkKronicle/XyloBot/

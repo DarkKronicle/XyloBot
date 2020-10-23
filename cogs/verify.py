@@ -956,17 +956,11 @@ class Verify(commands.Cog):
 
         verify: str = settings.accept_message
         await dm.send(verify)
-        await member.remove_roles(cache.get_unverified_role(guild))
+        await member.remove_roles(settings.unverified_role)
         if "first" in info["fields"]:
             await member.edit(nick=info["fields"]["first"])
-        if "roles" in settings["verification"] and len(settings["verification"]["roles"]) != 0:
-            roles = []
-            for role in settings["verification"]["roles"]:
-                r = guild.get_role(role)
-                if r is not None:
-                    roles.append(r)
-            if len(roles) > 0:
-                await member.add_roles(*roles)
+        if settings.roles is not None and len(settings.roles) != 0:
+            await member.add_roles(*settings.roles)
 
     async def reject_user(self, member: discord.Member, guild: discord.Guild):
         """

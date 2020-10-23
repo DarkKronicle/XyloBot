@@ -66,14 +66,8 @@ class Stats(commands.Cog):
         """
         Gets the current weather.
         """
-        if len(args) == 0 and ctx.guild is not None:
-            db = Database()
-            data = db.get_settings(str(ctx.guild.id))
-            if "utility" in data and "weather" in data["utility"]:
-                city = data["utility"]["weather"]["city"]
-                country = data["utility"]["weather"]["country"]
-            else:
-                return await ctx.send("You need to specify a city and a country!")
+        if len(args) == 0:
+            return await ctx.send("You need to specify a city and a country!")
         else:
             city = args[0]
             if len(args) > 1:

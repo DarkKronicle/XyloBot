@@ -1,4 +1,5 @@
 from storage import db
+from util import checks
 from util.discord_util import *
 from storage.database import *
 import discord
@@ -65,7 +66,7 @@ class Mark(commands.Cog):
 
     @marks.command(name="remove")
     @commands.guild_only()
-    @is_allowed()
+    @checks.is_mod()
     async def remove(self, ctx: Context):
         guild = str(ctx.guild.id)
         if await self.bot.is_owner(ctx.author):
@@ -94,7 +95,7 @@ class Mark(commands.Cog):
 
     @marks.command(name="add")
     @commands.guild_only()
-    @is_allowed()
+    @checks.is_mod()
     async def add(self, ctx: Context):
         details = {}
         channel = ctx.channel

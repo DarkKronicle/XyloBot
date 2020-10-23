@@ -67,7 +67,9 @@ class DataCommands(commands.Cog):
         Grabs data stored in the database about the sender.
         """
 
-        if not cache.get_enabled(ctx.guild):
+        v = self.bot.get_cog('Verify')
+        c = await v.get_verify_config(ctx.guild.id)
+        if not c.active:
             return
 
         id = ctx.message.author.id
@@ -98,7 +100,9 @@ class DataCommands(commands.Cog):
         """
         Grabs data stored in the database about the specified user.
         """
-        if not cache.get_enabled(ctx.guild):
+        v = self.bot.get_cog('Verify')
+        c = await v.get_verify_config(ctx.guild.id)
+        if not c.active:
             return
 
         if user is None:
@@ -140,7 +144,9 @@ class DataCommands(commands.Cog):
 
         field = args[0]
         if not admin:
-            fields = cache.get_fields(ctx.guild)
+            v = self.bot.get_cog('Verify')
+            c = await v.get_verify_config(ctx.guild.id)
+            fields = c.fields
             allowed = True
             for cfield in fields:
                 if fields[cfield] and field == cfield:
@@ -176,7 +182,7 @@ class DataCommands(commands.Cog):
             user_data["fields"] = {}
         user_data["fields"][field] = data
         db.update_user(user_data, str(member.id), str(ctx.guild.id))
-        log = cache.get_log_channel(ctx.guild)
+        log = await ctx.bot.get_log_channel(ctx.guild)
 
         await ctx.send(f"Edited your {field}!")
         if log is not None:
@@ -233,7 +239,7 @@ class DataCommands(commands.Cog):
             user_data["fields"] = {}
         user_data["fields"][field] = data
         db.update_user(user_data, str(member.id), str(ctx.guild.id))
-        log = cache.get_log_channel(ctx.guild)
+        log = await ctx.bot.get_log_channel(ctx.guild)
 
         await ctx.send(f"Edited your {field}!")
         if log is not None:
@@ -242,77 +248,6 @@ class DataCommands(commands.Cog):
                 description=f"{ctx.author.mention} changed {member.mention}'s data.\n\nFrom `{field}` to:\n\n{data}"
             )
             await log.send(embed=log_embed)
-
-    @commands.command(name="db", hidden=True)
-    @commands.guild_only()
-    async def database(self, ctx: commands.Context, *args):
-        if await self.bot.is_owner(ctx.author):
-            db = Database()
-            if len(args) == 0:
-                await ctx.send("Nope")
-                return
-
-            if args[0] == "create":
-                await ctx.send("Creating tables...")
-                db.create_tables()
-                await ctx.send("Done!")
-                return
-
-            if args[0] == "ge" and len(args) > 1:
-                await ctx.send("Checking...")
-                result = db.guild_exists(args[1])
-                if result:
-                    await ctx.send("It exists!")
-                else:
-                    await ctx.send("It does not :(")
-                    return
-
-            if args[0] == "ue" and len(args) > 1:
-                await ctx.send("Checking...")
-                result = db.user_exists(args[1])
-                if result:
-                    await ctx.send("It exists!")
-                else:
-                    await ctx.send("It does not :(")
-                    return
-
-            if args[0] == "gue" and len(args) > 2:
-                await ctx.send("Checking...")
-                result = db.user_guild_exists(args[1], args[2])
-                if result:
-                    await ctx.send("It exists!")
-                else:
-                    await ctx.send("It does not :(")
-                    return
-
-            if args[0] == "alter":
-                await ctx.send("Altering...")
-                db.alter()
-                await ctx.send("Altered!")
-                return
-
-            if args[0] == "rg":
-                await ctx.send("Resetting guild settings...")
-                db.default_settings(str(ctx.guild.id))
-                await ctx.send("Reset!")
-                return
-
-            if args[0] == "ggs":
-                await ctx.send("Getting settings...")
-                message = "```JSON\n{}\n```"
-                message = message.format(json.dumps(db.get_settings(str(ctx.guild.id)), indent=4, sort_keys=True))
-                await ctx.send(message)
-                return
-
-            if args[0] == "run":
-                await ctx.send("Running command...")
-                db.send_commands([' '.join(args[1:])])
-                await ctx.send("Ran!")
-                return
-
-            await ctx.send("Unknown command...")
-        else:
-            await ctx.send("You're not my owner!")
 
 
 def setup(bot):
