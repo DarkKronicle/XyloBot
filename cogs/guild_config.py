@@ -124,7 +124,7 @@ class GuildConfig(commands.Cog):
         inserts = []
         for guild in ctx.bot.guilds:
             inserts.append(val.format(str(guild.id)))
-        insert = insert + ', '.join(inserts) + " ON CONFLICT guild_id DO NOTHING;"
+        insert = insert + ', '.join(inserts) + " ON CONFLICT ON CONSTRAINT guild_id DO NOTHING;"
         async with db.MaybeAcquire() as con:
             con.execute(insert)
 
