@@ -660,7 +660,7 @@ class Verify(commands.Cog):
 
     @storage_cache.cache()
     async def get_verify_config(self, guild_id, *, connection=None):
-        command = "SELECT setup_channel, setup_log, unverified_role, roles, fields, active, messages FROM " \
+        command = "SELECT setup_channel, setup_log, welcome_channel, unverified_role, roles, fields, active, messages FROM " \
                   "verify_settings WHERE guild_id={};"
         command = command.format(str(guild_id))
         async with MaybeAcquire(connection=connection) as con:
