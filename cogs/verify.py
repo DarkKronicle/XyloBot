@@ -947,7 +947,7 @@ class Verify(commands.Cog):
         settings = await self.get_verify_config(guild.id)
 
         welcome: discord.TextChannel = settings.welcome_channel
-        if elcome is not None:
+        if welcome is not None:
             await welcome.send(message)
 
         if member.dm_channel is None:

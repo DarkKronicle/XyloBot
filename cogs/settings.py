@@ -15,7 +15,7 @@ class Settings(commands.Cog):
     @commands.command(name="!prefix", usage="<new_prefix>", aliases=["!p", "!pre"])
     @checks.is_mod()
     @commands.guild_only()
-    async def prefix(self, ctx: commands.Context, *args):
+    async def prefix(self, ctx: Context, *args):
         if len(args) == 1:
             await ctx.send_help('settings prefix')
             return
