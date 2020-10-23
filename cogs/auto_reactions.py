@@ -123,7 +123,7 @@ class AutoReactions(commands.Cog):
                 content: str = message.content
 
             if text.texttype == TextType.command:
-                if len(content) > 0 and content[0] == self.bot.command_prefix:
+                if len(content) > 0 and content[0] == await self.bot.command_prefix:
                     if content[1:] == text.trigger or content in text.aliases:
                         await text.send(message)
                         continue

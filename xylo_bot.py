@@ -17,14 +17,14 @@ from util.context import Context
 from cogs.help import Help
 
 
-def get_prefix(dbot, message: discord.Message):
+async def get_prefix(dbot, message: discord.Message):
     user_id = dbot.user.id
     prefixes = ["x>", f"<@{user_id}> ", dbot.user.mention + " "]
     space = ["x> ", f"<@{user_id}> ", dbot.user.mention + " "]
     if message.guild is None:
         prefix = ">"
     else:
-        prefix = dbot.get_guild_prefix(message.guild.id)
+        prefix = await dbot.get_guild_prefix(message.guild.id)
         if prefix is None:
             prefix = ">"
     content: str = message.content
