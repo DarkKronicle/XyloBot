@@ -13,11 +13,17 @@ all_emojis: dict = JSONReader("data/emojis.json").data
 
 class StandardEmoji(commands.Converter):
     async def convert(self, ctx, argument):
-        if argument in all_emojis.keys():
-            return all_emojis[argument]
+        """
+        # 1 - Check if unicode emoji
+        # 2 - Check if it's name is in discord found
+        """
 
         if argument in all_emojis.values():
             return argument
+
+        argument = argument.lower()
+        if argument in all_emojis.keys():
+            return all_emojis[argument]
 
         return None
 
@@ -187,13 +193,19 @@ class AutoReactions(commands.Cog):
         if emoji_found is None:
             return await ctx.send("No emoji in that text!")
 
-        message = "Emoji's found in command: "
+        message = "Emoji's found:"
         for emoji in emoji_found:
             if emoji is not None:
                 if isinstance(emoji, discord.Emoji):
-                    message = message + f"` <:{emoji.name}:{emoji.id}>`"
+                    message = message + f"\n <:{emoji.name}:{emoji.id}> - `<:{emoji.name}:{emoji.id}>`"
                 else:
-                    message = message + fr" \{emoji}"
+                    name = ""
+                    for v in all_emojis.values():
+                        if v == emoji:
+                            name = v
+                            break
+
+                    message = message + f"\n{name} - \\{emoji}"
 
         await ctx.send(message)
 

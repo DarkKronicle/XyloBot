@@ -199,7 +199,7 @@ class RandomCommands(commands.Cog, name="Random"):
         else:
             choice = rtwo
 
-        await ctx.send(f"After much deliberation, I am certain {choice} is better.")
+        await ctx.send(f"After much deliberation, I am certain that {choice} is better.")
 
 
 def setup(bot):

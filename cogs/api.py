@@ -91,7 +91,7 @@ class LineCount:
         # 0 is language, 1 is the data
         names = {
             "files": "{1} {0} files",
-            "lines": "{1} lines of {0}",
+            "lines": "{1} lines in {0}",
             "blanks": "{1} blanks in {0}",
             "comments": "{1} comments in {0}",
             "linesOfCode": "{1} lines of code in {0}"
