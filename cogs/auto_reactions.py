@@ -180,14 +180,18 @@ class AutoReactions(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="emoji")
-    async def emoji(self, ctx: Context, emoji_found: typing.Union[discord.Emoji, StandardEmoji] = None):
+    async def emoji(self, ctx: Context, emoji_found: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
         if emoji_found is None:
             return await ctx.send("No emoji in that text!")
 
-        if isinstance(emoji_found, discord.Emoji):
-            return await ctx.send(f"This is a custom emoji with the name {emoji_found.name}")
+        message = "Emoji's found in command: "
+        for emoji in emoji_found:
+            if isinstance(emoji, discord.Emoji):
+                message = message + f"\n{emoji.name}"
+            else:
+                message = message + f"\n{emoji}"
 
-        await ctx.send(f"Here's your standard emoji! f{emoji_found}")
+        await ctx.send(message)
 
 
 def setup(bot):

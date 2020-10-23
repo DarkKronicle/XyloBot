@@ -101,15 +101,16 @@ class RandomCommands(commands.Cog, name="Random"):
 
     @commands.command(name="ship", aliases=["compat"])
     @commands.guild_only()
-    async def ship(self, ctx: Context, *, ship1: discord.Member = None):
-        if ship1 is None:
+    async def ship(self, ctx: Context, ships: commands.Greedy[discord.Member] = None):
+        if len(ships) == 2:
+            ship1 = ships[0]
+            ship2 = ships[1]
+        elif len(ships) == 1:
             ship1 = ctx.author
-        answer = await ctx.ask(f"Who should be shipped with {ship1.display_name}?")
-        if answer is None:
-            return ctx.timeout()
-        guild: discord.Guild = ctx.guild
-        ship2 = guild.get_member_named(answer)
-        if ship2 is None or ship1 is ship2:
+            ship2 = ships[0]
+        else:
+            return await ctx.send("Make sure you only specify 1 or 2 users.")
+        if ship1 is ship2:
             return await ctx.send("Please put in 2 proper users.")
 
         ship = self.seeded_int(ship1.id + ship2.id, 0, 50)
