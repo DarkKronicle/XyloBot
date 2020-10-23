@@ -227,7 +227,7 @@ class XyloBot(commands.Bot):
             rows = con.fetchall()
         for row in rows:
             guild_id = row['guild_id']
-            announcement_id = ['announcements']
+            announcement_id = row['announcements']
             guild = self.get_guild(guild_id)
             if guild is not None:
                 channel = guild.get_channel(announcement_id)
