@@ -8,25 +8,15 @@ from util.context import Context
 from util.discord_util import *
 
 
-all_emojis = JSONReader("data/emojis.json").data
+all_emojis: dict = JSONReader("data/emojis.json").data
 
 
 class StandardEmoji(commands.Converter):
     async def convert(self, ctx, argument):
-        lowered = argument.lower()
-        pattern = r"\:(.*?)\:"
-        match = re.search(pattern, lowered)
-        if match is None:
-            print(lowered)
-            # Needs to fit for :emoji_here:
-            return None
+        if argument in all_emojis.values():
+            return argument
 
-        data = match.group(1)
-        if data not in all_emojis:
-            print(data)
-            return None
-
-        return all_emojis[data]
+        return None
 
 
 class AutoReactionsDB(db.Table, table_name="auto_reactions"):
