@@ -216,6 +216,8 @@ class XyloBot(commands.Bot):
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
+        if row is None:
+            return None
         return row['prefix']
 
     async def send_announcement(self, message):
