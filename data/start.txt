@@ -1,10 +1,13 @@
-Thanks for adding me to {0.name}! I've started by setting your server's default prefix to `>`. Here's the bare minimum you need to know:
+Thanks for adding me to {0.name}! I've started by setting your server's default prefix to `>`. To get started here's what you need to know:
 
-`>help` - The help command. It shows *all* commands that you can use, and the usage on how to use it. You can also get more specific help per command.
+`>help` - The help command. It shows *all* commands that you can use, and the usage on how to use it. You can also get more specific help per command. Commands with `!` in front are for configuration, so you'll probably want to start there.
 
-`>settings` - This is how you configure what the prefix is, what fun modules are active, utility commands, and more!
+`>!settings` - This is how you configure what the prefix and other general settings. I highly recommend setting up `>!settings announcements` so that you can get news if I have changed.
 
-`>verification` - Get verification on your server setup! You will then use the `>auth` command to verify users.\n\n`>marks` - Probably my best feature.
+`>!verify` - Get verification on your server setup! You will then use the `>auth` command to verify users.
 
-Finally, if you have any questions or requests, come check out my
-repository! https://github.com/DarkKronicle/XyloBot/
+`>!commandconfig` - Disable certain commands for the whole server or just for a channel.
+
+`>!utility` - Configure different utility commands.
+
+Finally, if you have any questions or requests, come check out my repository! https://github.com/DarkKronicle/XyloBot/
