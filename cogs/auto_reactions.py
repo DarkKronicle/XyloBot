@@ -13,6 +13,9 @@ all_emojis: dict = JSONReader("data/emojis.json").data
 
 class StandardEmoji(commands.Converter):
     async def convert(self, ctx, argument):
+        if argument in all_emojis.keys():
+            return all_emojis[argument]
+
         if argument in all_emojis.values():
             return argument
 
@@ -186,10 +189,11 @@ class AutoReactions(commands.Cog):
 
         message = "Emoji's found in command: "
         for emoji in emoji_found:
-            if isinstance(emoji, discord.Emoji):
-                message = message + f"\n{emoji.name}"
-            else:
-                message = message + f"\n{emoji}"
+            if emoji is not None:
+                if isinstance(emoji, discord.Emoji):
+                    message = message + f"` <:{emoji.name}:{emoji.id}>`"
+                else:
+                    message = message + fr" \{emoji}"
 
         await ctx.send(message)
 
