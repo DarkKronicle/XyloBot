@@ -7,4 +7,4 @@ Thanks for adding me to {0.name}! I've started by setting your server's default 
 `>verification` - Get verification on your server setup! You will then use the `>auth` command to verify users.\n\n`>marks` - Probably my best feature.
 
 Finally, if you have any questions or requests, come check out my
-f"repository! https://github.com/DarkKronicle/XyloBot/
+repository! https://github.com/DarkKronicle/XyloBot/

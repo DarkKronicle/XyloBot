@@ -39,10 +39,14 @@ class GuildConfig(commands.Cog):
         """
         await self.send_start(ctx.author)
 
-    async def send_start(self, user: discord.User):
+    async def send_start(self, user: discord.Member):
         if user.dm_channel is None:
             await user.create_dm()
-        await user.dm_channel.send(self.start_txt)
+        if isinstance(user, discord.Member):
+            txt = self.start_txt.format(user.guild)
+        else:
+            txt = self.start_txt.replace("{0.name}", "your guild!")
+        await user.dm_channel.send(txt)
 
     @commands.group(name="!settings", aliases=["!s", "!set"])
     @checks.is_mod()
@@ -109,7 +113,7 @@ class GuildConfig(commands.Cog):
 
     @commands.group(name="!database", hidden=True, aliases=["!d", "!db"])
     @commands.is_owner()
-    async def db_config(self):
+    async def db_config(self, ctx: Context):
         pass
 
     @db_config.command(name="bulkguild")
