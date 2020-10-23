@@ -69,7 +69,7 @@ class GuildConfig(commands.Cog):
             await ctx.send_help('Make sure to specify a new prefix!')
             return
 
-        prefix = ' '.join(args[1:])
+        prefix = ' '.join(args[0:])
         if len(prefix) > 10:
             await ctx.send("Prefix too large!")
             return
