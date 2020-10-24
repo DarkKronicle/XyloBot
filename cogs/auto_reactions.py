@@ -317,7 +317,7 @@ class AutoReactions(commands.Cog):
             return await ctx.timeout()
         if len(filter) > 40:
             return await ctx.send("Too long!")
-        filter = filter.replaceall("$", r"\$")
+        filter = filter.replace("$", r"\$")
 
         # TODO Eventually add the ability to add text to this... I have everything in place for it.
         rtype = 0
