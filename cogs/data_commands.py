@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from storage import db
 from util.context import Context
 from util.discord_util import *
 from storage.database import *
@@ -34,6 +35,19 @@ async def getuser(nick: str, guild: discord.Guild) -> discord.Member:
     return None
 
 
+class UserData(db.Table, table_name="user_data"):
+    guild_id = db.Column(db.Integer(big=True), primary_key=True)
+    user_id = db.Column(db.Integer(big=True), primary_key=True)
+    info = db.Column(db.JSON())
+
+    @classmethod
+    def create_table(cls, *, overwrite=False):
+        statement = super().create_table(overwrite=overwrite)
+        # create the unique index for guild_id and user_id for SPPEEEEEEDDD
+        sql = "CREATE UNIQUE INDEX IF NOT EXISTS user_data_uniq_idx ON user_data (guild_id, user_id);"
+        return statement + '\n' + sql
+
+
 class DataCommands(commands.Cog):
     """
     Commands to view stored data on people.
@@ -58,6 +72,21 @@ class DataCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    async def get_user(self, guild_id, user_id):
+        command = "SELECT info FROM user_data WHERE guild_id = {} and user_id = {};"
+        command = command.format(guild_id, user_id)
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            row = con.fetchone()
+        if row is not None:
+            return row['info']
+        return row
+
+    async def update_user(self, guild_id, user_id, info):
+        command = "UPDATE user_data SET info = $${2}$$ WHERE guild_id = {0} and " \
+                  "user_id = {1};"
+        command = command.format(guild_id, user_id, json.dumps(info))
+
     @commands.command(name="whoami")
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -72,8 +101,7 @@ class DataCommands(commands.Cog):
             return
 
         id = ctx.message.author.id
-        db = Database()
-        data = db.get_user(str(ctx.guild.id), str(id))
+        data = await self.get_user(ctx.guild.id, id)
 
         if data is None:
             embed = discord.Embed(
@@ -108,8 +136,7 @@ class DataCommands(commands.Cog):
             await ctx.send_help('whois')
             return
 
-        db = Database()
-        data = db.get_user(str(ctx.guild.id), str(user.id))
+        data = await self.get_user(ctx.guild.id, user.id)
 
         if data is None:
             embed = discord.Embed(
@@ -175,12 +202,11 @@ class DataCommands(commands.Cog):
         if not answer:
             return await ctx.send("Your response has been trashed.")
 
-        db = Database()
-        user_data = db.get_user(str(ctx.guild.id), str(member.id))
+        user_data = await self.get_user(ctx.guild.id, member.id)
         if "fields" not in user_data:
             user_data["fields"] = {}
         user_data["fields"][field] = data
-        db.update_user(user_data, str(member.id), str(ctx.guild.id))
+        await self.update_user(ctx.guild.id, member.id, user_data)
         log = await ctx.bot.get_log_channel(ctx.guild)
 
         await ctx.send(f"Edited your {field}!")
@@ -232,12 +258,11 @@ class DataCommands(commands.Cog):
         if not answer:
             return await ctx.send("Your response has been trashed.")
 
-        db = Database()
-        user_data = db.get_user(str(ctx.guild.id), str(member.id))
+        user_data = await self.get_user(ctx.guild.id, member.id)
         if "fields" not in user_data:
             user_data["fields"] = {}
         user_data["fields"][field] = data
-        db.update_user(user_data, str(member.id), str(ctx.guild.id))
+        await self.update_user(ctx.guild.id, member.id, user_data)
         log = await ctx.bot.get_log_channel(ctx.guild)
 
         await ctx.send(f"Edited your {field}!")

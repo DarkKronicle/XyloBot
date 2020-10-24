@@ -933,11 +933,12 @@ class Verify(commands.Cog):
 
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
+        insert = "INSERT INTO user_data(guild_id, user_id, info) " \
+                 "VALUES({0}, {1}, $${2}$$);"
+        insert = insert.format(guild.id, member.id, json.dumps(info))
 
         async with db.MaybeAcquire() as con:
-            con.execute(command)
-
-        dab.add_user(info, str(member.id), str(guild.id))
+            con.execute(command + "\n" + insert)
 
         join = ConfigData.join
         messages = join.data["messages"]
