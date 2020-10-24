@@ -58,12 +58,32 @@ class FilterType(enum.Enum):
     # Filter: BRO   Example: WHY BRO??   Result: False
     insensitive_only = 3
 
+    @classmethod
+    def human_readable(cls, type):
+        if type == FilterType.sensitive_any:
+            return "Found anywhere, case sensitive."
+        if type == FilterType.insensitive_any:
+            return "Found anywhere, case insensitive."
+        if type == FilterType.sensitive_only:
+            return "Only filter, case sensitive."
+        if type == FilterType.insensitive_only:
+            return "Only filter, case insensitive."
+        return "Error"
+
 
 class ReactionType(enum.Enum):
     # React by using reactions
     reaction = 0
     # React using text.
     text = 1
+
+    @classmethod
+    def human_readable(cls, type):
+        if type == ReactionType.reaction:
+            return "Emoji Reaction."
+        if type == ReactionType.text:
+            return "Separate message."
+        return "Error"
 
 
 class AutoReactionConfig:
@@ -84,7 +104,7 @@ class AutoReactionConfig:
             self.uses = self.uses + 1
 
         def get_data(self):
-            if self.rtype == ReactionType.reaction:
+            if self.reaction_type == ReactionType.reaction:
                 return self.data.split(',')
             return self.data
 
@@ -99,7 +119,7 @@ class AutoReactionConfig:
                 if self.filter in message:
                     return True
             elif f == FilterType.insensitive_any:
-                if self.filter in message:
+                if self.filter.lower() in message.lower():
                     return True
             elif f == FilterType.sensitive_only:
                 if self.filter == message:
@@ -289,7 +309,7 @@ class AutoReactions(commands.Cog):
         reactions = await self.get_autoreactions(ctx.guild.id)
         if len(reactions.reactions) == 0:
             return await ctx.send("This guild currently has no auto reactions.")
-        message = ""
+        message = f"Current reactions in this guild. Use `{ctx.prefix}ar <reaction_name>` to view more information."
         for r in reactions.reactions:
             message = message + f"`{r.name}`\n"
         await ctx.send(message)
@@ -347,7 +367,7 @@ class AutoReactions(commands.Cog):
         data = await ctx.ask("What data should I respond with? If it's reactions it has to be emojis. (Split with spaces)")
         if data is None:
             return await ctx.timeout()
-        if rtype == ReactionType.reaction:
+        if ReactionType(rtype) == ReactionType.reaction:
             split = data.split(' ')
             emojis = []
             for s in split:
@@ -388,7 +408,8 @@ class AutoReactions(commands.Cog):
             title=f"AutoReaction: {data.name}",
             colour=discord.Colour.gold()
         )
-        message = f"Filter Type: `{str(data.ftype)}` Filter: `{data.filter}`\nResult Type: `{str(data.rtype)}` Result Data: `{data.data}`"
+        message = f"Filter Type: `{FilterType.human_readable(data.filter_type)}`\nFilter: `{data.filter}`\nResult " \
+                  f"Type: `{ReactionType.human_readable(data.reaction_type)}`\nResult Data: `{data.data}` "
         embed.description = message
         return embed
 
