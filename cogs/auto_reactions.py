@@ -183,49 +183,6 @@ class AutoReactionConfig:
                 await message.channel.send(t)
 
 
-class TextType(enum.Enum):
-    command = "command",
-    only = "only",
-    anywhere = "anywhere"
-
-
-class AutoReaction:
-
-    def __init__(self, trigger: str, reaction: list, aliases: list, case: bool):
-        self.trigger = trigger
-        self.reaction = reaction
-        self.aliases = aliases
-        self.case = case
-
-
-class AutoText:
-
-    def __init__(self, trigger: str, text: str, aliases: list, case: bool, texttype: str, files: list):
-        self.trigger = trigger
-        self.text = text
-        self.aliases = aliases
-        self.case = case
-        self.files = files
-        if texttype in "only":
-            self.texttype = TextType.only
-        elif texttype in "command":
-            self.texttype = TextType.command
-        else:
-            self.texttype = TextType.anywhere
-
-    async def send(self, message: discord.Message):
-        file_list = []
-        if len(self.files) > 0:
-            for f in self.files:
-                file = await get_file_from_image(f, "content.png")
-                if file is not None:
-                    file_list.append(file)
-        if len(file_list) > 0:
-            await message.channel.send(content=self.text, files=file_list)
-        else:
-            await message.channel.send(self.text)
-
-
 class AutoReactionName(commands.Converter):
     async def convert(self, ctx: Context, argument):
         ar = ctx.bot.get_cog('AutoReactions')
@@ -248,23 +205,6 @@ class AutoReactions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bulk_uses = {}
-
-    autoreactions = ConfigData.autoreactions
-    reactions = []
-    texts = []
-    config_reactions = autoreactions.data["reactions"]
-    config_text = autoreactions.data["text"]
-
-    for react in config_reactions:
-        data = config_reactions[react]
-        reactions.append(
-            AutoReaction(react, get_keys(data, "emojis"), get_keys(data, "aliases"), get_keys(data, "case")))
-
-    for text in config_text:
-        data = config_text[text]
-        texts.append(AutoText(text, get_keys(data, "text"), get_keys(data, "aliases"), get_keys(data, "case"),
-                              get_keys(data, "type"), get_keys(data, "files")))
-        # texts.append(AutoText(text, data["text"], data["aliases"], data["case"], data["type"], data["files"]))
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -416,7 +356,7 @@ class AutoReactions(commands.Cog):
             if len(emojis) > 10:
                 return await ctx.send("Sorry, you can only add 10 emojis for a single autoreaction.")
 
-        final = AutoReactionConfig.ReactionData(name, filter, data, ftype=ftype, rtype=rtype)
+        final = AutoReactionConfig.ReactionData(0, name, filter, data, ftype=ftype, rtype=rtype)
         embed = await self.get_about_embed(final)
         result = await ctx.prompt("Does this look right?", embed=embed)
         if result is None:
