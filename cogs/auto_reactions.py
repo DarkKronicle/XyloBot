@@ -104,7 +104,7 @@ class AutoReactionConfig:
                 if self.filter.lower() == message.lower():
                     return True
             else:
-                if self.filter == message.lower():
+                if self.filter.lower() == message.lower():
                     return True
 
             return False
@@ -124,6 +124,7 @@ class AutoReactionConfig:
         }
         for reaction in self.reactions:
             if reaction.filtered(message):
+                print("Should react...")
                 reaction.add()
                 if reaction.rtype == ReactionType.reaction:
                     reacts["emojis"].extend(reaction.get_data())
@@ -282,7 +283,7 @@ class AutoReactions(commands.Cog):
         message = ""
         for r in reactions.reactions:
             message = message + f"`{r.name}`\n"
-        await ctx.send("message")
+        await ctx.send(message)
 
     @commands.group(name="!autoreactions", aliases=["!autoreaction", "!ar"])
     @commands.guild_only()
@@ -311,17 +312,17 @@ class AutoReactions(commands.Cog):
                 return await ctx.send("There is already a reaction named that in this guild!")
         name = name.replace("$", r"\$")
 
-        ftype = await ctx.ask("What type of filter will this be?\n**1.** Case insensitive and can be found anywhere."
-                              "\n**2.** Case sensitive and can be found anywhere."
-                              "\n**3.** Case insensitive and it has to only be that text."
-                              "\n**4.** Case sensitive and it has to only be that text.")
+        ftype = await ctx.ask("What type of filter will this be?\n**0.** Case insensitive and can be found anywhere."
+                              "\n**1.** Case sensitive and can be found anywhere."
+                              "\n**2.** Case insensitive and it has to only be that text."
+                              "\n**3.** Case sensitive and it has to only be that text.")
         if ftype is None:
             return await ctx.timeout()
         try:
             ftype = int(ftype)
         except ValueError:
             return await ctx.send("You need to specify a number from 1-4.")
-        if ftype > 4 or ftype < 0:
+        if ftype > 3 or ftype < 0:
             return await ctx.send("You need to specify a number from 1-4.")
 
         filter = await ctx.ask("What should I look for? This can be 40 characters long.")
@@ -358,6 +359,7 @@ class AutoReactions(commands.Cog):
             return await ctx.send("Ok, I won't add it!")
 
         await self.add_reaction(ctx.guild.id, final)
+        await ctx.send("Added reaction!")
 
     @config_autoreactions.command(name="delete")
     async def delete_ar(self, ctx: Context, ar: AutoReactionName = None):
