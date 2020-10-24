@@ -317,6 +317,9 @@ class AutoReactions(commands.Cog):
     @commands.guild_only()
     @checks.is_mod()
     async def config_autoreactions(self, ctx: Context):
+        """
+        Mess around with autoreactions and set them up!
+        """
         if ctx.invoked_subcommand is None:
             await ctx.send_help('!autoreactions')
 
@@ -381,6 +384,8 @@ class AutoReactions(commands.Cog):
                 if e is not None:
                     emojis.append(f"<:{e.name}:{e.id}>")
             data = ','.join(emojis)
+            if len(emojis) > 10:
+                return await ctx.send("Sorry, you can only add 10 emojis for a single autoreaction.")
 
         final = AutoReactionConfig.ReactionData(name, filter, data, ftype=ftype, rtype=rtype)
         embed = await self.get_about_embed(final)
