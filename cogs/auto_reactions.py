@@ -185,6 +185,20 @@ class AutoText:
             await message.channel.send(self.text)
 
 
+class AutoReactionName(commands.Converter):
+    async def convert(self, ctx: Context, argument):
+        ar = ctx.bot.get_cog('AutoReactions')
+        if ar is None:
+            return None
+
+        reactions: AutoReactionConfig = await ar.get_autoreactions(ctx.guild.id)
+        for r in reactions.reactions:
+            if argument.lower() == r.name.lower():
+                return r
+
+        return None
+
+
 class AutoReactions(commands.Cog):
     """
     Emojis Xylo automatically reacts to.
@@ -219,22 +233,15 @@ class AutoReactions(commands.Cog):
             rows = con.fetchall()
         return AutoReactionConfig(guild_id, rows)
 
-    async def add_reaction(self, guild_id, data: AutoReactionConfig.ReactionData, *, max_amount=10):
+    async def add_reaction(self, guild_id, data: AutoReactionConfig.ReactionData):
         """
         Returns False if over max, None if it failed.
         """
-        reacts = await self.get_autoreactions(guild_id)
-        if len(reacts.reactions) >= max_amount:
-            return False
-        for r in reacts.reactions:
-            if r.name.lower() == data.name.lower():
-                return None
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES (" \
                  f"{guild_id}, $${data.name}$$, $${data.filter}$$, {data.ftype}, $${data.data}$$, {data.rtype});"
         async with db.MaybeAcquire() as con:
             con.execute(insert)
         self.get_autoreactions.invalidate(self, guild_id)
-        return True
 
     async def remove_reaction(self, guild_id, name):
         command = "DELETE FROM auto_reactions WHERE guild_id={0} AND name={1};"
@@ -260,21 +267,22 @@ class AutoReactions(commands.Cog):
 
         await reactions.react(message)
 
-    @commands.command(name="autoreactions")
+    @commands.command(name="autoreactions", aliases=["ar", "autoreaction"])
     @commands.guild_only()
-    async def autoreaction(self, ctx: commands.Context):
+    async def autoreaction(self, ctx: commands.Context, autoreaction: AutoReactionName = None):
         """
         View current AutoReactions
         """
-        embed = discord.Embed(
-            title="Xylo Auto Reactions",
-            colour=discord.Colour.green()
-        )
-        for reaction in self.reactions:
-            value = " ".join(reaction.reaction)
-            embed.add_field(name=reaction.trigger, value=value, inline=True)
-
-        await ctx.send(embed=embed)
+        if autoreaction is not None:
+            embed = await self.get_about_embed(autoreaction)
+            return await ctx.send(embed=embed)
+        reactions = await self.get_autoreactions(ctx.guild.id)
+        if len(reactions.reactions) == 0:
+            return await ctx.send("This guild currently has no auto reactions.")
+        message = ""
+        for r in reactions.reactions:
+            message = message + f"`{r.name}`\n"
+        await ctx.send("message")
 
     @commands.group(name="!autoreactions", aliases=["!autoreaction", "!ar"])
     @commands.guild_only()
@@ -291,6 +299,10 @@ class AutoReactions(commands.Cog):
         Setup wizard for a new auto reaction.
         """
         reacts = await self.get_autoreactions(ctx.guild.id)
+        if len(reacts.reactions) >= 10:
+            return await ctx.send("You already have the maximum amount of auto reactions (10). You can delete some to "
+                                  "make room for more using "
+                                  f"`{ctx.prefix}!autoreactions delete`.")
         name = await ctx.ask("What name will the new auto reaction have?")
         if name is None:
             return await ctx.timeout()
@@ -340,6 +352,25 @@ class AutoReactions(commands.Cog):
         final = AutoReactionConfig.ReactionData(name, filter, data, ftype=ftype, rtype=rtype)
         embed = await self.get_about_embed(final)
         result = await ctx.prompt("Does this look right?", embed=embed)
+        if result is None:
+            return await ctx.timeout()
+        if not result:
+            return await ctx.send("Ok, I won't add it!")
+
+        await self.add_reaction(ctx.guild.id, final)
+
+    @config_autoreactions.command(name="delete")
+    async def delete_ar(self, ctx: Context, ar: AutoReactionName = None):
+        if ar is None:
+            return await ctx.send("Please specify a correct autoreaction.")
+        embed = await self.get_about_embed(ar)
+        yes = await ctx.prompt("Are you sure you want to delete this?", embed=embed)
+        if yes is None:
+            return await ctx.timeout()
+        if not yes:
+            return await ctx.send("Cancelled")
+        await self.remove_reaction(ctx.guild.id, ar.name)
+        await ctx.send("Removed")
 
     async def get_about_embed(self, data: AutoReactionConfig.ReactionData):
         embed = discord.Embed(
