@@ -180,6 +180,9 @@ class XyloBot(commands.Bot):
     # https://github.com/Rapptz/RoboDanny/blob/7cd472ca021e9e166959e91a7ff64036474ea46c/bot.py#L190
     # Wow, amazing
     async def process_commands(self, message):
+        if message.author.bot:
+            return
+
         ctx: Context = await self.get_context(message, cls=Context)
 
         if ctx.command is None:
