@@ -217,12 +217,12 @@ class AutoReactions(commands.Cog):
             rows = con.fetchall()
         return AutoReactionConfig(guild_id, rows)
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=1)
     async def update_usage(self):
         print(json.dumps(self.bulk_uses, indent=4))
         if len(self.bulk_uses) != 0:
             command = "UPDATE auto_reactions AS x set id = x2.id, uses = x2.uses FROM (VALUES {0}) AS x2(id, " \
-                      "uses) WHERE x.id = a.id;"
+                      "uses) WHERE x.id = x2.id;"
             val = "({0}, {1})"
             vals = []
             for rid in self.bulk_uses:
