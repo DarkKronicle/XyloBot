@@ -99,7 +99,7 @@ class AutoReactionConfig:
                 if self.filter in message:
                     return True
             elif f == FilterType.insensitive_any:
-                if self.filter() in message():
+                if self.filter in message:
                     return True
             elif f == FilterType.sensitive_only:
                 if self.filter == message:
