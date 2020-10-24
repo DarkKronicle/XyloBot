@@ -153,7 +153,6 @@ class AutoReactionConfig:
         }
         for reaction in self.reactions:
             if reaction.filtered(message):
-                print("Should react...")
                 reaction.add()
                 if reaction.reaction_type == ReactionType.reaction:
                     reacts["emojis"].extend(reaction.get_data())
@@ -311,7 +310,7 @@ class AutoReactions(commands.Cog):
             return await ctx.send("This guild currently has no auto reactions.")
         message = f"Current reactions in this guild. Use `{ctx.prefix}ar <reaction_name>` to view more information."
         for r in reactions.reactions:
-            message = message + f"`{r.name}`\n"
+            message = message + f"\n`{r.name}`"
         await ctx.send(message)
 
     @commands.group(name="!autoreactions", aliases=["!autoreaction", "!ar"])
@@ -374,7 +373,11 @@ class AutoReactions(commands.Cog):
                 e = await StandardEmoji().convert(ctx, s)
                 if e is not None:
                     emojis.append(e)
-                e = await commands.EmojiConverter().convert(ctx, s)
+                    continue
+                try:
+                    e = await commands.EmojiConverter().convert(ctx, s)
+                except commands.EmojiNotFound:
+                    e = None
                 if e is not None:
                     emojis.append(f"<:{e.name}:{e.id}>")
             data = ' '.join(emojis)
