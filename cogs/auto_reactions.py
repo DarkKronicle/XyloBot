@@ -276,7 +276,7 @@ class AutoReactions(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.group(name="!autoreactions", ["!autoreaction", "!ar"])
+    @commands.group(name="!autoreactions", aliases=["!autoreaction", "!ar"])
     @commands.guild_only()
     @checks.is_mod()
     async def config_autoreactions(self, ctx: Context):
