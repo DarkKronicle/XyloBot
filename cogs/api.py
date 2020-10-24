@@ -72,6 +72,7 @@ class LineCount:
     @check_request
     def format_random(self):
         cat: dict = random.choice(self.data)
+        cat = cat.copy()
         language = cat["language"]
         if language == "Total":
             language = "total"

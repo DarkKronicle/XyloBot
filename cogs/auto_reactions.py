@@ -297,7 +297,7 @@ class AutoReactions(commands.Cog):
         for r in reacts.reactions:
             if r.name.lower() == name.lower():
                 return await ctx.send("There is already a reaction named that in this guild!")
-        name = name.replaceall("$", r"\$")
+        name = name.replace("$", r"\$")
 
         ftype = await ctx.ask("What type of filter will this be?\n**1.** Case insensitive and can be found anywhere."
                               "\n**2.** Case sensitive and can be found anywhere."
