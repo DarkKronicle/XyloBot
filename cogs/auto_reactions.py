@@ -94,20 +94,29 @@ class AutoReactionConfig:
             :param message: The message to check if it will filter.
             :return: True if it matches, False if not.
             """
-            if self.ftype == FilterType.sensitive_any:
-                if self.filter.lower() in message.lower():
-                    return True
-            elif self.ftype == FilterType.insensitive_any:
+            f = self.filter_type
+            if f == FilterType.sensitive_any:
                 if self.filter in message:
                     return True
-            elif self.ftype == FilterType.sensitive_only:
-                if self.filter.lower() == message.lower():
+            elif f == FilterType.insensitive_any:
+                if self.filter() in message():
+                    return True
+            elif f == FilterType.sensitive_only:
+                if self.filter == message:
                     return True
             else:
                 if self.filter.lower() == message.lower():
                     return True
 
             return False
+
+        @property
+        def reaction_type(self):
+            return ReactionType(self.rtype)
+
+        @property
+        def filter_type(self):
+            return FilterType(self.ftype)
 
     def __init__(self, guild_id, data):
         self.reactions = []
@@ -126,9 +135,9 @@ class AutoReactionConfig:
             if reaction.filtered(message):
                 print("Should react...")
                 reaction.add()
-                if reaction.rtype == ReactionType.reaction:
+                if reaction.reaction_type == ReactionType.reaction:
                     reacts["emojis"].extend(reaction.get_data())
-                if reaction.rtype == ReactionType.text:
+                if reaction.reaction_type == ReactionType.text:
                     reacts["text"].append(reaction.get_data())
 
         return reacts
@@ -312,10 +321,10 @@ class AutoReactions(commands.Cog):
                 return await ctx.send("There is already a reaction named that in this guild!")
         name = name.replace("$", r"\$")
 
-        ftype = await ctx.ask("What type of filter will this be?\n**0.** Case insensitive and can be found anywhere."
-                              "\n**1.** Case sensitive and can be found anywhere."
-                              "\n**2.** Case insensitive and it has to only be that text."
-                              "\n**3.** Case sensitive and it has to only be that text.")
+        ftype = await ctx.ask("What type of filter will this be?\n**0.** Case sensitive and can be found anywhere."
+                              "\n**1.** Case insensitive and can be found anywhere."
+                              "\n**2.** Case sensitive and it has to only be that text."
+                              "\n**3.** Case insensitive and it has to only be that text.")
         if ftype is None:
             return await ctx.timeout()
         try:
