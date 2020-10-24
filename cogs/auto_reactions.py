@@ -205,6 +205,7 @@ class AutoReactions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bulk_uses = {}
+        self.update_usage.start()
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):

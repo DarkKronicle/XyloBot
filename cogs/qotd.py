@@ -84,11 +84,6 @@ class QOTD(commands.Cog):
         self.queue_next_question()
         await channel.send(embed=message)
 
-    @tasks.loop(hours=24)
-    async def auto_qotd(self):
-        if self.go:
-            await self.send_qotd()
-
     def __init__(self, bot):
         self.bot: XyloBot = bot
         self.bot.add_loop("qotd", self.send_qotd)
