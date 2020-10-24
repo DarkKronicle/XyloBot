@@ -64,7 +64,6 @@ class Database:
                 conn.close()
 
         if row is None:
-            self.default_settings(guild_id)
             return ConfigData.defaultsettings.data
         else:
             data = row[0]

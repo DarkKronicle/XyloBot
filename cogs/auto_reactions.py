@@ -3,6 +3,8 @@ import re
 
 import typing
 
+from discord.ext import tasks
+
 from storage import db
 from util import storage_cache, checks
 from util.context import Context
@@ -92,16 +94,21 @@ class AutoReactionConfig:
         """
         Stores how it will react to data.
         """
-        def __init__(self, name, filter, data, *, ftype=FilterType.sensitive_any, rtype=ReactionType.reaction, uses=0):
+        def __init__(self, id, name, filter, data, *, ftype=FilterType.sensitive_any, rtype=ReactionType.reaction, uses=0):
+            self.id = id
             self.name = name
             self.ftype = ftype
             self.filter = filter
             self.data = data
             self.rtype = rtype
             self.uses = uses
+            self._uses = uses
 
         def add(self):
-            self.uses = self.uses + 1
+            self._uses = self._uses + 1
+
+        def get_uses(self):
+            return self.uses + self._uses
 
         def get_data(self):
             if self.reaction_type == ReactionType.reaction:
@@ -144,15 +151,20 @@ class AutoReactionConfig:
         if len(data) == 0:
             return
         for row in data:
-            self.reactions.append(self.ReactionData(row['name'], row['filter'], row['reaction'], ftype=row['filter_type'], rtype=row['reaction_type']))
+            self.reactions.append(
+                self.ReactionData(row['id'], row['name'], row['filter'], row['reaction'],
+                                  ftype=row['filter_type'], rtype=row['reaction_type'], uses=row['uses'])
+            )
 
-    def get_reactions(self, message):
+    def get_reactions(self, message, *, stats=None):
         reacts = {
             "emojis": [],
             "text": []
         }
         for reaction in self.reactions:
             if reaction.filtered(message):
+                if stats is not None:
+                    stats[reaction.id] = reaction.get_uses()
                 reaction.add()
                 if reaction.reaction_type == ReactionType.reaction:
                     reacts["emojis"].extend(reaction.get_data())
@@ -161,8 +173,8 @@ class AutoReactionConfig:
 
         return reacts
 
-    async def react(self, message: discord.Message):
-        reacts = self.get_reactions(message.content)
+    async def react(self, message: discord.Message, *, stats=None):
+        reacts = self.get_reactions(message.content, stats=stats)
         if len(reacts["emojis"]) != 0:
             for e in reacts["emojis"]:
                 await message.add_reaction(e)
@@ -235,6 +247,7 @@ class AutoReactions(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.bulk_uses = {}
 
     autoreactions = ConfigData.autoreactions
     reactions = []
@@ -255,12 +268,28 @@ class AutoReactions(commands.Cog):
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
-        command = "SELECT name, filter, filter_type, reaction, reaction_type FROM auto_reactions WHERE guild_id={0};"
+        command = "SELECT id, name, filter, filter_type, reaction, reaction_type, uses FROM auto_reactions WHERE " \
+                  "guild_id={0}; "
         command = command.format(guild_id)
         async with db.MaybeAcquire() as con:
             con.execute(command)
             rows = con.fetchall()
         return AutoReactionConfig(guild_id, rows)
+
+    @tasks.loop(minutes=5)
+    async def update_usage(self):
+        if len(self.bulk_uses) != 0:
+            command = "UPDATE auto_reactions AS a set xid = x.id, xuses = x.uses FROM (VALUES {0}) AS x(xid, " \
+                      "xuses) WHERE x.xid = a.xid; "
+            val = "({0}, {1})"
+            vals = []
+            for rid in self.bulk_uses:
+                uses = self.bulk_uses[rid]
+                vals.append(val.format(rid, uses))
+            command = command.format(', '.join(vals))
+            async with db.MaybeAcquire() as con:
+                con.execute(command)
+            self.bulk_uses = {}
 
     async def add_reaction(self, guild_id, data: AutoReactionConfig.ReactionData):
         """
@@ -294,7 +323,7 @@ class AutoReactions(commands.Cog):
         if len(reactions.reactions) == 0:
             return
 
-        await reactions.react(message)
+        await reactions.react(message, stats=self.bulk_uses)
 
     @commands.command(name="autoreactions", aliases=["ar", "autoreaction"])
     @commands.guild_only()
@@ -425,7 +454,7 @@ class AutoReactions(commands.Cog):
             colour=discord.Colour.gold()
         )
         message = f"Filter Type: `{FilterType.human_readable(data.filter_type)}`\nFilter: `{data.filter}`\nResult " \
-                  f"Type: `{ReactionType.human_readable(data.reaction_type)}`\nResult Data: `{data.data}` "
+                  f"Type: `{ReactionType.human_readable(data.reaction_type)}`\nResult Data: `{data.data}`\nUses: `{data.get_uses()}`"
         embed.description = message
         return embed
 

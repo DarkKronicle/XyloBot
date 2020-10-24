@@ -4,7 +4,6 @@ from storage.json_reader import *
 class ConfigData:
     questions = JSONReader("data/questions.json")
     join = JSONReader("data/join.json")
-    autoreactions = JSONReader("data/autotext.json")
     idstorage = JSONReader("data/idstorage.json")
     rolestorage = JSONReader("data/roles.json")
     defaultsettings = JSONReader("data/guildsettings.json")
