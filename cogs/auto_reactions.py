@@ -218,9 +218,10 @@ class AutoReactions(commands.Cog):
 
     @tasks.loop(minutes=5)
     async def update_usage(self):
+        print(json.dumps(self.bulk_uses, indent=4))
         if len(self.bulk_uses) != 0:
-            command = "UPDATE auto_reactions AS a set xid = x.id, xuses = x.uses FROM (VALUES {0}) AS x(xid, " \
-                      "xuses) WHERE x.xid = a.xid; "
+            command = "UPDATE auto_reactions AS x set id = x2.id, uses = x2.uses FROM (VALUES {0}) AS x2(id, " \
+                      "uses) WHERE x.id = a.id;"
             val = "({0}, {1})"
             vals = []
             for rid in self.bulk_uses:
