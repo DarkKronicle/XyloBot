@@ -273,7 +273,7 @@ class AutoReactions(commands.Cog):
         self.get_autoreactions.invalidate(self, guild_id)
 
     async def remove_reaction(self, guild_id, name):
-        command = "DELETE FROM auto_reactions WHERE guild_id={0} AND name={1};"
+        command = "DELETE FROM auto_reactions WHERE guild_id={0} AND name=$${1}$$;"
         command = command.format(guild_id, name)
         async with db.MaybeAcquire() as con:
             con.execute(command)
@@ -380,7 +380,7 @@ class AutoReactions(commands.Cog):
                     e = None
                 if e is not None:
                     emojis.append(f"<:{e.name}:{e.id}>")
-            data = ' '.join(emojis)
+            data = ','.join(emojis)
 
         final = AutoReactionConfig.ReactionData(name, filter, data, ftype=ftype, rtype=rtype)
         embed = await self.get_about_embed(final)
@@ -389,6 +389,14 @@ class AutoReactions(commands.Cog):
             return await ctx.timeout()
         if not result:
             return await ctx.send("Ok, I won't add it!")
+
+        if final.reaction_type == ReactionType.reaction:
+            try:
+                for e in final.get_data():
+                    await ctx.message.add_reaction(e)
+            except discord.errors.HTTPException:
+                return await ctx.send("Looks like I couldn't find an emoji in there. Please contact my owner if you "
+                                      "did everything correctly.")
 
         await self.add_reaction(ctx.guild.id, final)
         await ctx.send("Added reaction!")
