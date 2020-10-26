@@ -446,6 +446,7 @@ class Utility(commands.Cog):
         embed.set_author(name=str(owner), icon_url=owner.avatar_url)
         message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice Channels: `{voice}`\n\nUptime: `{uptime}`"
         embed.description = message
+        embed.add_field(name="Support Server", value="https://discord.gg/X2Kmd7t")
         await ctx.send(embed=embed)
 
 

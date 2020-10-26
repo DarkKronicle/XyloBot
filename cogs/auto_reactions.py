@@ -322,9 +322,9 @@ class AutoReactions(commands.Cog):
         try:
             ftype = int(ftype)
         except ValueError:
-            return await ctx.send("You need to specify a number from 1-4.")
+            return await ctx.send("You need to specify a number from 0-3.")
         if ftype > 3 or ftype < 0:
-            return await ctx.send("You need to specify a number from 1-4.")
+            return await ctx.send("You need to specify a number from 0-3.")
 
         filter = await ctx.ask("What should I look for? This can be 40 characters long.")
         if filter is None:
@@ -333,8 +333,19 @@ class AutoReactions(commands.Cog):
             return await ctx.send("Too long!")
         filter = filter.replace("$", r"\$")
 
-        # TODO Eventually add the ability to add text to this... I have everything in place for it.
-        rtype = 0
+        rtype = await ctx.ask("How should I react?"
+                              "\n**0.** Use emojis to add a reaction."
+                              "\n**1.** Respond with a message."
+                              )
+        if rtype is None:
+            return await ctx.timeout()
+        try:
+            rtype = int(rtype)
+        except ValueError:
+            return await ctx.send("You need to specify a number from 0-1.")
+        if rtype > 3 or rtype < 0:
+            return await ctx.send("You need to specify a number from 0-1.")
+
 
         data = await ctx.ask("What data should I respond with? If it's reactions it has to be emojis. (Split with spaces)")
         if data is None:
@@ -356,6 +367,9 @@ class AutoReactions(commands.Cog):
             data = ','.join(emojis)
             if len(emojis) > 10:
                 return await ctx.send("Sorry, you can only add 10 emojis for a single autoreaction.")
+
+        if len(data) > 1900:
+            return await ctx.send("Sorry, the data is too long. If you're using reactions maybe do smaller custom emojis.")
 
         final = AutoReactionConfig.ReactionData(0, name, filter, data, ftype=ftype, rtype=rtype)
         embed = await self.get_about_embed(final)
