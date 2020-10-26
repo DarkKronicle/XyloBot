@@ -34,7 +34,7 @@ async def check_guild_permissions(ctx, perms, *, check=all):
         return True
 
     if ctx.guild is None:
-        return False
+        return True
 
     resolved = ctx.author.guild_permissions
     return check(getattr(resolved, name, None) == value for name, value in perms.items())
@@ -49,6 +49,6 @@ def is_admin():
 
 def is_mod():
     async def predicate(ctx):
-        return await check_guild_permissions(ctx, {'manage_server': True})
+        return await check_guild_permissions(ctx, {'manage_server': True, 'administrator': True}, check=any)
 
     return commands.check(predicate)
