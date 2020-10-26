@@ -38,7 +38,7 @@ class Clip(commands.Cog):
         Store data inside of Xylo for future use!
         """
         if len(args) == 0:
-            await ctx.send_help('clip')
+            return await ctx.send_help('clip')
         name = ' '.join(args)
         if not all(c in self.characters for c in name):
             return await ctx.send("You can only only use `<a-z> <0-9> - _ ! /` in the name.")
@@ -70,7 +70,7 @@ class Clip(commands.Cog):
         content = await ctx.raw_ask("What will this clip say?")
         if content is None:
             return await ctx.timeout()
-        content = await ctx.clean(content, escape_roles=True, escape_mentions=False)
+        content = await ctx.clean(message=content, escape_roles=True, escape_mentions=False)
         if len(content) > 2000:
             return await ctx.send("Too long!")
         command = "INSERT INTO clip_storage(user_id, name, content) VALUES ({0}, $comm${1}$comm$, $comm${2}$comm$)" \

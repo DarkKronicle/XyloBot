@@ -39,8 +39,12 @@ class CustomCleanContent(commands.Converter):
         self.escape_roles = escape_roles
         self.escape_everyone = escape_everyone
 
-    async def convert(self, ctx, argument):
-        message = ctx.message
+    async def convert(self, ctx, *, message=None):
+        if message is None:
+            message = ctx.message
+            argument = message.content
+        else:
+            argument = message.content
         transformations = {}
 
         if self.fix_channel_mentions and ctx.guild:
@@ -277,9 +281,9 @@ class Context(commands.Context):
         if self.connection is not None:
             self.connection.release()
 
-    async def clean(self, content, *, fix_channel_mentions=False, use_nicknames=False, escape_markdown=False,
+    async def clean(self, *, message=None, fix_channel_mentions=False, use_nicknames=False, escape_markdown=False,
                     escape_mentions=True, escape_roles=True):
         converter = CustomCleanContent(fix_channel_mentions=fix_channel_mentions, use_nicknames=use_nicknames,
                                        escape_markdown=escape_markdown, escape_mentions=escape_mentions,
                                        escape_roles=escape_roles)
-        return await converter.convert(self, content)
+        return await converter.convert(self, message=message)
