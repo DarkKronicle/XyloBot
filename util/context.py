@@ -53,11 +53,11 @@ class CustomCleanContent(commands.Converter):
         if self.use_nicknames and ctx.guild:
             def resolve_member(id, *, _get=ctx.guild.get_member):
                 m = _get(id)
-                return '@' + m.display_name if m else '@deleted-user'
+                return '@\u200b' + m.display_name if m else '@deleted-user'
         else:
             def resolve_member(id, *, _get=ctx.bot.get_user):
                 m = _get(id)
-                return '@' + m.name if m else '@deleted-user'
+                return '@\u200b' + m.name if m else '@deleted-user'
 
         if self.escape_mentions:
             transformations.update(
@@ -73,7 +73,7 @@ class CustomCleanContent(commands.Converter):
         if ctx.guild and self.escape_roles:
             def resolve_role(_id, *, _find=ctx.guild.get_role):
                 r = _find(_id)
-                return '@' + r.name if r else '@deleted-role'
+                return '@\u200b' + r.name if r else '@deleted-role'
 
             transformations.update(
                 ('<@&%s>' % role_id, resolve_role(role_id))
@@ -93,8 +93,8 @@ class CustomCleanContent(commands.Converter):
         if self.escape_mentions:
             return discord.utils.escape_mentions(result)
         if self.escape_everyone:
-            result = result.replace("@here", "@\u200b\\here")
-            result = result.replace("@everyone", "@\u200b\\everyone")
+            result = result.replace("@here", "@\u200b\\1here")
+            result = result.replace("@everyone", "@\u200b\\1everyone")
         return result
 
 
