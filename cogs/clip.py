@@ -67,10 +67,10 @@ class Clip(commands.Cog):
             return await ctx.send("You can only only use `<a-z> <0-9> - _ ! /` in the name.")
         if len(name) > 100:
             return await ctx.send("The name is too long!")
-        content = await ctx.raw_ask("What will this clip say?")
+        content = await ctx.ask("What will this clip say?")
         if content is None:
             return await ctx.timeout()
-        content = content.clean_content
+        content = await ctx.clean(content, escape_roles=True, escape_mentions=False)
         if len(content) > 2000:
             return await ctx.send("Too long!")
         command = "INSERT INTO clip_storage(user_id, name, content) VALUES ({0}, $comm${1}$comm$, $comm${2}$comm$)" \

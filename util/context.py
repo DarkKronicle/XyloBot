@@ -3,11 +3,93 @@ This class was heavily based off of https://github.com/Rapptz/RoboDanny/blob/7cd
 Rapptz is amazing.
 The code above was released under MIT license.
 """
+import re
 
+import discord
 from discord.ext import commands
 import asyncio
 
 from storage import db
+
+
+class CustomCleanContent(commands.Converter):
+    """
+    Taken and modified from original discord py code to allow for more control over what gets escaped.
+
+    Converts the argument to mention scrubbed version of
+    said content.
+
+    This behaves similarly to :attr:`~discord.Message.clean_content`.
+
+    Attributes
+    ------------
+    fix_channel_mentions: :class:`bool`
+        Whether to clean channel mentions.
+    use_nicknames: :class:`bool`
+        Whether to use nicknames when transforming mentions.
+    escape_markdown: :class:`bool`
+        Whether to also escape special markdown characters.
+    """
+
+    def __init__(self, *, fix_channel_mentions=False, use_nicknames=True, escape_markdown=False, escape_mentions=True, escape_roles=True):
+        self.fix_channel_mentions = fix_channel_mentions
+        self.use_nicknames = use_nicknames
+        self.escape_markdown = escape_markdown
+        self.escape_mentions = escape_mentions
+        self.escape_roles = escape_roles
+
+    async def convert(self, ctx, argument):
+        message = ctx.message
+        transformations = {}
+
+        if self.fix_channel_mentions and ctx.guild:
+            def resolve_channel(id, *, _get=ctx.guild.get_channel):
+                ch = _get(id)
+                return ('<#%s>' % id), ('#' + ch.name if ch else '#deleted-channel')
+
+            transformations.update(resolve_channel(channel) for channel in message.raw_channel_mentions)
+
+        if self.use_nicknames and ctx.guild:
+            def resolve_member(id, *, _get=ctx.guild.get_member):
+                m = _get(id)
+                return '@' + m.display_name if m else '@deleted-user'
+        else:
+            def resolve_member(id, *, _get=ctx.bot.get_user):
+                m = _get(id)
+                return '@' + m.name if m else '@deleted-user'
+
+        if self.escape_mentions:
+            transformations.update(
+                ('<@%s>' % member_id, resolve_member(member_id))
+                for member_id in message.raw_mentions
+            )
+
+            transformations.update(
+                ('<@!%s>' % member_id, resolve_member(member_id))
+                for member_id in message.raw_mentions
+            )
+
+        if ctx.guild and self.escape_roles:
+            def resolve_role(_id, *, _find=ctx.guild.get_role):
+                r = _find(_id)
+                return '@' + r.name if r else '@deleted-role'
+
+            transformations.update(
+                ('<@&%s>' % role_id, resolve_role(role_id))
+                for role_id in message.raw_role_mentions
+            )
+
+        def repl(obj):
+            return transformations.get(obj.group(0), '')
+
+        pattern = re.compile('|'.join(transformations.keys()))
+        result = pattern.sub(repl, argument)
+
+        if self.escape_markdown:
+            result = discord.utils.escape_markdown(result)
+
+        # Completely ensure no mentions escape:
+        return discord.utils.escape_mentions(result)
 
 
 class Context(commands.Context):
@@ -188,3 +270,10 @@ class Context(commands.Context):
     def release(self):
         if self.connection is not None:
             self.connection.release()
+
+    async def clean(self, content, *, fix_channel_mentions=False, use_nicknames=False, escape_markdown=False,
+                    escape_mentions=True, escape_roles=True):
+        converter = CustomCleanContent(fix_channel_mentions=fix_channel_mentions, use_nicknames=use_nicknames,
+                                       escape_markdown=escape_markdown, escape_mentions=escape_mentions,
+                                       escape_roles=escape_roles)
+        return await converter.convert(content)
