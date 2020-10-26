@@ -31,12 +31,13 @@ class CustomCleanContent(commands.Converter):
         Whether to also escape special markdown characters.
     """
 
-    def __init__(self, *, fix_channel_mentions=False, use_nicknames=True, escape_markdown=False, escape_mentions=True, escape_roles=True):
+    def __init__(self, *, fix_channel_mentions=False, use_nicknames=True, escape_markdown=False, escape_mentions=True, escape_roles=True, escape_everyone=True):
         self.fix_channel_mentions = fix_channel_mentions
         self.use_nicknames = use_nicknames
         self.escape_markdown = escape_markdown
         self.escape_mentions = escape_mentions
         self.escape_roles = escape_roles
+        self.escape_everyone = escape_everyone
 
     async def convert(self, ctx, argument):
         message = ctx.message
@@ -91,6 +92,9 @@ class CustomCleanContent(commands.Converter):
         # Completely ensure no mentions escape:
         if self.escape_mentions:
             return discord.utils.escape_mentions(result)
+        if self.escape_everyone:
+            result = result.replace("@here", r"\@here")
+            result = result.replace("@everyone", "\@everyone")
         return result
 
 
