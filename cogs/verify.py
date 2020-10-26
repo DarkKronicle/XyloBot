@@ -1000,6 +1000,7 @@ class Verify(commands.Cog):
         if member is None:
             await ctx.send("User not found!")
         command = "SELECT data FROM verify_queue WHERE guild_id = {0} and user_id = {1};"
+        command = command.format(str(guild.id), str(member.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
@@ -1032,6 +1033,7 @@ class Verify(commands.Cog):
         if member is None:
             await ctx.send("User not found!")
         command = "SELECT data FROM verify_queue WHERE guild_id = {0} and user_id = {1};"
+        command = command.format(str(guild.id), str(member.id))
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
