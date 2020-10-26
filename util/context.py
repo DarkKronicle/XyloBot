@@ -93,8 +93,8 @@ class CustomCleanContent(commands.Converter):
         if self.escape_mentions:
             return discord.utils.escape_mentions(result)
         if self.escape_everyone:
-            result = result.replace("@here", "@\u200b\\1here")
-            result = result.replace("@everyone", "@\u200b\\1everyone")
+            result = result.replace("@here", "@\u200bhere")
+            result = result.replace("@everyone", "@\u200beveryone")
         return result
 
 
