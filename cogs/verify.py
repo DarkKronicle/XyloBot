@@ -768,7 +768,6 @@ class Verify(commands.Cog):
         if current["step"]:
             return
 
-        await message.delete()
 
         # If there are no fields enabled we just let staff know that they actually do exist.
         if len(fields) == 0:
