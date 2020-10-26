@@ -999,7 +999,7 @@ class Verify(commands.Cog):
         member: discord.Member = guild.get_member_named(' '.join(args[0:]))
         if member is None:
             await ctx.send("User not found!")
-        command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
+        command = "SELECT data FROM verify_queue WHERE guild_id = {0} and user_id = {1};"
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
@@ -1031,7 +1031,7 @@ class Verify(commands.Cog):
         member: discord.Member = guild.get_member_named(' '.join(args[0:]))
         if member is None:
             await ctx.send("User not found!")
-        command = "SELECT data FROM verify_queue WHERE guild_id = $${0}$$ and user_id = $${1}$$;"
+        command = "SELECT data FROM verify_queue WHERE guild_id = {0} and user_id = {1};"
         async with db.MaybeAcquire() as con:
             con.execute(command)
             row = con.fetchone()
