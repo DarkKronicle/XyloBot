@@ -742,7 +742,7 @@ class Verify(commands.Cog):
         fields = get_true(settings.fields)
 
         # From here on out logic is a bit of a mess... but it works.
-        if self.is_done(message.author, message.guild):
+        if await self.is_done(message.author, message.guild):
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
