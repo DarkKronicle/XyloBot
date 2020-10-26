@@ -680,7 +680,8 @@ class Verify(commands.Cog):
     async def verify_queue(self, member: discord.Member, guild: discord.Guild):
         settings = await self.get_verify_config(guild.id)
         command = "INSERT INTO verify_queue(guild_id, user_id, data) " \
-                  "VALUES($${0}$$, $${1}$$, $${2}$$);"
+                  "VALUES($${0}$$, $${1}$$, $${2}$$) ON CONFLICT (guild_id, user_id) DO UPDATE SET data = " \
+                  "EXCLUDED.data; "
         command = command.format(str(guild.id), str(member.id),
                                  json.dumps(self.verifying[guild.id][member.id]['fields']))
         async with db.MaybeAcquire() as con:
@@ -739,6 +740,7 @@ class Verify(commands.Cog):
         if message.guild.id not in self.verifying:
             self.verifying[message.guild.id] = {}
 
+        await message.delete()
         fields = get_true(settings.fields)
 
         # From here on out logic is a bit of a mess... but it works.
