@@ -66,7 +66,7 @@ class Clip(commands.Cog):
             return await ctx.send("Too long!")
         command = "INSERT INTO clip_storage(user_id, name, content) VALUES ({0}, $comm${1}$comm$, $comm${2}$comm$)" \
                   "ON CONFLICT (user_id, name) DO UPDATE SET content = EXCLUDED.content;"
-        command = command.format(str(ctx.author.id, name, content))
+        command = command.format(str(ctx.author.id), name, content)
         amount = "SELECT COUNT(*) FROM clip_storage WHERE user_id={0};"
         amount = amount.format(ctx.author.id)
         async with db.MaybeAcquire() as con:
