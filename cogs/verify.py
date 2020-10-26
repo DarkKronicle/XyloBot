@@ -740,11 +740,11 @@ class Verify(commands.Cog):
         if message.guild.id not in self.verifying:
             self.verifying[message.guild.id] = {}
 
-        await message.delete()
         fields = get_true(settings.fields)
 
         # From here on out logic is a bit of a mess... but it works.
         if await self.is_done(message.author, message.guild):
+            await message.delete()
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
@@ -767,6 +767,8 @@ class Verify(commands.Cog):
         # Are they doing something with verification already.
         if current["step"]:
             return
+
+        await message.delete()
 
 
         # If there are no fields enabled we just let staff know that they actually do exist.
