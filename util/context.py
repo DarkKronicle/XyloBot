@@ -276,4 +276,4 @@ class Context(commands.Context):
         converter = CustomCleanContent(fix_channel_mentions=fix_channel_mentions, use_nicknames=use_nicknames,
                                        escape_markdown=escape_markdown, escape_mentions=escape_mentions,
                                        escape_roles=escape_roles)
-        return await converter.convert(content)
+        return await converter.convert(self, content)
