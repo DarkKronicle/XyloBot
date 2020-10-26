@@ -89,7 +89,9 @@ class CustomCleanContent(commands.Converter):
             result = discord.utils.escape_markdown(result)
 
         # Completely ensure no mentions escape:
-        return discord.utils.escape_mentions(result)
+        if self.escape_mentions:
+            return discord.utils.escape_mentions(result)
+        return result
 
 
 class Context(commands.Context):
