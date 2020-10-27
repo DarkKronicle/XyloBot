@@ -14,6 +14,7 @@ import discord
 import random
 from util.context import Context
 from cogs.help import Help
+import os
 
 
 async def get_prefix(dbot, message: discord.Message):
