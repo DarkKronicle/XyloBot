@@ -99,7 +99,7 @@ class Channels(commands.Cog):
     @qotd_cmd.command(name="info")
     @commands.guild_only()
     @checks.is_mod()
-    @commands.cooldown(rate=2, 10, type=commands.BucketType.guild)
+    @commands.cooldown(rate=2, per=10, type=commands.BucketType.guild)
     async def qotd_info(self, ctx: Context):
         """
         Sends information about QOTD on your guild.
