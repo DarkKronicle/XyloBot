@@ -88,7 +88,7 @@ class Channels(commands.Cog):
             return await ctx.send("Incorrect time format!")
         if dt.minute != 30 and dt.minute != 0:
             return await ctx.send("Time has to be divisible by 30.")
-        todel = await ctx.send("Time")
+        todel = await ctx.send(f"Time: {time}")
         command = "INSERT INTO qotd(guild_id, time) VALUES ({0}, $${1}$$) ON CONFLICT (guild_id) DO " \
                   "UPDATE SET " \
                   "time = $$EXCLUDED.time$$;"
