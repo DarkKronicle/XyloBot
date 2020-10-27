@@ -88,6 +88,8 @@ class Channels(commands.Cog):
             return await ctx.send("Incorrect time format!")
         if dt.minute != 30 and dt.minute != 0:
             return await ctx.send("Time has to be divisible by 30.")
+        if len(time) > 10:
+            return await ctx.send("Too long.")
         command = "INSERT INTO qotd(guild_id, time) VALUES ({0}, $${1}$$) ON CONFLICT (guild_id) DO " \
                   "UPDATE SET " \
                   "time = EXCLUDED.time;"
@@ -126,7 +128,8 @@ class Channels(commands.Cog):
         await ctx.send(embed=embed)
 
     async def send_qotd(self, time: datetime):
-        command = "SELECT * FROM qotd WHERE channel is NOT NULL;"
+        command = "SELECT * FROM qotd WHERE time=$${0}$$;"
+        command = command.format(time.strftime("%H:%M"))
         async with db.MaybeAcquire() as con:
             con.execute(command)
             rows = con.fetchall()
@@ -137,13 +140,6 @@ class Channels(commands.Cog):
             colour=discord.Colour.dark_blue()
         )
         for row in rows:
-            stime = row['time']
-            if stime is None:
-                return
-            try:
-                dt = datetime.strptime(stime, "%H:%M")
-            except ValueError:
-                continue
             guild = self.bot.get_guild(row['guild_id'])
             if guild is None:
                 continue
