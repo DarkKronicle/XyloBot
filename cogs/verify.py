@@ -929,7 +929,6 @@ class Verify(commands.Cog):
 
     async def verify_user(self, member: discord.Member, guild: discord.Guild, data):
         # TODO Still use Database() over here a lot...
-        dab = Database()
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
         info = {"fields": data}

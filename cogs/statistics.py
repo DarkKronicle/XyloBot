@@ -7,7 +7,7 @@ from discord.ext import commands
 from pyowm.weatherapi25.one_call import OneCall
 
 from util.context import Context
-from xylo_bot import XyloBot, Database
+from xylo_bot import XyloBot
 from pyowm.owm import OWM
 from pyowm.weatherapi25 import weather
 from pyowm.weatherapi25.weather_manager import WeatherManager
