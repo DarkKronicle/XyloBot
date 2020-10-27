@@ -88,14 +88,12 @@ class Channels(commands.Cog):
             return await ctx.send("Incorrect time format!")
         if dt.minute != 30 and dt.minute != 0:
             return await ctx.send("Time has to be divisible by 30.")
-        todel = await ctx.send(f"Time: {time}")
         command = "INSERT INTO qotd(guild_id, time) VALUES ({0}, $${1}$$) ON CONFLICT (guild_id) DO " \
                   "UPDATE SET " \
-                  "time = $$EXCLUDED.time$$;"
+                  "time = EXCLUDED.time;"
         command = command.format(ctx.guild.id, time)
         async with db.MaybeAcquire() as con:
             con.execute(command)
-        await todel.delete()
         await ctx.send(f"Time updated to `{time} MST`.")
 
     @qotd_cmd.command(name="info")
