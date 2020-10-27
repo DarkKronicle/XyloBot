@@ -304,7 +304,7 @@ class Verify(commands.Cog):
 
         command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, welcome_channel, unverified_role, " \
                   "roles, fields, " \
-                  "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}, $${7}$$); "
+                  "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, {6}, $${7}$$) ON CONFLICT (guild_id) DO NOTHING;"
         command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(welcome.id), str(unverified.id),
                                  json.dumps(roles_dict), json.dumps(fields), "TRUE", json.dumps(messages))
         async with db.MaybeAcquire() as con:
@@ -928,7 +928,6 @@ class Verify(commands.Cog):
         await ctx.send(embed=embed)
 
     async def verify_user(self, member: discord.Member, guild: discord.Guild, data):
-        # TODO Still use Database() over here a lot...
         if guild.id in self.verifying and member.id in self.verifying[guild.id]:
             self.verifying[guild.id].pop(member.id)
         info = {"fields": data}
@@ -936,7 +935,7 @@ class Verify(commands.Cog):
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
         insert = "INSERT INTO user_data(guild_id, user_id, info) " \
-                 "VALUES({0}, {1}, $${2}$$);"
+                 "VALUES({0}, {1}, $${2}$$) ON CONFLICT (guild_id, user_id) UPDATE DO SET info = EXLUDED.info;"
         insert = insert.format(guild.id, member.id, json.dumps(info))
 
         async with db.MaybeAcquire() as con:

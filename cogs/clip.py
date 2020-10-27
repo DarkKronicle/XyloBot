@@ -55,7 +55,7 @@ class Clip(commands.Cog):
 
     max_amount = 20
 
-    @clip_command.command(name="new")
+    @clip_command.command(name="new", aliases=["add", "create"])
     async def new_clip(self, ctx: Context):
         """
         Create a new clip or modify an old one.

@@ -88,7 +88,7 @@ class Utility(commands.Cog):
             await dm.send(settings.join_message)
 
     async def insert_blank_config(self, guild_id):
-        command = "INSERT INTO utility_settings(guild_id) VALUES ({});"
+        command = "INSERT INTO utility_settings(guild_id) VALUES ({}) ON CONFLICT (guild_id) DO NOTHING;"
         command = command.format(str(guild_id))
         async with db.MaybeAcquire() as con:
             con.execute(command)

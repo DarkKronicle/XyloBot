@@ -237,7 +237,7 @@ class AutoReactions(commands.Cog):
         Returns False if over max, None if it failed.
         """
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES (" \
-                 f"{guild_id}, $${data.name}$$, $${data.filter}$$, {data.ftype}, $${data.data}$$, {data.rtype});"
+                 f"{guild_id}, $${data.name}$$, $${data.filter}$$, {data.ftype}, $${data.data}$$, {data.rtype}) ON CONFLICT (guild_id, name) DO NOTHING;"
         async with db.MaybeAcquire() as con:
             con.execute(insert)
         self.get_autoreactions.invalidate(self, guild_id)

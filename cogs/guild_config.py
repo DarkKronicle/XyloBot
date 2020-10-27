@@ -23,7 +23,7 @@ class GuildConfig(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        command = "INSERT INTO guild_config(guild_id) VALUES ({});"
+        command = "INSERT INTO guild_config(guild_id) VALUES ({}) ON CONFLICT (guild_id) DO NOTHING;"
         command = command.format(guild.id)
         async with db.MaybeAcquire() as con:
             con.execute(command)
