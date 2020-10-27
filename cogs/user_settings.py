@@ -1,7 +1,5 @@
 from discord.ext import commands
 import discord
-from util.context import Context
-from storage.database import Database
 
 
 class UserSettings(commands.Cog):

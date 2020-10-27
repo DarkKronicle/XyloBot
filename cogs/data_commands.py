@@ -3,7 +3,6 @@ from datetime import datetime
 from storage import db
 from util.context import Context
 from util.discord_util import *
-from storage.database import *
 from discord.ext.commands import has_permissions
 import json
 

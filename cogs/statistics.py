@@ -28,37 +28,38 @@ class Stats(commands.Cog):
 
     def __init__(self, bot):
         self.bot: XyloBot = bot
-        bot.add_loop("stat", self.update_stats)
-
-    async def get_stat_channel(self, guild_id):
-        if guild_id == 731284440642224139:
-            return self.bot.get_channel(763563768004476949)
-        return None
-
-    async def update_stats(self, time: datetime):
-        channel: discord.TextChannel = await self.get_stat_channel(731284440642224139)
-        if channel is None:
-            return
-        db = Database()
-        data = db.get_settings(str(731284440642224139))
-        if "utility" in data and "weather" in data["utility"]:
-            city = data["utility"]["weather"]["city"]
-            country = data["utility"]["weather"]["country"]
-        else:
-            return
-        loc = self.reg.locations_for(city, country=country.upper())[0]
-
-        obs = self.mgr.weather_at_coords(lat=loc.lat, lon=loc.lon)
-        current: weather.Weather = obs.weather
-        temp = current.temperature("fahrenheit")
-        right_now = math.floor(temp["temp"])
-        await channel.edit(name=f"{right_now}°-{current.status}")
+    #     bot.add_loop("stat", self.update_stats)
+    #
+    # async def get_stat_channel(self, guild_id):
+    #     if guild_id == 731284440642224139:
+    #         return self.bot.get_channel(763563768004476949)
+    #     return None
+    #
+    # async def update_stats(self, time: datetime):
+    #     channel: discord.TextChannel = await self.get_stat_channel(731284440642224139)
+    #     if channel is None:
+    #         return
+    #     db = Database()
+    #     data = db.get_settings(str(731284440642224139))
+    #     if "utility" in data and "weather" in data["utility"]:
+    #         city = data["utility"]["weather"]["city"]
+    #         country = data["utility"]["weather"]["country"]
+    #     else:
+    #         return
+    #     loc = self.reg.locations_for(city, country=country.upper())[0]
+    #
+    #     obs = self.mgr.weather_at_coords(lat=loc.lat, lon=loc.lon)
+    #     current: weather.Weather = obs.weather
+    #     temp = current.temperature("fahrenheit")
+    #     right_now = math.floor(temp["temp"])
+    #     await channel.edit(name=f"{right_now}°-{current.status}")
 
     @commands.command(name="updatestats", hidden=True)
+    @commands.is_owner()
     async def updatestats(self, ctx: Context):
         if await self.bot.is_owner(ctx.author):
-            await self.update_stats(time=None)
-            await ctx.send("Stats updated boss!")
+            # await self.update_stats(time=None)
+            await ctx.send("Stats updated boss! But not really.")
 
     @commands.command(name="weather", usage="<city> <country>")
     @commands.cooldown(2, 60, commands.BucketType.guild)
