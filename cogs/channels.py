@@ -35,7 +35,7 @@ class Channels(commands.Cog):
         Commands for Question of the Day
         """
         if ctx.invoked_subcommand is None:
-            await ctx.send_help('qotd')
+            await ctx.send_help('!qotd')
 
     @qotd_cmd.command(name="delete")
     @checks.is_mod()
@@ -64,7 +64,7 @@ class Channels(commands.Cog):
         """
         if channel is None:
             return await ctx.send("Please specify a correct channel.")
-        command = "INSERT INTO qotd(guild_id, channel_id) VALUES ({1}) WHERE guild_id={0} ON CONFLICT (guild_id) DO UPDATE SET " \
+        command = "INSERT INTO qotd(guild_id, channel_id) VALUES ({0}, {1}) ON CONFLICT (guild_id) DO UPDATE SET " \
                   "channel_id = EXCLUDED.channel_id; "
         command = command.format(ctx.guild.id, channel.id)
         async with db.MaybeAcquire() as con:
