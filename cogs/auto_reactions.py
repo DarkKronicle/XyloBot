@@ -265,6 +265,7 @@ class AutoReactions(commands.Cog):
         sql = self._bulk_add_reaction_sql(guild_id, data)
         async with db.MaybeAcquire() as con:
             con.execute(f"DELETE FROM auto_reactions WHERE guild_id={guild_id};" + "\n" + sql)
+        self.get_autoreactions.invalidate(self, guild_id)
 
     async def add_reaction(self, guild_id, data: AutoReactionConfig.ReactionData):
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES (" \
@@ -327,6 +328,9 @@ class AutoReactions(commands.Cog):
     @config_autoreactions.command(name="reset")
     @checks.is_mod()
     async def reset_ar(self, ctx: Context):
+        """
+        Resets auto reactions.
+        """
         yes = await ctx.prompt("Are you sure you want to revert to default autoreactions? "
                                "This will delete *all* of your current ones.")
         if yes is None:
@@ -436,6 +440,9 @@ class AutoReactions(commands.Cog):
 
     @config_autoreactions.command(name="delete")
     async def delete_ar(self, ctx: Context, ar: AutoReactionName = None):
+        """
+        Delete's an auto reaction.
+        """
         if ar is None:
             return await ctx.send("Please specify a correct autoreaction.")
         embed = await self.get_about_embed(ar)
@@ -460,6 +467,9 @@ class AutoReactions(commands.Cog):
     @commands.command(name="emoji")
     async def emoji(self, ctx: Context,
                     emoji_found: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
+        """
+        View emojis in a text.
+        """
         if emoji_found is None:
             return await ctx.send("No emoji in that text!")
 

@@ -4,6 +4,7 @@ import discord
 from storage import db
 from util import checks
 from util.context import Context
+from xylo_bot import XyloBot
 
 
 class GuildStorage(db.Table, table_name="guild_config"):
@@ -16,10 +17,11 @@ class GuildConfig(commands.Cog):
     """
     Configure general settings for Xylo.
     """
-    def __init__(self):
+    def __init__(self, bot):
         # It's easier for me to see the full file and message of what it will look like then to
         # Have a lot of \n\n with weird formatting.
         self.start_txt = open(r"data/start.txt", "r").read()
+        self.bot: XyloBot = bot
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
@@ -29,6 +31,10 @@ class GuildConfig(commands.Cog):
             con.execute(command)
 
         await self.send_start(guild.owner)
+
+        ar = self.bot.get_cog("AutoReactions")
+        if ar is not None:
+            await ar.set_defaults(guild.id)
 
     @commands.command()
     async def start(self, ctx: Context):
@@ -141,4 +147,4 @@ class GuildConfig(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(GuildConfig())
+    bot.add_cog(GuildConfig(bot))
