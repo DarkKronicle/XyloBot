@@ -44,4 +44,4 @@ class Logging(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Logging)
+    bot.add_cog(Logging(bot))
