@@ -66,7 +66,7 @@ class Clip(commands.Cog):
         """
         Store data inside of Xylo for future use!
         """
-        if ClipName is None:
+        if name is None:
             return await ctx.send_help('clip')
         clip = await self.get_clip(ctx.author.id, name)
         if clip is None:
