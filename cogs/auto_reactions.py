@@ -232,7 +232,7 @@ class AutoReactions(commands.Cog):
                 con.execute(command)
             self.bulk_uses = {}
 
-    async def _bulk_add_reaction_sql(self, guild_id, data_list: list):
+    def _bulk_add_reaction_sql(self, guild_id, data_list: list):
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES "
         reactions = []
         for data in data_list:
