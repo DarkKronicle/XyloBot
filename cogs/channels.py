@@ -128,8 +128,9 @@ class Channels(commands.Cog):
         await ctx.send(embed=embed)
 
     async def send_qotd(self, time: datetime):
-        command = "SELECT * FROM qotd WHERE time=$${0}$$;"
-        command = command.format(time.strftime("%H:%M"))
+        command = "SELECT * FROM qotd WHERE time in($${0}$$, $${1}$$);"
+        mat = time.strftime("%H:%M")
+        command = command.format(mat, f"0{mat}")
         async with db.MaybeAcquire() as con:
             con.execute(command)
             rows = con.fetchall()
