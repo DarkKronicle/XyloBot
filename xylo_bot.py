@@ -1,4 +1,7 @@
-from discord.ext import tasks
+import math
+import textwrap
+
+from discord.ext import tasks, menus
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, \
     MemberNotFound
 import traceback
@@ -113,27 +116,63 @@ class XyloBot(commands.Bot):
         await self.log.send(message)
 
     async def on_command_error(self, ctx: commands.Context, error):
+        # Don't want to be spammed by people just typing in random commands.
         if isinstance(error, CommandNotFound):
             return
-        if isinstance(error, MissingPermissions):
-            await ctx.send("You don't have permission to do that!", delete_after=15)
-            return
-        if isinstance(error, MissingRole):
+
+        if isinstance(error, (commands.MissingPermissions, commands.MissingRole)):
             await ctx.send("You don't have permission to do that!", delete_after=15)
             return
         if isinstance(error, commands.NoPrivateMessage):
             return await ctx.send("Sorry, this command can't be used in private messages.")
-        if isinstance(error, CommandOnCooldown):
-            message = f"**Hold up** {ctx.author.mention}! You're still on cooldown!"
+        if isinstance(error, commands.CommandOnCooldown):
+            if await self.is_owner(ctx.author):
+                # We don't want me to be on cooldown.
+                return ctx.reinvoke()
+            # Let people know when they can retry
+            embed = discord.Embed(
+                title="Command On Cooldown!",
+                description=f"This command is currently on cooldown. Try again in `{math.ceil(error.retry_after)}` "
+                            f"seconds.",
+                colour=discord.Colour.red()
+            )
             await ctx.message.delete()
-            await ctx.send(message, delete_after=15)
+            await ctx.send(embed=embed, delete_after=15)
             return
         if isinstance(error, CheckFailure):
             return
         if isinstance(error, MemberNotFound):
             await ctx.send("Member not found.")
             return
-        await super().on_command_error(ctx, error)
+        if isinstance(error, commands.ArgumentParsingError):
+            return await ctx.send(error)
+        if isinstance(error, commands.BadArgument):
+            return await ctx.send(error)
+
+        # https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/stats.py#L601
+
+        if not isinstance(error, (commands.CommandInvokeError, commands.ConversionError)):
+            return
+
+        error = error.original
+        if isinstance(error, (discord.Forbidden, discord.NotFound, menus.MenuError)):
+            return
+
+        e = discord.Embed(title='Command Error', colour=0xcc3366)
+        e.add_field(name='Name', value=ctx.command.qualified_name)
+        e.add_field(name='Author', value=f'{ctx.author} (ID: {ctx.author.id})')
+
+        fmt = f'Channel: {ctx.channel} (ID: {ctx.channel.id})'
+        if ctx.guild:
+            fmt = f'{fmt}\nGuild: {ctx.guild} (ID: {ctx.guild.id})'
+
+        e.add_field(name='Location', value=fmt, inline=False)
+        e.add_field(name='Content', value=textwrap.shorten(ctx.message.content, width=512))
+
+        exc = ''.join(traceback.format_exception(type(error), error, error.__traceback__, chain=False))
+        e.description = f'```py\n{exc}\n```'
+        e.timestamp = datetime.utcnow()
+        await self.log.send(embed=e)
 
     @tasks.loop(hours=1)
     async def status(self):

@@ -10,7 +10,6 @@ from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
 
-
 all_emojis: dict = JSONReader("data/emojis.json").data
 
 
@@ -89,12 +88,13 @@ class ReactionType(enum.Enum):
 
 
 class AutoReactionConfig:
-
     class ReactionData:
         """
         Stores how it will react to data.
         """
-        def __init__(self, id, name, filter, data, *, ftype=FilterType.sensitive_any, rtype=ReactionType.reaction, uses=0):
+
+        def __init__(self, id, name, filter, data, *, ftype=FilterType.sensitive_any, rtype=ReactionType.reaction,
+                     uses=0):
             self.id = id
             self.name = name
             self.ftype = ftype
@@ -237,7 +237,7 @@ class AutoReactions(commands.Cog):
         Returns False if over max, None if it failed.
         """
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES (" \
-                 f"{guild_id}, $${data.name}$$, $${data.filter}$$, {data.ftype}, $${data.data}$$, {data.rtype}) ON CONFLICT (guild_id, name) DO NOTHING;"
+                 f"{guild_id}, $${data.name}$$, $${data.filter}$$, {data.ftype}, $${data.data}$$, {data.rtype});"
         async with db.MaybeAcquire() as con:
             con.execute(insert)
         self.get_autoreactions.invalidate(self, guild_id)
@@ -293,7 +293,7 @@ class AutoReactions(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send_help('!autoreactions')
 
-    @config_autoreactions.command(name="new")
+    @config_autoreactions.command(name="new", aliases=["make"])
     @commands.guild_only()
     @checks.is_mod()
     async def config_ar_new(self, ctx: Context):
@@ -346,8 +346,8 @@ class AutoReactions(commands.Cog):
         if rtype > 3 or rtype < 0:
             return await ctx.send("You need to specify a number from 0-1.")
 
-
-        data = await ctx.ask("What data should I respond with? If it's reactions it has to be emojis. (Split with spaces)")
+        data = await ctx.ask("What data should I respond with? If it's reactions it has to be emojis. (Split with "
+                             "spaces)")
         if data is None:
             return await ctx.timeout()
         if ReactionType(rtype) == ReactionType.reaction:
@@ -369,7 +369,8 @@ class AutoReactions(commands.Cog):
                 return await ctx.send("Sorry, you can only add 10 emojis for a single autoreaction.")
 
         if len(data) > 1900:
-            return await ctx.send("Sorry, the data is too long. If you're using reactions maybe do smaller custom emojis.")
+            return await ctx.send(
+                "Sorry, the data is too long. If you're using reactions maybe do smaller custom emojis.")
 
         final = AutoReactionConfig.ReactionData(0, name, filter, data, ftype=ftype, rtype=rtype)
         embed = await self.get_about_embed(final)
@@ -414,7 +415,8 @@ class AutoReactions(commands.Cog):
         return embed
 
     @commands.command(name="emoji")
-    async def emoji(self, ctx: Context, emoji_found: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
+    async def emoji(self, ctx: Context,
+                    emoji_found: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
         if emoji_found is None:
             return await ctx.send("No emoji in that text!")
 
