@@ -251,10 +251,10 @@ class AutoReactions(commands.Cog):
             AutoReactionConfig.ReactionData(0, "poggers", "pog", "<:pog:771146484795310111>")
         )
         data.append(
-            AutoReactionConfig.ReactionData(0, "NO U", "no u", "no u", ftype=3)
+            AutoReactionConfig.ReactionData(0, "NO U", "no u", "no u", ftype=3, rtype=1)
         )
         data.append(
-            AutoReactionConfig.ReactionData(0, "table u", "(╯°□°）╯︵ ┻━┻", "┬─┬ノ( º _ ºノ)", ftype=2)
+            AutoReactionConfig.ReactionData(0, "table u", "(╯°□°）╯︵ ┻━┻", "┬─┬ノ( º _ ºノ)", ftype=2, rtype=1)
         )
         data.append(
             AutoReactionConfig.ReactionData(0, "Xylo", "xylo", "👻")
