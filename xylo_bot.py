@@ -128,7 +128,7 @@ class XyloBot(commands.Bot):
         if isinstance(error, commands.CommandOnCooldown):
             if await self.is_owner(ctx.author):
                 # We don't want me to be on cooldown.
-                return ctx.reinvoke()
+                return await ctx.reinvoke()
             # Let people know when they can retry
             embed = discord.Embed(
                 title="Command On Cooldown!",

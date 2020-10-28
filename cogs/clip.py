@@ -38,7 +38,8 @@ class ClipName(commands.clean_content):
             raise commands.BadArgument("Clip name cannot be longer than 100 characters.")
 
         if not all(c in self.characters for c in lower):
-            raise commands.BadArgument("Not allowed characters! You can use `<a-z> <0-9> - _ ! / 1 2 3 4 5 6 7 8 9 0 @ #")
+            raise commands.BadArgument("Not allowed characters! You can use `<a-z> <0-9> - _ ! / 1 2 3 4 5 6 7 8 9 0 "
+                                       "@ #`")
 
         first_word, _, _ = lower.partition(' ')
         root = ctx.bot.get_command('clip')
