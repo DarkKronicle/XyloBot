@@ -93,7 +93,7 @@ class AutoReactionConfig:
         Stores how it will react to data.
         """
 
-        def __init__(self, id, name, filter, data, *, ftype=FilterType.sensitive_any, rtype=ReactionType.reaction,
+        def __init__(self, id, name, filter, data, *, ftype=1, rtype=0,
                      uses=0):
             self.id = id
             self.name = name
