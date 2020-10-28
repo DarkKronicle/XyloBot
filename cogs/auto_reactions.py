@@ -232,10 +232,41 @@ class AutoReactions(commands.Cog):
                 con.execute(command)
             self.bulk_uses = {}
 
+    async def _bulk_add_reaction_sql(self, guild_id, data_list: list):
+        insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES "
+        reactions = []
+        for data in data_list:
+            reactions.append(f"({guild_id}, $${data.name}$$, $${data.filter}$$, "
+                             f"{data.ftype}, $${data.data}$$, {data.rtype})")
+
+        insert = insert + ', '.join(reactions) + ";"
+        return insert
+
+    async def set_defaults(self, guild_id):
+        data = []
+        data.append(
+            AutoReactionConfig.ReactionData(0, "PANIC", "oh no", "<:panik:771144348934340628>")
+        )
+        data.append(
+            AutoReactionConfig.ReactionData(0, "poggers", "pog", "<:pog:771146484795310111>")
+        )
+        data.append(
+            AutoReactionConfig.ReactionData(0, "NO U", "no u", "no u", ftype=3)
+        )
+        data.append(
+            AutoReactionConfig.ReactionData(0, "table u", "(╯°□°）╯︵ ┻━┻", "┬─┬ノ( º _ ºノ)", ftype=2)
+        )
+        data.append(
+            AutoReactionConfig.ReactionData(0, "Xylo", "xylo", "👻")
+        )
+        data.append(
+            AutoReactionConfig.ReactionData(0, "Bruh", "bruh", "<:bruh:771147524009885737>")
+        )
+        sql = self._bulk_add_reaction_sql(guild_id, data)
+        async with db.MaybeAcquire() as con:
+            con.execute(f"DELETE FROM auto_reactions WHERE guild_id={guild_id};" + "\n" + sql)
+
     async def add_reaction(self, guild_id, data: AutoReactionConfig.ReactionData):
-        """
-        Returns False if over max, None if it failed.
-        """
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES (" \
                  f"{guild_id}, $${data.name}$$, $${data.filter}$$, {data.ftype}, $${data.data}$$, {data.rtype});"
         async with db.MaybeAcquire() as con:
@@ -293,6 +324,18 @@ class AutoReactions(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send_help('!autoreactions')
 
+    @config_autoreactions.command(name="reset")
+    @checks.is_mod()
+    async def reset_ar(self, ctx: Context):
+        yes = await ctx.prompt("Are you sure you want to revert to default autoreactions? "
+                               "This will delete *all* of your current ones.")
+        if yes is None:
+            return await ctx.timeout()
+        if not yes:
+            return ctx.send("Ok, not resetting!")
+        await self.set_defaults(ctx.guild.id)
+        await ctx.send("Reset!")
+
     @config_autoreactions.command(name="new", aliases=["make"])
     @commands.guild_only()
     @checks.is_mod()
@@ -301,7 +344,7 @@ class AutoReactions(commands.Cog):
         Setup wizard for a new auto reaction.
         """
         reacts = await self.get_autoreactions(ctx.guild.id)
-        if len(reacts.reactions) >= 10:
+        if len(reacts.reactions) >= 20:
             return await ctx.send("You already have the maximum amount of auto reactions (10). You can delete some to "
                                   "make room for more using "
                                   f"`{ctx.prefix}!autoreactions delete`.")
