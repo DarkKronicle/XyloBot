@@ -98,7 +98,7 @@ class Channels(commands.Cog):
             con.execute(command)
         await ctx.send(f"Time updated to `{time} MST`.")
 
-    @qotd_cmd.command(name="info")
+    @qotd_cmd.command(name="current")
     @commands.guild_only()
     @checks.is_mod()
     @commands.cooldown(rate=2, per=10, type=commands.BucketType.guild)
@@ -147,8 +147,6 @@ class Channels(commands.Cog):
                 continue
             channel = guild.get_channel(row['channel_id'])
             if channel is None:
-                continue
-            if time.hour != dt.hour or time.minute != dt.minute:
                 continue
             await channel.send(embed=embed)
 

@@ -482,6 +482,7 @@ class AutoReactions(commands.Cog):
         if emoji_found is None or len(emoji_found) == 0:
             return await ctx.send("No emoji in that text!")
         message = "Emoji's found:"
+        count = 0
         for emoji in emoji_found:
             if emoji is not None:
                 if isinstance(emoji, discord.Emoji):
@@ -492,6 +493,7 @@ class AutoReactions(commands.Cog):
                         message = message + f"\n <a:{emoji.name}:{emoji.id}> - `<a:{emoji.name}:{emoji.id}>`"
                     else:
                         message = message + f"\n <:{emoji.name}:{emoji.id}> - `<:{emoji.name}:{emoji.id}>`"
+                    count = count + 1
                 else:
                     name = ""
                     for v in all_emojis.values():
