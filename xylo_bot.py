@@ -1,7 +1,7 @@
 import math
 import textwrap
 
-from discord.ext import tasks, menus
+from discord.ext import tasks, menus, commands
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, \
     MemberNotFound
 import traceback

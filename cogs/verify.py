@@ -2,6 +2,7 @@ import asyncio
 import json
 import random
 
+from storage.config import ConfigData
 from storage.db import MaybeAcquire
 from util import storage_cache, checks
 from util.context import Context
