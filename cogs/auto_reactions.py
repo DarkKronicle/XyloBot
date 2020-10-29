@@ -413,6 +413,9 @@ class AutoReactions(commands.Cog):
                 except commands.EmojiNotFound:
                     e = None
                 if e is not None:
+                    if e.guild.id not in (ctx.guild.id, 658371169728331788):
+                        # We don't want cross guild stuff... but Xylo's server is fine.
+                        continue
                     if e.animated:
                         emojis.append(f"<a:{e.name}:{e.id}>")
                     else:
@@ -482,6 +485,9 @@ class AutoReactions(commands.Cog):
         for emoji in emoji_found:
             if emoji is not None:
                 if isinstance(emoji, discord.Emoji):
+                    if emoji.guild.id not in (ctx.guild.id, 658371169728331788):
+                        # We don't want cross guild stuff... but Xylo's server is fine.
+                        continue
                     if emoji.animated:
                         message = message + f"\n <a:{emoji.name}:{emoji.id}> - `<a:{emoji.name}:{emoji.id}>`"
                     else:
