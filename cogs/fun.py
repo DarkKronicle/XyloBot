@@ -1,5 +1,7 @@
 import random
 
+from discord.ext import commands
+
 from util.discord_util import *
 from storage.config import *
 

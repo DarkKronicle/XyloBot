@@ -27,7 +27,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from abc import ABC
 
-from discord.ext import menus
+from discord.ext import menus, commands
 
 from util.discord_util import *
 import math
