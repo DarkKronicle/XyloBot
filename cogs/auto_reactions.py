@@ -262,6 +262,9 @@ class AutoReactions(commands.Cog):
         data.append(
             AutoReactionConfig.ReactionData(0, "Bruh", "bruh", "<:bruh:771175714790703125>")
         )
+        data.append(
+            AutoReactionConfig.ReactionData(0, "boi", "boi", "<a:boi:771176183290920980>")
+        )
         sql = self._bulk_add_reaction_sql(guild_id, data)
         async with db.MaybeAcquire() as con:
             con.execute(f"DELETE FROM auto_reactions WHERE guild_id={guild_id};" + "\n" + sql)
@@ -410,7 +413,10 @@ class AutoReactions(commands.Cog):
                 except commands.EmojiNotFound:
                     e = None
                 if e is not None:
-                    emojis.append(f"<:{e.name}:{e.id}>")
+                    if e.animated:
+                        emojis.append(f"<a:{e.name}:{e.id}>")
+                    else:
+                        emojis.append(f"<:{e.name}:{e.id}>")
             data = ','.join(emojis)
             if len(emojis) > 10:
                 return await ctx.send("Sorry, you can only add 10 emojis for a single autoreaction.")
