@@ -245,10 +245,10 @@ class AutoReactions(commands.Cog):
     async def set_defaults(self, guild_id):
         data = []
         data.append(
-            AutoReactionConfig.ReactionData(0, "PANIC", "oh no", "<:panik:771144348934340628>")
+            AutoReactionConfig.ReactionData(0, "PANIC", "oh no", "<:panik:771175655563984897>")
         )
         data.append(
-            AutoReactionConfig.ReactionData(0, "poggers", "pog", "<:pog:771146484795310111>")
+            AutoReactionConfig.ReactionData(0, "poggers", "pog", "<:pog:771175687516061726>")
         )
         data.append(
             AutoReactionConfig.ReactionData(0, "NO U", "no u", "no u", ftype=3, rtype=1)
@@ -257,10 +257,10 @@ class AutoReactions(commands.Cog):
             AutoReactionConfig.ReactionData(0, "table u", "(╯°□°）╯︵ ┻━┻", "┬─┬ノ( º _ ºノ)", ftype=2, rtype=1)
         )
         data.append(
-            AutoReactionConfig.ReactionData(0, "Xylo", "xylo", "👻")
+            AutoReactionConfig.ReactionData(0, "Xylo", "xylo", "<:shades:771180613708546048>")
         )
         data.append(
-            AutoReactionConfig.ReactionData(0, "Bruh", "bruh", "<:bruh:771147524009885737>")
+            AutoReactionConfig.ReactionData(0, "Bruh", "bruh", "<:bruh:771175714790703125>")
         )
         sql = self._bulk_add_reaction_sql(guild_id, data)
         async with db.MaybeAcquire() as con:
@@ -470,14 +470,16 @@ class AutoReactions(commands.Cog):
         """
         View emojis in a text.
         """
-        if emoji_found is None:
+        if emoji_found is None or len(emoji_found) == 0:
             return await ctx.send("No emoji in that text!")
-
         message = "Emoji's found:"
         for emoji in emoji_found:
             if emoji is not None:
                 if isinstance(emoji, discord.Emoji):
-                    message = message + f"\n <:{emoji.name}:{emoji.id}> - `<:{emoji.name}:{emoji.id}>`"
+                    if emoji.animated:
+                        message = message + f"\n <a:{emoji.name}:{emoji.id}> - `<a:{emoji.name}:{emoji.id}>`"
+                    else:
+                        message = message + f"\n <:{emoji.name}:{emoji.id}> - `<:{emoji.name}:{emoji.id}>`"
                 else:
                     name = ""
                     for v in all_emojis.values():

@@ -10,4 +10,6 @@ Thanks for adding me to {0.name}! I've started by setting your server's default 
 
 `>!utility` - Configure different utility commands.
 
+`>!autoreactions` - Have me automagically react to messages that contain certain keywords. I can react with messages, or reactions! There are already some preset ones that you can view with `>autoreactions`!
+
 Finally, if you have any questions or requests, come check out my repository! https://github.com/DarkKronicle/XyloBot/
