@@ -90,7 +90,7 @@ class Clip(commands.Cog):
         if name is None:
             return await ctx.timeout()
         ctx.message = name
-        name = await converter.convert(ctx, name)
+        name = await converter.convert(ctx, name.content)
         content = await ctx.raw_ask("What will this clip say?")
         if content is None:
             return await ctx.timeout()
