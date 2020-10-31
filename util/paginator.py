@@ -44,3 +44,29 @@ class Pages(menus.MenuPages):
                 await self.message.delete()
         except discord.HTTPException:
             pass
+
+
+class SimplePageSource(menus.ListPageSource):
+
+    def __init__(self, entries, *, per_page=15):
+        super().__init__(entries, per_page=per_page)
+        self.impartial_page = True
+
+    async def format_page(self, menu, entries):
+        pages = []
+        for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
+            pages.append(f"**{index + 1}. {entry}")
+
+        maximum = self.get_max_pages()
+        if maximum > 1:
+            footer = f"Page {menu.current_page + 1}/{maximum} ({len(self.entries)} entries.)"
+            menu.embed.set_footer(text=footer)
+
+        menu.embed.description = '\n'.join(pages)
+
+
+class SimplePages(Pages):
+
+    def __init__(self, entries, *, per_page=15):
+        super().__init__(SimplePageSource(entries, per_page=per_page))
+        self.embed = discord.Embed(colour=discord.Colour.purple())

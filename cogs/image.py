@@ -19,10 +19,14 @@ def check_name(name):
 class ImageCog(commands.Cog, name="Image"):
 
     @commands.group(name="image")
-    async def edit(self, ctx):
-        pass
+    async def image(self, ctx: Context):
+        """
+        Manipulate images with the power of Xylo!
+        """
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help('image')
 
-    @edit.command(name="approved", usage="<URL>")
+    @image.command(name="approved", usage="<URL>")
     async def approve(self, ctx: Context, *args):
         """
         Stamp a picture with an approved stamp. You can input a URL as an argument on attach an image.

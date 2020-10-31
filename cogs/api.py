@@ -124,14 +124,16 @@ class LineCount:
 
 
 class API(commands.Cog):
+    """
+    Use different API commands.
+    """
 
-    @commands.group(name="twitch", usage="<info>", invoke_without_command=True)
-    async def twitch(self, ctx: context.Context):
-        if ctx.invoked_subcommand is None:
-            return await ctx.send_help('twitch')
-
-    @commands.command(name="cloc")
+    @commands.command(name="cloc", usage="<user>/<project>", aliases=["lines"])
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def cloc(self, ctx: Context, *args):
+        """
+        View line count of a GitHub repository.
+        """
         if len(args) == 0:
             return await ctx.send("You need to specify a github repo. `<user>/<project>`.")
 
@@ -155,7 +157,7 @@ class API(commands.Cog):
     @commands.command(name="lmgtfy", aliases=["lemmegoogle"])
     async def lmgtfy(self, ctx: Context, *args):
         """
-        Send a passive agressive google it review.
+        Send a passive aggressive google it review.
         """
         if len(args) == 0:
             return await ctx.send_help('lmgtfy')
@@ -167,7 +169,7 @@ class API(commands.Cog):
     @commands.command(name="google")
     async def google(self, ctx: Context, *args):
         """
-        Sends a google search link
+        Sends a google search link.
         """
         if len(args) == 0:
             return await ctx.send_help('google')
@@ -179,7 +181,7 @@ class API(commands.Cog):
     @commands.command(name="imagegoogle", aliases=["igoogle"])
     async def igoogle(self, ctx: Context, *args):
         """
-        Sends a google search link
+        Sends a google image search link
         """
         if len(args) == 0:
             return await ctx.send_help('imagegoogle')
@@ -188,11 +190,11 @@ class API(commands.Cog):
         url = url.replace(' ', '%20')
         await ctx.send(f"I have the perfect image for you! Click here:\n{url}")
 
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.command(name="yoda", aliases=["yodaspeak"])
     async def yoda(self, ctx: Context, *args):
         """
-        Translates text into Yoda
+        Translates text into Yoda.
         """
         if len(args) == 0:
             return await ctx.send_help('yoda')

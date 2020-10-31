@@ -102,6 +102,9 @@ class RandomCommands(commands.Cog, name="Random"):
     @commands.command(name="ship", aliases=["compat"])
     @commands.guild_only()
     async def ship(self, ctx: Context, ships: commands.Greedy[discord.Member] = None):
+        """
+        Ship two users together.
+        """
         if len(ships) == 2:
             ship1 = ships[0]
             ship2 = ships[1]
@@ -174,6 +177,9 @@ class RandomCommands(commands.Cog, name="Random"):
 
     @commands.command(name="decide", aliases=["choose"])
     async def decide(self, ctx: Context, *args):
+        """
+        Choose between 2 options.
+        """
         if len(args) != 2:
             return await ctx.send("Make sure to only specify two arguments.")
 

@@ -48,8 +48,6 @@ startup_extensions = [
     "random_commands", "text", "guild_config", "command_config", "clip", "support"
 ]
 
-# bot.remove_command('help')
-
 description = """
 A fun utility bot made by DarkKronicle.
 """

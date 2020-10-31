@@ -4,7 +4,25 @@ XyloBot is a bot that I have created for a private discord I am in (no invites, 
 
 ## Features
 
-Mainly just some fun random crap, QOTD, verification system, and AutoReactions.
+- Customizable verification. Perfect for IRL discords or for just letting people know who you are.
+
+- Auto Reactions! Have Xylo react to a message using emojis or by sending a new message.
+
+- Your own personal notepad! Keep track of text and retrieve it wherever, whenever. `x>clip`
+
+- Chat games! You can play Cards Against Humanity (Right now it is more like Apples to Apples), create your own quizzes, or play a short game to determine who is faster at typing. More are planned to be added in the future.
+
+- Question of the day. Currently there are only a small select questions, but they are great for keeping your chat active.
+
+- Fun APIs. View the weather, talk like yoda, send a passive aggressive google url, get lines of code are in a GitHub repository, is this for that.
+
+- Seeded randomizers. See how Xylo sees you, see what president you are, and more!
+
+- Basic image manipulation. Add a verify stamp to any image! More are planned to be added in the future.
+
+- Basic text manipulation.
+
+- Utility commands to make your life easier. Create a temporary invite link to a specified channel that gets logged, see emojjis that Xylo can find in a text, copy contents of a file to chat, convert text into a text file, grade calculator.
 
 ## Credits
 

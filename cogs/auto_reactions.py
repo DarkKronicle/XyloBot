@@ -200,7 +200,7 @@ class AutoReactionName(commands.Converter):
 
 class AutoReactions(commands.Cog):
     """
-    Emojis Xylo automatically reacts to.
+    Messages that Xylo will automatically react to.
     """
 
     def __init__(self, bot):

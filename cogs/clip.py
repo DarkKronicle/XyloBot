@@ -1,7 +1,8 @@
-from discord.ext import commands
+from discord.ext import commands, menus
 
 from storage import db
 from util.context import Context
+from util.paginator import SimplePages
 
 
 class ClipStorage(db.Table, table_name="clip_storage"):
@@ -19,10 +20,25 @@ class ClipStorage(db.Table, table_name="clip_storage"):
         return statement + '\n' + sql
 
 
+# https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/tags.py#L37
+class ClipPageEntry:
+    def __init__(self, entry):
+        self.id = entry['id']
+        self.name = entry['name']
+
+    def __str__(self):
+        return f"{self.name} (ID: {self.id})"
+
+
+class ClipPages(SimplePages):
+
+    def __init__(self, entries, *, per_page=15):
+        converted = [ClipPageEntry(entry) for entry in entries]
+
+
 # Inspired between a mix of RoboDanny and bot reminders.
 # ClipName was used from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/tags.py#L114
 class ClipName(commands.clean_content):
-
     characters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
                   "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "-", "_", "!", "/", "1", "2",
                   "3", "4", "5", "6", "7", "8", "9", "0", "@", "#", " "]
@@ -50,6 +66,9 @@ class ClipName(commands.clean_content):
 
 
 class Clip(commands.Cog):
+    """
+    Keep track of notes and text.
+    """
 
     def __init__(self, bot):
         self.bot = bot
@@ -94,6 +113,7 @@ class Clip(commands.Cog):
         content = await ctx.raw_ask("What will this clip say?")
         if content is None:
             return await ctx.timeout()
+        ctx.message = original
         content = await ctx.clean(message=content, escape_roles=True, escape_mentions=False)
         if len(content) > 2000:
             return await ctx.send("Too long!")
@@ -129,6 +149,23 @@ class Clip(commands.Cog):
         async with db.MaybeAcquire() as con:
             con.execute(command)
         await ctx.send("Deleted!")
+
+    @clip_command.command(name="list")
+    async def list_clip(self, ctx: Context):
+        command = "SELECT id, name FROM clip_storage WHERE user_id={0};"
+        command = command.format(ctx.author)
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+            entries = con.fetchall()
+
+        if entries is None:
+            return await ctx.send("No clips found.")
+
+        try:
+            p = ClipPages(entries=entries)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
 
 
 def setup(bot):

@@ -46,7 +46,7 @@ class Support(commands.Cog):
 
     @commands.command(name="pm", aliases=["dm"], hidden=True)
     @commands.is_owner()
-    async def pm(self, ctx: Context, *, user_id: int = None, content: str = None):
+    async def pm(self, ctx: Context, user_id: int = None, *, content: str = None):
         """
         PM a user regarding feedback or anything else.
         """

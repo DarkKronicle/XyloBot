@@ -139,6 +139,9 @@ class Games(commands.Cog):
     @cah.command(name="join")
     @commands.guild_only()
     async def cah_join(self, ctx):
+        """
+        Join a Cards Against Humanity game in the channel.
+        """
         if ctx.channel not in self.current_games or "cah" not in self.current_games[ctx.channel]:
             return await ctx.send("No games currently going on. Start one with `cah start`")
         game = self.current_games[ctx.channel]["cah"]
@@ -157,6 +160,9 @@ class Games(commands.Cog):
 
     @commands.group(name="quiz", invoke_without_command=True)
     async def quiz(self, ctx: Context):
+        """
+        Commands for starting a quiz.
+        """
         await ctx.send_help('quiz')
 
     async def quiz_force(self, game, ctx):
@@ -173,6 +179,9 @@ class Games(commands.Cog):
 
     @quiz.command(name="start", usage="<max_points>")
     async def quiz_start(self, ctx: Context, *args):
+        """
+        Starts a quiz
+        """
         if ctx.channel in self.current_games and "quiz" in self.current_games[ctx.channel]:
             game = self.current_games[ctx.channel]["quiz"]
             if game.started:
@@ -233,6 +242,9 @@ class Games(commands.Cog):
     @quiz.command(name="join")
     @commands.guild_only()
     async def quiz_join(self, ctx):
+        """
+        Joins a quiz in the channel.
+        """
         if ctx.channel not in self.current_games or "quiz" not in self.current_games[ctx.channel]:
             return await ctx.send("No games currently going on. Start one with `cah quiz`")
         game = self.current_games[ctx.channel]["quiz"]
