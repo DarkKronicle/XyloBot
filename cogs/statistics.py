@@ -13,8 +13,6 @@ from pyowm.weatherapi25 import weather
 from pyowm.weatherapi25.weather_manager import WeatherManager
 from pyowm.commons import cityidregistry
 
-stats_messages = {}
-
 
 class Stats(commands.Cog):
     """
