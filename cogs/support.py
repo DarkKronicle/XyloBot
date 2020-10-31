@@ -54,8 +54,8 @@ class Support(commands.Cog):
             return await ctx.send("Please specify a correct user ID.")
 
         if content is None:
-            answer = await ctx.ask("What do you want to say?")
-            if answer is None:
+            content = await ctx.ask("What do you want to say?")
+            if content is None:
                 return await ctx.timeout()
 
         user = ctx.bot.get_user(user_id)
