@@ -34,6 +34,7 @@ class ClipPages(SimplePages):
 
     def __init__(self, entries, *, per_page=15):
         converted = [ClipPageEntry(entry) for entry in entries]
+        super().__init__(converted, per_page=per_page)
 
 
 # Inspired between a mix of RoboDanny and bot reminders.
