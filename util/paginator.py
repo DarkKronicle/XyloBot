@@ -50,7 +50,6 @@ class SimplePageSource(menus.ListPageSource):
 
     def __init__(self, entries, *, per_page=15):
         super().__init__(entries, per_page=per_page)
-        self.impartial_page = True
 
     async def format_page(self, menu, entries):
         pages = []
@@ -63,6 +62,7 @@ class SimplePageSource(menus.ListPageSource):
             menu.embed.set_footer(text=footer)
 
         menu.embed.description = '\n'.join(pages)
+        return menu.embed
 
 
 class SimplePages(Pages):
