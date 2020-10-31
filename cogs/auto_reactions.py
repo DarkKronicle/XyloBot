@@ -212,7 +212,7 @@ class ARPageEntry:
     def __init__(self, entry: AutoReactionConfig.ReactionData):
         self.name = entry.name
         self.id = entry.id
-        self.uses = entry.uses
+        self.uses = entry.get_uses()
 
     def __str__(self):
         return f"{self.name} (Uses: {self.uses}, ID: {self.id})"
