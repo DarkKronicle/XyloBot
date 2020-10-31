@@ -16,8 +16,6 @@ import os
 import psycopg2
 import psycopg2.extras
 
-DATABASE_URL = os.environ['DATABASE_URL']
-
 
 class SchemaError(Exception):
     pass
@@ -219,7 +217,7 @@ class MaybeAcquire:
     async def __aenter__(self):
         if self.connection is None:
             self._cleanup = True
-            self._connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            self._connection = psycopg2.connect(f"dbname={Table.name} user={Table.user} password={Table.password}")
             c = self._connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
             return c
         return self.connection.cursor()
@@ -270,6 +268,12 @@ class Table(metaclass=TableMeta):
     @classmethod
     def acquire_connection(cls, connection=None):
         return MaybeAcquire(connection)
+
+    @classmethod
+    def create_data(cls, name, user, password):
+        cls.name = name
+        cls.user = user
+        cls.password = password
 
     @classmethod
     def create_table(cls, overwrite=False):

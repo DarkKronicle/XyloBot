@@ -7,7 +7,7 @@ from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRol
 import traceback
 
 from cogs import api
-from storage.config import ConfigData
+from storage.config import ConfigData, JSONReader
 from util import storage_cache
 from util.discord_util import *
 from storage import db
@@ -87,6 +87,8 @@ def round_time(dt=None, round_to=30 * 60):
 
 class XyloBot(commands.Bot):
     def __init__(self):
+        self.config: dict = JSONReader("config.json").data
+
         intents = discord.Intents.default()
         intents.members = True
         intents.guilds = True
@@ -105,7 +107,7 @@ class XyloBot(commands.Bot):
         self.lines = api.LineCount("DarkKronicle", "XyloBot")
 
     def run(self):
-        super().run(os.getenv('DISCORD_BOT_TOKEN'), reconnect=True, bot=True)
+        super().run(self.config['bot_token'], reconnect=True, bot=True)
 
     async def on_ready(self):
         print(f"{self.user} has connected to Discord!")
@@ -237,8 +239,8 @@ class XyloBot(commands.Bot):
 
     @discord.utils.cached_property
     def log(self):
-        wh_id = int(os.getenv('WH_ID'))
-        wh_token = os.getenv('WH_TOKEN')
+        wh_id = int(self.config['webhook_id'])
+        wh_token = self.config['webhook_token']
         wh = discord.Webhook.partial(id=wh_id, token=wh_token, adapter=discord.AsyncWebhookAdapter(self.session))
         return wh
 

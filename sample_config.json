@@ -1,0 +1,9 @@
+{
+  "bot_token": "TOKEN HERE",
+  "weather_token": "TOKEN HERE",
+  "webhook_token": "TOKEN HERE",
+  "webhook_id": 0,
+  "postgresql_user": "user",
+  "postgresql_name": "name",
+  "postgresql_password": "password"
+}

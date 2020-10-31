@@ -8,6 +8,7 @@ import traceback
 import psycopg2
 
 from storage import db
+from storage.json_reader import JSONReader
 from xylo_bot import XyloBot, startup_extensions
 
 
@@ -16,7 +17,7 @@ def run_bot():
     bot.run()
 
 
-DATABASE_URL = os.environ['DATABASE_URL']
+config = JSONReader('config.json').data
 
 
 def database():
@@ -33,7 +34,7 @@ def database():
             return
 
     print(f"Preparing to create {len(db.Table.all_tables())} tables.")
-    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+    connection = psycopg2.connect(f"dbname={config['postgresql_name']} user={config['postgresql_user']} password={config['postgresql_password']}")
     for table in db.Table.all_tables():
         try:
             run(table.create(connection=connection))
@@ -46,6 +47,7 @@ def database():
 
 
 def main():
+    db.Table.create_data(config['postgresql_name'], config['postgresql_user'], config['postgresql_password'])
     database()
     run_bot()
 

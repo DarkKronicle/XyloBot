@@ -20,14 +20,14 @@ class Stats(commands.Cog):
     """
     Manages statistic channels that can be customized by staff, as well as stastics for everyday stuff.
     """
-    API_key = os.getenv('WEATHER_TOKEN')
-    city_name = int(os.getenv('CITY_CODE'))
-    owm = OWM(API_key)
-    mgr: WeatherManager = owm.weather_manager()
-    reg: cityidregistry.CityIDRegistry = owm.city_id_registry()
 
     def __init__(self, bot):
         self.bot: XyloBot = bot
+        self.API_key = bot.config['weather_token']
+        self.owm = OWM(self.API_key)
+        self.mgr: WeatherManager = self.owm.weather_manager()
+        self.reg: cityidregistry.CityIDRegistry = self.owm.city_id_registry()
+
     #     bot.add_loop("stat", self.update_stats)
     #
     # async def get_stat_channel(self, guild_id):
