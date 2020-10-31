@@ -153,7 +153,7 @@ class Clip(commands.Cog):
     @clip_command.command(name="list")
     async def list_clip(self, ctx: Context):
         command = "SELECT id, name FROM clip_storage WHERE user_id={0};"
-        command = command.format(ctx.author)
+        command = command.format(ctx.author.id)
         async with db.MaybeAcquire() as con:
             con.execute(command)
             entries = con.fetchall()
