@@ -259,7 +259,7 @@ class AutoReactions(commands.Cog):
             command = command.format(', '.join(vals))
             async with db.MaybeAcquire() as con:
                 con.execute(command)
-            self.bulk_uses = {}
+            self.bulk_uses.clear()
 
     def _bulk_add_reaction_sql(self, guild_id, data_list: list):
         insert = "INSERT INTO auto_reactions (guild_id, name, filter, filter_type, reaction, reaction_type) VALUES "
