@@ -41,7 +41,7 @@ class Support(commands.Cog):
             embed.add_field(name="Guild", value=f"{ctx.guild.name} ({ctx.guild.id})")
             embed.add_field(name="Channel", value=f"{ctx.channel.name} ({ctx.channel.id})")
 
-        await channel.send(embed)
+        await channel.send(embed=embed)
         await ctx.send("Feedback sent! Thanks! You may get a DM from me in the near future.")
 
     @commands.command(name="pm", aliases=["dm"], hidden=True)
@@ -66,6 +66,7 @@ class Support(commands.Cog):
         await dm.send(content + "\n\n*This DM is not monitored. If you need more help join the support server in "
                                 "`>about`.*")
         await ctx.send("DM sent!")
+
 
 def setup(bot):
     bot.add_cog(Support())
