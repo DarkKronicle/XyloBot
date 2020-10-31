@@ -10,7 +10,7 @@ from storage.json_reader import JSONReader
 from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
-from util.paginator import SimplePages, SimplePageSource
+from util.paginator import SimplePageSource, Pages
 
 all_emojis: dict = JSONReader("data/emojis.json").data
 
@@ -218,11 +218,11 @@ class ARPageEntry:
         return f"{self.name} (Uses: {self.uses}, ID: {self.id})"
 
 
-class ARPages(SimplePages):
+class ARPages(Pages):
 
     def __init__(self, config: AutoReactionConfig, *, per_page=15):
         converted = [ARPageEntry(entry) for entry in config.reactions]
-        super().__init__(converted, per_page=per_page)
+        super().__init__(AREntrySource(converted, per_page=per_page))
 
 
 class AutoReactions(commands.Cog):
