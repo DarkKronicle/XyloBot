@@ -203,7 +203,7 @@ class AREntrySource(SimplePageSource):
 
     async def format_page(self, menu, entries):
         await super().format_page(menu, entries)
-        menu.description = menu.description + "\n\n*To see more information about a specific reaction, use `>ar " \
+        menu.embed.description = menu.embed.description + "\n\n*To see more information about a specific reaction, use `>ar " \
                                               "<name>`* "
         return menu.embed
 
@@ -223,6 +223,7 @@ class ARPages(Pages):
     def __init__(self, config: AutoReactionConfig, *, per_page=15):
         converted = [ARPageEntry(entry) for entry in config.reactions]
         super().__init__(AREntrySource(converted, per_page=per_page))
+        self.embed = discord.Embed(colour=discord.Colour.blurple())
 
 
 class AutoReactions(commands.Cog):
