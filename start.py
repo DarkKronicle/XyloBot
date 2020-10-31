@@ -2,7 +2,6 @@ import argparse
 import asyncio
 import importlib
 import logging
-import os
 import traceback
 
 import psycopg2

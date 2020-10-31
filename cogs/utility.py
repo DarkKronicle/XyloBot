@@ -405,6 +405,9 @@ class Utility(commands.Cog):
 
     @commands.command(name="uptime")
     async def uptime(self, ctx: Context):
+        """
+        Get how long I have been up
+        """
         embed = discord.Embed(
             description="I have been up for " + self.get_time_up(ctx.bot),
             colour=discord.Colour.purple()
@@ -447,6 +450,7 @@ class Utility(commands.Cog):
         message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice Channels: `{voice}`\n\nUptime: `{uptime}`"
         embed.description = message
         embed.add_field(name="Support Server", value="https://discord.gg/X2Kmd7t")
+        embed.add_field(name="Invite Link", value="https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot")
         await ctx.send(embed=embed)
 
 
