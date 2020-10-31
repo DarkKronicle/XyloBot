@@ -1,5 +1,6 @@
 import math
 import textwrap
+from collections import Counter
 
 from discord.ext import tasks, menus, commands
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, \
@@ -18,7 +19,6 @@ import discord
 import random
 from util.context import Context
 from cogs.help import Help
-import os
 
 
 async def get_prefix(dbot, message: discord.Message):
@@ -89,14 +89,24 @@ class XyloBot(commands.Bot):
     def __init__(self):
         self.config: dict = JSONReader("config.json").data
 
+        allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True)
+
         intents = discord.Intents.default()
         intents.members = True
         intents.guilds = True
-        super().__init__(command_prefix=get_prefix, intents=intents, description=description, case_insensitive=True, owner_id=523605852557672449)
+        super().__init__(command_prefix=get_prefix, intents=intents, description=description,
+                         case_insensitive=True, owner_id=523605852557672449, allowed_mentions=allowed_mentions)
         self.help_command = Help()
         self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.boot = datetime.now()
+
+        self.command_cooldown = commands.CooldownMapping.from_cooldown(10, 12, commands.BucketType.user)
+        self.spam_counter = Counter()
+        # I'm lazy right now and only have people blocked until the bot resets. If this becomes a problem
+        # I'll add some sort of storage.
+        self.blocked_users = []
+        
         for extension in startup_extensions:
             try:
                 self.load_extension(cogs_dir + "." + extension)
@@ -110,6 +120,7 @@ class XyloBot(commands.Bot):
         super().run(self.config['bot_token'], reconnect=True, bot=True)
 
     async def on_ready(self):
+        self.boot = datetime.now()
         print(f"{self.user} has connected to Discord!")
         self.status.start()
         self.setup_loop.start()
@@ -229,6 +240,26 @@ class XyloBot(commands.Bot):
 
         if ctx.command is None:
             return
+
+        if message.author.id in self.blocked_users:
+            return
+        
+        bucket = self.command_cooldown.get_bucket(message)
+        retry_after = bucket.update_rate_limit()
+        author_id = message.author.id
+        if retry_after and author_id != self.owner_id:
+            self.spam_counter[author_id] += 1
+            if self.spam_counter[author_id] >= 5:
+                self.blocked_users.append(author_id)
+                del self.spam_counter[author_id]
+                await self.log.send(embed=discord.Embed(
+                    title="User Blocked",
+                    description=f"After rate limiting 5 times, `{message.author}` has been blocked.",
+                    colour=discord.Colour.red()
+                ))
+            return
+        else:
+            self.spam_counter.pop(author_id, None)
 
         cog = self.get_cog("CommandSettings")
         if cog is not None and not await cog.is_command_enabled(ctx):
