@@ -54,7 +54,7 @@ class SimplePageSource(menus.ListPageSource):
     async def format_page(self, menu, entries):
         pages = []
         for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
-            pages.append(f"**{index + 1}. {entry}")
+            pages.append(f"**{index + 1}.** {entry}")
 
         maximum = self.get_max_pages()
         if maximum > 1:

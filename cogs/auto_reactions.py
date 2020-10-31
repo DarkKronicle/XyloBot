@@ -3,13 +3,14 @@ import re
 
 import typing
 
-from discord.ext import tasks, commands
+from discord.ext import tasks, commands, menus
 
 from storage import db
 from storage.json_reader import JSONReader
 from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
+from util.paginator import SimplePages, SimplePageSource
 
 all_emojis: dict = JSONReader("data/emojis.json").data
 
@@ -198,6 +199,32 @@ class AutoReactionName(commands.Converter):
         return None
 
 
+class AREntrySource(SimplePageSource):
+
+    async def format_page(self, menu, entries):
+        await super().format_page(menu, entries)
+        menu.description = menu.description + "\n\n*To see more information about a specific reaction, use `>ar " \
+                                              "<name>`* "
+        return menu.embed
+
+
+class ARPageEntry:
+    def __init__(self, entry: AutoReactionConfig.ReactionData):
+        self.name = entry.name
+        self.id = entry.id
+        self.uses = entry.uses
+
+    def __str__(self):
+        return f"{self.name} (Uses: {self.uses}, ID: {self.id})"
+
+
+class ARPages(SimplePages):
+
+    def __init__(self, config: AutoReactionConfig, *, per_page=15):
+        converted = [ARPageEntry(entry) for entry in config.reactions]
+        super().__init__(converted, per_page=per_page)
+
+
 class AutoReactions(commands.Cog):
     """
     Messages that Xylo will automatically react to.
@@ -314,10 +341,11 @@ class AutoReactions(commands.Cog):
         reactions = await self.get_autoreactions(ctx.guild.id)
         if len(reactions.reactions) == 0:
             return await ctx.send("This guild currently has no auto reactions.")
-        message = f"Current reactions in this guild. Use `{ctx.prefix}ar <reaction_name>` to view more information."
-        for r in reactions.reactions:
-            message = message + f"\n`{r.name}`"
-        await ctx.send(message)
+        try:
+            p = ARPages(reactions)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
 
     @commands.group(name="!autoreactions", aliases=["!autoreaction", "!ar"])
     @commands.guild_only()
