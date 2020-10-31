@@ -12,4 +12,6 @@ Thanks for adding me to {0.name}! I've started by setting your server's default 
 
 `>!autoreactions` - Have me automagically react to messages that contain certain keywords. I can react with messages, or reactions! There are already some preset ones that you can view with `>autoreactions`!
 
-Finally, if you have any questions or requests, come check out my repository! https://github.com/DarkKronicle/XyloBot/
+If you have any questions or requests, come check out my repository! https://github.com/DarkKronicle/XyloBot/
+
+(P.S. I am still in an early beta so bugs may arise. My owner is trying to work them out quickly!)
