@@ -190,7 +190,6 @@ class PrimaryKeyColumn(Column):
         super().__init__(Integer(auto_increment=True), primary_key=True)
 
 
-
 class MaybeAcquire:
 
     def release(self):

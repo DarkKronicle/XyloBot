@@ -1,6 +1,7 @@
 from discord.ext import commands, menus
 
 from storage import db
+from util import context
 from util.context import Context
 from util.paginator import SimplePages
 
@@ -96,8 +97,37 @@ class Clip(commands.Cog):
 
     max_amount = 20
 
-    # @clip_command.command(name="add", aliases=["new"])
-    # async def add_clip(self, ctx: Context, name: ClipName = None, *, content):
+    @clip_command.command(name="add", aliases=["new"])
+    async def add_clip(self, ctx: Context, name: ClipName = None, *, content: context.CustomCleanContent(escape_mentions=False, use_nicknames=False)):
+        """
+        Create a clip in one command!
+        """
+        if name is None:
+            return await ctx.send_help("c add")
+
+        original = ctx.message
+
+        if content is None:
+            content = await ctx.raw_ask("What will this clip say?")
+            if content is None:
+                return await ctx.timeout()
+            ctx.message = original
+            content = await ctx.clean(message=content, escape_roles=True, escape_mentions=False)
+
+        command = "INSERT INTO clip_storage(user_id, name, content) VALUES ({0}, $comm${1}$comm$, $comm${2}$comm$)" \
+                  "ON CONFLICT (user_id, name) DO UPDATE SET content = EXCLUDED.content;"
+        command = command.format(str(ctx.author.id), name, content)
+        amount = "SELECT COUNT(*) FROM clip_storage WHERE user_id={0};"
+        amount = amount.format(ctx.author.id)
+        async with db.MaybeAcquire() as con:
+            con.execute(amount)
+            count = con.fetchone()
+            if count is not None:
+                num = count['count']
+                if num >= self.max_amount:
+                    return await ctx.send(f"You have too many clips! Use `{ctx.prefix}clip delete` to free up space.")
+            con.execute(command)
+        await ctx.send("Clip has been updated/created!")
 
     @clip_command.command(name="make", aliases=["create"])
     async def new_clip(self, ctx: Context):

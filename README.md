@@ -1,6 +1,6 @@
 # XyloBot
 
-XyloBot is a bot that I have created for a private discord I am in (no invites, sorry). Still learning a lot about Python, but I feel this bot is at least somewhat decent.
+XyloBot is a bot that I have created for fun. Still learning a lot about Python, but I feel this bot is at least somewhat decent.
 
 ## Features
 
@@ -22,7 +22,7 @@ XyloBot is a bot that I have created for a private discord I am in (no invites, 
 
 - Basic text manipulation.
 
-- Utility commands to make your life easier. Create a temporary invite link to a specified channel that gets logged, see emojjis that Xylo can find in a text, copy contents of a file to chat, convert text into a text file, grade calculator.
+- Utility commands to make your life easier. Create a temporary invite link to a specified channel that gets logged, see emojis that Xylo can find in a text, copy contents of a file to chat, convert text into a text file, grade calculator.
 
 ## Credits
 

@@ -392,6 +392,8 @@ class AutoReactions(commands.Cog):
             if r.name.lower() == name.lower():
                 return await ctx.send("There is already a reaction named that in this guild!")
         name = name.replace("$", r"\$")
+        if len(name) > 20:
+            return await ctx.send("Name is too big!")
 
         ftype = await ctx.ask("What type of filter will this be?\n**0.** Case sensitive and can be found anywhere."
                               "\n**1.** Case insensitive and can be found anywhere."
@@ -492,6 +494,32 @@ class AutoReactions(commands.Cog):
             return await ctx.send("Cancelled")
         await self.remove_reaction(ctx.guild.id, ar.name)
         await ctx.send("Removed")
+        
+    @config_autoreactions.group(name="edit")
+    async def ar_edit(self, ctx: Context):
+        """
+        Edit data about auto reactions.
+        """
+        if ctx.invoked_subcommand is None:
+            return ctx.send_help("!ar help")
+
+    @ar_edit.command(name="name")
+    async def edit_name(self, ctx: Context, autoreaction: AutoReactionName = None, newname: str = None):
+        """
+        Edit the name of an auto reaction.
+        """
+        if autoreaction is None:
+            return await ctx.send("Please specify a correct auto reaction.")
+        newname = newname.replace("$", r"\$")
+        if len(newname) > 20:
+            return await ctx.send("Name is too big!")
+        command = "UPDATE FROM auto_reactions SET name = {2} WHERE guild_id = {0} AND name = {2};"
+        command = command.format(ctx.guild.id, autoreaction.name, newname)
+        async with db.MaybeAcquire() as con:
+            con.execute(command)
+
+        await ctx.send(f"`{autoreaction.name}` >>> `{newname}`")
+        self.get_autoreactions.invalidate(self, ctx.guild.id)
 
     async def get_about_embed(self, data: AutoReactionConfig.ReactionData):
         embed = discord.Embed(

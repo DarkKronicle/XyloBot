@@ -105,6 +105,8 @@ class RandomCommands(commands.Cog, name="Random"):
         """
         Ship two users together.
         """
+        if ships is None:
+            return await ctx.send_help('ship')
         if len(ships) == 2:
             ship1 = ships[0]
             ship2 = ships[1]
