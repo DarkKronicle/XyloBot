@@ -39,11 +39,12 @@ class CustomCleanContent(commands.Converter):
         self.escape_roles = escape_roles
         self.escape_everyone = escape_everyone
 
-    async def convert(self, ctx, *, message=None):
+    async def convert(self, ctx, argument, *, message=None):
         if message is None:
             message = ctx.message
-            argument = message.content
-        else:
+            if argument is None:
+                argument = message.content
+        elif argument is None:
             argument = message.content
         transformations = {}
 
@@ -286,4 +287,4 @@ class Context(commands.Context):
         converter = CustomCleanContent(fix_channel_mentions=fix_channel_mentions, use_nicknames=use_nicknames,
                                        escape_markdown=escape_markdown, escape_mentions=escape_mentions,
                                        escape_roles=escape_roles)
-        return await converter.convert(self, message=message)
+        return await converter.convert(self, None, message=message)
