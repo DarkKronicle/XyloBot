@@ -36,10 +36,9 @@ class Games(commands.Cog):
         First person to type out a random set of characters.
         """
         if ctx.channel in self.current_games and "duel" in self.current_games[ctx.channel]:
-            await ctx.send("There's already a duel going on. Please wait")
-            return
+            return await ctx.send("There's already a duel going on. Please wait")
         if user is None or user is ctx.author:
-            await ctx.send("Specify a correct user!")
+            return await ctx.send("Specify a correct user!")
 
         answer = await ctx.prompt(
             f"{ctx.author.mention} has challenged {user.mention} to a duel! Do you accept? Respond with "
