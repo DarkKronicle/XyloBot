@@ -23,7 +23,7 @@ class Games(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.channel in self.current_games:
             if len(self.current_games[message.channel]) != 0:
-                for g in self.current_games[message.channel]:
+                for g in self.current_games[message.channel].copy():
                     game = self.current_games[message.channel][g]
                     if message.channel is game.channel:
                         if message.author in game.users:
