@@ -118,6 +118,7 @@ class Games(commands.Cog):
                 description=f"Only {len(game.users)} are in the game. You'll need at least 3.",
                 colour=discord.Colour.red()
             ))
+            self.current_games[ctx.channel].pop("cah")
             return
         message = f"Game starting for *Cards Against Humanity*. Make sure to type your answers in **this channel**.\n\nCategories:"
         for cat in game.categories:
