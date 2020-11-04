@@ -15,7 +15,7 @@ class Counter:
     def __init__(self, *, values=None):
         if values is not None:
             self.last_id = values["last_id"]
-            self.count = values["number"]
+            self.count = values["count"]
         else:
             self.last_id = 0
             self.count = 0
