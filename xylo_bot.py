@@ -44,7 +44,7 @@ async def get_prefix(dbot, message: discord.Message):
 cogs_dir = "cogs"
 startup_extensions = [
     "data_commands", "auto_reactions", "channels", "verify", "statistics",
-    "fun", "utility", "api", "game", "image", "log",
+    "fun", "utility", "api", "game", "image", "log", "counting",
     "random_commands", "text", "guild_config", "command_config", "clip", "support"
 ]
 
@@ -95,7 +95,6 @@ class XyloBot(commands.Bot):
         super().__init__(command_prefix=get_prefix, intents=intents, description=description,
                          case_insensitive=True, owner_id=523605852557672449, allowed_mentions=allowed_mentions)
         self.help_command = Help()
-        self.spam = commands.CooldownMapping.from_cooldown(10, 15, commands.BucketType.user)
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.boot = datetime.now()
 
