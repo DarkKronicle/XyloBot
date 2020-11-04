@@ -230,14 +230,15 @@ class RandomCommands(commands.Cog, name="Random"):
     async def increment(self, ctx: Context):
         if self.inc["last_id"] == ctx.author.id:
             return await ctx.send("You were the last one to do this command!")
+        await ctx.message.delete()
         number = self.inc["number"] + 1
         self.inc["number"] = number
         self.inc["last_id"] = ctx.author.id
         parrot = "<a:deploy:771180662643490817>"
         if number % 100 != 0:
-            await ctx.send(f"{number}")
+            await ctx.send(f"{ctx.author.mention} got us to `{number}`")
         else:
-            await ctx.send(f"{parrot} **{number}** {parrot}")
+            await ctx.send(f"{parrot} **{number}** {parrot}\n{ctx.author.mention}")
 
 
 def setup(bot):
