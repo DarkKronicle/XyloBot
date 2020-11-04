@@ -78,6 +78,17 @@ class Counting(commands.Cog):
             return await ctx.send_help('!setcounter')
         await ctx.send(f"Set to {self.counter.set_count(number)}")
 
+    @commands.command(name="count")
+    async def count_cur(self, ctx: Context):
+        """
+        For the number pacifists, here's the current number.
+        """
+        embed = discord.Embed(
+            description=f"Current number of the global counter is `{self.counter.count}`.",
+            colour=discord.Colour.light_gray()
+        )
+        await ctx.send(embed=embed)
+
     add_messages = [
         "We're moving up!",
         "Thank you very much :)",
@@ -87,7 +98,12 @@ class Counting(commands.Cog):
         "Sup",
         "<a:deploy:771180662643490817>",
         "<:fblike:771180783217410098>",
-        "<:pog:771175687516061726>"
+        "<:pog:771175687516061726>",
+        "Hmm, you bored too?",
+        "Up up up up up up up up",
+        "You are bringing good to the world.",
+        "Convert decrementers with all of your might!",
+        "+ FOREVER"
     ]
 
     @commands.command(name="increment", aliases=["i", "inc", "+"])
@@ -110,7 +126,7 @@ class Counting(commands.Cog):
         if self.counter.is_last(ctx.author.id):
             await ctx.message.delete()
             return await ctx.send(embed=discord.Embed(
-                description=f"You were the last one to send this command! Right now we're at {self.counter.count}.",
+                description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
                 colour=discord.Colour.red()
             ), delete_after=15)
         # end
@@ -122,17 +138,72 @@ class Counting(commands.Cog):
             colour=discord.Colour.green()
         )
         embed.set_author(name=f"{number} - {ctx.author.display_name}", url=ctx.author.avatar_url)
-        embed.timestamp = datetime.now()
-        embed.set_footer(text=f"To contribute use {ctx.prefix}+")
+        embed.set_footer(text=f"To contribute use {ctx.prefix}+ or {ctx.prefix}-")
         if number % 1000 == 0:
             embed.colour = discord.Colour.gold()
             embed.description = f"{parrot} WE GOT TO ***{number}*** {parrot}"
             await ctx.send(embed=embed)
         elif number % 100 == 0:
             embed.description = f"{parrot} TO {number} AND BEYOND {parrot}"
+            embed.colour = discord.Colour.magenta()
             await ctx.send(embed=embed)
         else:
             embed.description = random.choice(self.add_messages)
+            await ctx.send(embed=embed)
+
+    remove_messages = [
+        "Welcome to the dark side.",
+        "Yes yes yes",
+        "*Evil laughing*",
+        "How does it feel to hate on the incrementers?",
+        "DOWN WITH THE NUMBER. *ALL HAIL -*",
+        "You are making enemies. Good.",
+        "*Slow mo walking*"
+    ]
+
+    @commands.command(name="decrement", aliases=["d", "dec", "-"])
+    async def decrement(self, ctx: Context):
+        """
+        Play with the global counter!
+        """
+        # Error handling/cooldown.
+        bucket = self.counter_cooldown.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            await ctx.message.delete()
+            return await ctx.send(embed=discord.Embed(
+                description=f"You're currently on cooldown. Try again in `{math.ceil(retry_after)}` seconds. Right "
+                            f"now we're at {self.counter.count}.",
+                colour=discord.Colour.red()
+            ), delete_after=15)
+
+        # Don't want them to increment it all by themselves.
+        if self.counter.is_last(ctx.author.id):
+            await ctx.message.delete()
+            return await ctx.send(embed=discord.Embed(
+                description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
+                colour=discord.Colour.red()
+            ), delete_after=15)
+        # end
+
+        await ctx.message.delete()
+        number = self.counter.decrement()
+        parrot = "<a:deploy:771180662643490817>"
+        embed = discord.Embed(
+            colour=discord.Colour.red()
+        )
+        embed.set_author(name=f"{number} - {ctx.author.display_name}", url=ctx.author.avatar_url)
+        embed.set_footer(text=f"To contribute use {ctx.prefix}+ or {ctx.prefix}-")
+        if number % 1000 == 0:
+            embed.colour = discord.Colour.dark_red()
+            embed.description = f"{parrot} WE'RE BRINGING IT DOWN TOWN TO ***{number}*** {parrot}"
+            await ctx.send(embed=embed)
+        elif number % 100 == 0:
+            embed.description = f"{parrot} TO {number} AND BELOW {parrot}"
+            embed.colour = discord.Colour.dark_red()
+            await ctx.send(embed=embed)
+        else:
+            embed.description = random.choice(self.remove_messages)
             await ctx.send(embed=embed)
 
 
