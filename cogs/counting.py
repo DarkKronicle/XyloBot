@@ -39,8 +39,11 @@ class Counter:
         return self.count
 
     def is_last(self, user_id):
-        self.last_id = user_id
-        return user_id == self.last_id
+        if user_id == self.last_id:
+            return True
+        else:
+            self.last_id = user_id
+            return False
 
 
 class Counting(commands.Cog):
