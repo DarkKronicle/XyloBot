@@ -72,7 +72,7 @@ class Games(commands.Cog):
         Start a game of Cards Against Humanity. You can send it again to force it to start.
         """
         if ctx.channel in self.current_games and "cah" in self.current_games[ctx.channel]:
-            game = self.current_games[ctx.guild]["cah"]
+            game = self.current_games[ctx.channel]["cah"]
             if game.started:
                 wait = discord.Embed(
                     title="Game already going on!",

@@ -1,3 +1,5 @@
+import json
+import os
 import random
 
 import discord
@@ -14,6 +16,16 @@ class RandomCommands(commands.Cog, name="Random"):
     """
 
     random_values = JSONReader("data/random.json").data
+    inc_name = "data/inc.json"
+
+    def __init__(self):
+        exists = os.path.exists(self.inc_name)
+        with open(file=self.inc_name, mode="a+") as f:
+            f.seek(0)
+            if exists:
+                self.inc = json.load(f)
+            else:
+                self.inc = {"number": 0, "last_id": 0}
 
     def seeded_int(self, obj_id, min_int=0, max_int=1):
         random.seed(obj_id)
@@ -208,6 +220,24 @@ class RandomCommands(commands.Cog, name="Random"):
             choice = rtwo
 
         await ctx.send(f"After much deliberation, I am certain that {choice} is better.")
+
+    def cog_unload(self):
+        with open(file=self.inc_name, mode='w') as json_file:
+            json.dump(self.inc, json_file, indent=4, sort_keys=True)
+
+    @commands.command(name="increment", aliases=["i", "inc"])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    async def increment(self, ctx: Context):
+        if self.inc["last_id"] == ctx.author.id:
+            return await ctx.send("You were the last one to do this command!")
+        number = self.inc["number"] + 1
+        self.inc["number"] = number
+        self.inc["last_id"] = ctx.author.id
+        parrot = "<a:deploy:771180662643490817>"
+        if number % 100 != 0:
+            await ctx.send(f"{number}")
+        else:
+            await ctx.send(f"{parrot} **{number}** {parrot}")
 
 
 def setup(bot):

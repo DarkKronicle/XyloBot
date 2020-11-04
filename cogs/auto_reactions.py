@@ -513,7 +513,7 @@ class AutoReactions(commands.Cog):
         newname = newname.replace("$", r"\$")
         if len(newname) > 20:
             return await ctx.send("Name is too big!")
-        command = "UPDATE FROM auto_reactions SET name = {2} WHERE guild_id = {0} AND name = {2};"
+        command = "UPDATE FROM auto_reactions SET name = $${2}$$ WHERE guild_id = {0} AND name = $${2}$$;"
         command = command.format(ctx.guild.id, autoreaction.name, newname)
         async with db.MaybeAcquire() as con:
             con.execute(command)
