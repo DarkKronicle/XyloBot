@@ -35,6 +35,9 @@ class Magic(commands.Cog, hidden=True):
 
     @mtg.command(name="search")
     async def search(self, ctx: Context, *args):
+        """
+        Searches for a MTG card.
+        """
         if len(args) == 0:
             return await ctx.send_help('m search')
 
@@ -43,7 +46,7 @@ class Magic(commands.Cog, hidden=True):
         if len(cards) == 0:
             return await ctx.send("None found")
         try:
-            p = CardPages(entries=entries)
+            p = CardPages(entries=cards)
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)
