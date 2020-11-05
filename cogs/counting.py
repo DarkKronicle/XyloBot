@@ -108,7 +108,7 @@ class Counting(commands.Cog):
     @commands.command(name="increment", aliases=["i", "inc", "+"])
     async def increment(self, ctx: Context):
         """
-        Play with the global counter!
+        Become an incrementer and help the cause!
         """
         # Error handling/cooldown.
         bucket = self.counter_cooldown.get_bucket(ctx.message)
@@ -163,7 +163,7 @@ class Counting(commands.Cog):
     @commands.command(name="decrement", aliases=["d", "dec", "-"])
     async def decrement(self, ctx: Context):
         """
-        Play with the global counter!
+        Become a decrementer and DESTROY THE INCREMENTERS.
         """
         # Error handling/cooldown.
         bucket = self.counter_cooldown.get_bucket(ctx.message)
