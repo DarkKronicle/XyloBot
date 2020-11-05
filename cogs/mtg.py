@@ -26,14 +26,15 @@ class Magic(commands.Cog):
     Experimental module for MTG
     """
 
-    @commands.group(name="mtg", aliases=["magic", "m"])
+    @commands.group(name="mtg", aliases=["magic", "m"], hidden=True)
+    @commands.is_owner()
     async def mtg(self, ctx: Context):
         """
         Experimental
         """
         pass
 
-    @mtg.command(name="search")
+    @mtg.command(name="search", hidden=True)
     async def search(self, ctx: Context, *args):
         """
         Searches for a MTG card.
