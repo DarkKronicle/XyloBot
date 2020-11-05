@@ -21,7 +21,7 @@ class CardPages(SimplePages):
         super().__init__(converted, per_page=per_page)
 
 
-class Magic(commands.Cog, hidden=True):
+class Magic(commands.Cog):
     """
     Experimental module for MTG
     """
