@@ -9,7 +9,7 @@ from util.paginator import SimplePages
 class CardEntry:
     def __init__(self, entry):
         self.name = entry.name
-        self.id = entry.multiverseid
+        self.id = entry.multiverse_id
 
     def __str__(self):
         return f"{self.name} (ID: {self.id})"
