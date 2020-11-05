@@ -68,9 +68,9 @@ class Magic(commands.Cog):
 
         card = card[0]
         try:
-            image = await discord_util.get_file_from_image(card.image.image_url, "magic.png")
+            image = await discord_util.get_file_from_image(card.image_url, "magic.png")
         except Exception:
-            return await ctx.send("Couldn't download image. Try again later.")
+            return await ctx.send("Something went wrong with that image. Try again later.")
         if image is None:
             return await ctx.send("Couldn't download image. Try again later.")
 
