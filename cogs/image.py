@@ -56,7 +56,7 @@ class ImageCog(commands.Cog, name="Image"):
         image.save(buffer, "png")
         buffer.seek(0)
         await ctx.send(f"This has been approved by {ctx.author.mention}.", file=discord.File(fp=buffer, filename="approved.png"))
-        await ctx.message.delete()
+        await ctx.delete()
 
 
 def setup(bot):

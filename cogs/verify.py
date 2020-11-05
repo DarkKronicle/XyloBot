@@ -746,7 +746,10 @@ class Verify(commands.Cog):
 
         # From here on out logic is a bit of a mess... but it works.
         if await self.is_done(message.author, message.guild):
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.HTTPException:
+                pass
             done = discord.Embed(
                 title="Verification Process Complete!",
                 description="You're all set! You'll get a DM from me when you get processed.",
@@ -770,7 +773,10 @@ class Verify(commands.Cog):
         if current["step"]:
             return
 
-        await message.delete()
+        try:
+            await message.delete()
+        except discord.HTTPException:
+            pass
 
 
         # If there are no fields enabled we just let staff know that they actually do exist.
@@ -795,13 +801,19 @@ class Verify(commands.Cog):
                     timeout=60,
                     check=lambda msg: msg.author == message.author and msg.channel == message.channel
                 )
-                await prompt.delete()
-                await answer.delete()
+                try:
+                    await prompt.delete()
+                    await answer.delete()
+                except discord.HTTPException:
+                    pass
                 if answer:
                     self.verifying[message.guild.id][message.author.id]["fields"][value] = answer.content
             except asyncio.TimeoutError:
                 self.verifying[message.guild.id].pop(message.author.id)
-                await prompt.delete()
+                try:
+                    await prompt.delete()
+                except discord.HTTPException:
+                    pass
                 await channel.send("This has been closed due to a timeout", delete_after=15)
                 return
 
@@ -822,8 +834,11 @@ class Verify(commands.Cog):
                     timeout=60,
                     check=lambda msg: msg.author == message.author and msg.channel == message.channel
                 )
-                await answer.delete()
-                await prompt.delete()
+                try:
+                    await prompt.delete()
+                    await answer.delete()
+                except discord.HTTPException:
+                    pass
                 if answer:
                     if "yes" not in answer.content:
                         self.verifying[message.guild.id].pop(message.author.id)
@@ -831,7 +846,10 @@ class Verify(commands.Cog):
                         return
             except asyncio.TimeoutError:
                 self.verifying[message.guild.id].pop(message.author.id)
-                await prompt.delete()
+                try:
+                    await prompt.delete()
+                except discord.HTTPException:
+                    pass
                 await channel.send("This has been closed due to a timeout", delete_after=15)
                 return
 
@@ -964,7 +982,10 @@ class Verify(commands.Cog):
         if "first" in info["fields"]:
             await member.edit(nick=info["fields"]["first"])
         if settings.roles is not None and len(settings.roles) != 0:
-            await member.add_roles(*settings.roles)
+            try:
+                await member.add_roles(*settings.roles)
+            except discord.HTTPException:
+                pass
 
     async def reject_user(self, member: discord.Member, guild: discord.Guild):
         """

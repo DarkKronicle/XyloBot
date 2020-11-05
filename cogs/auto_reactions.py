@@ -179,7 +179,10 @@ class AutoReactionConfig:
         reacts = self.get_reactions(message.content, stats=stats)
         if len(reacts["emojis"]) != 0:
             for e in reacts["emojis"]:
-                await message.add_reaction(e)
+                try:
+                    await message.add_reaction(e)
+                except discord.HTTPException:
+                    pass
         if len(reacts["text"]) != 0:
             for t in reacts["text"]:
                 await message.channel.send(t)

@@ -159,7 +159,10 @@ class Context(commands.Context):
             answer = None
 
         if delete_after:
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.HTTPException:
+                pass
 
         return answer
 
@@ -205,7 +208,10 @@ class Context(commands.Context):
             answer = None
 
         if delete_after:
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.HTTPException:
+                pass
 
         return answer
 
@@ -246,12 +252,18 @@ class Context(commands.Context):
         try:
             answermsg = await self.bot.wait_for('message', timeout=timeout, check=check)
             if delete_after:
-                await answermsg.delete()
+                try:
+                    await answermsg.delete()
+                except discord.HTTPException:
+                    pass
         except asyncio.TimeoutError:
             answer = None
 
         if delete_after:
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.HTTPException:
+                pass
 
         return answer
 
@@ -288,3 +300,16 @@ class Context(commands.Context):
                                        escape_markdown=escape_markdown, escape_mentions=escape_mentions,
                                        escape_roles=escape_roles)
         return await converter.convert(self, None, message=message)
+
+    async def delete(self, *, throw_error=False):
+        """
+        If throw error is false, it will send true/false if success.
+        """
+        if throw_error:
+            await self.message.delete
+        else:
+            try:
+                await self.message.delete()
+            except discord.HTTPException:
+                return False
+        return True

@@ -2,7 +2,6 @@ import json
 import math
 import os
 import random
-from datetime import datetime
 
 import discord
 from discord.ext import commands
@@ -115,7 +114,7 @@ class Counting(commands.Cog):
         bucket = self.counter_cooldown.get_bucket(ctx.message)
         retry_after = bucket.update_rate_limit()
         if retry_after:
-            await ctx.message.delete()
+            await ctx.delete()
             return await ctx.send(embed=discord.Embed(
                 description=f"You're currently on cooldown. Try again in `{math.ceil(retry_after)}` seconds. Right "
                             f"now we're at {self.counter.count}.",
@@ -124,14 +123,14 @@ class Counting(commands.Cog):
 
         # Don't want them to increment it all by themselves.
         if self.counter.is_last(ctx.author.id):
-            await ctx.message.delete()
+            await ctx.delete()
             return await ctx.send(embed=discord.Embed(
                 description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
                 colour=discord.Colour.red()
             ), delete_after=15)
         # end
 
-        await ctx.message.delete()
+        await ctx.delete()
         number = self.counter.increment()
         parrot = "<a:deploy:771180662643490817>"
         embed = discord.Embed(
@@ -170,7 +169,7 @@ class Counting(commands.Cog):
         bucket = self.counter_cooldown.get_bucket(ctx.message)
         retry_after = bucket.update_rate_limit()
         if retry_after:
-            await ctx.message.delete()
+            await ctx.delete()
             return await ctx.send(embed=discord.Embed(
                 description=f"You're currently on cooldown. Try again in `{math.ceil(retry_after)}` seconds. Right "
                             f"now we're at {self.counter.count}.",
@@ -179,14 +178,14 @@ class Counting(commands.Cog):
 
         # Don't want them to increment it all by themselves.
         if self.counter.is_last(ctx.author.id):
-            await ctx.message.delete()
+            await ctx.delete()
             return await ctx.send(embed=discord.Embed(
                 description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
                 colour=discord.Colour.red()
             ), delete_after=15)
         # end
 
-        await ctx.message.delete()
+        await ctx.delete()
         number = self.counter.decrement()
         parrot = "<a:deploy:771180662643490817>"
         embed = discord.Embed(

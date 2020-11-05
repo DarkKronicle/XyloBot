@@ -220,7 +220,7 @@ class Games(commands.Cog):
             if not isinstance(key, str) or not isinstance(questions[key], str):
                 return await ctx.send("All keys and values need to be strings!")
 
-        await ctx.message.delete()
+        await ctx.delete()
 
         if len(args) > 0:
             try:

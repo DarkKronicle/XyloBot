@@ -147,7 +147,7 @@ class XyloBot(commands.Bot):
                             f"seconds.",
                 colour=discord.Colour.red()
             )
-            await ctx.message.delete()
+            await ctx.delete()
             await ctx.send(embed=embed, delete_after=15)
             return
         if isinstance(error, CheckFailure):
@@ -162,7 +162,7 @@ class XyloBot(commands.Bot):
 
         # https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/stats.py#L601
 
-        if not isinstance(error, (commands.CommandInvokeError, commands.ConversionError)):
+        if not isinstance(error, (commands.CommandInvokeError, commands.ConversionError, discord.HTTPException)):
             return
 
         error = error.original

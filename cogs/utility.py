@@ -211,7 +211,10 @@ class Utility(commands.Cog):
         if settings.invite_channel is not None:
             channel: discord.TextChannel = settings.invite_channel
 
-            invite = await channel.create_invite(max_age=1800)
+            try:
+                invite = await channel.create_invite(max_age=1800)
+            except discord.HTTPException:
+                return await ctx.send("Something went wrong...")
             if invite is None:
                 await ctx.send("Error creating invite. It just didn't create!")
                 return

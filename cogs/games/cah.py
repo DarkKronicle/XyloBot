@@ -329,7 +329,10 @@ class CAHGameInstance(Game):
             card_num = int(message.content)
         except ValueError:
             return
-        await message.delete()
+        try:
+            await message.delete()
+        except discord.HTTPException:
+            pass
         if self.time:
             if self.get_czar() is not message.author:
                 if message.author not in self.answers:

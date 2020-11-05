@@ -121,7 +121,10 @@ class QuizGameInstance(game.Game):
     async def process_message(self, message):
         if not self.answering or self.winner is not None:
             return
-        await message.delete()
+        try:
+            await message.delete()
+        except discord.HTTPException:
+            pass
         self.active = True
         if message.content.lower() == self.answer.lower():
             self.winner = message.author
