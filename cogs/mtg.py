@@ -8,7 +8,7 @@ from util.paginator import SimplePages
 
 class CardEntry:
     def __init__(self, entry):
-        self.name = entry.entry
+        self.name = entry.name
         self.id = entry.multiverseid
 
     def __str__(self):
