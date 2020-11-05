@@ -44,7 +44,7 @@ async def get_prefix(dbot, message: discord.Message):
 cogs_dir = "cogs"
 startup_extensions = [
     "data_commands", "auto_reactions", "channels", "verify", "statistics",
-    "fun", "utility", "api", "game", "image", "log", "counting",
+    "fun", "utility", "api", "game", "image", "log", "counting", "mtg",
     "random_commands", "text", "guild_config", "command_config", "clip", "support"
 ]
 

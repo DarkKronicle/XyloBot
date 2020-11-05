@@ -297,7 +297,8 @@ class Utility(commands.Cog):
         embed = discord.Embed(
             colour=discord.Colour.gold()
         )
-        message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** {str(round(totalpercent * 4, 2))}\n\n```Percentage | Weighted -=- Current/Total\n"
+        message = f"**Normal Grading:** {str(round(totalpercent * 100, 2))}%\n**Standard Based:** " \
+                  f"{str(round(totalpercent * 4, 2))}\n\n```Percentage | Weighted -=- Current/Total\n "
         for grade in grades:
             message = message + f"\n{str(round(grade['percent'] * 100, 2))}% | {str(round(grade['weighted'] * 100))}% " \
                                 f"-=- {str(grade['current'])}/{str(grade['outof'])} "
