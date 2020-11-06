@@ -137,7 +137,7 @@ class Magic(commands.Cog):
             await ctx.send(file=image)
 
     @mtg.command(name="info", aliases=["in"])
-    async def image_card(self, ctx: Context, card: MagicCard = None):
+    async def info_card(self, ctx: Context, card: MagicCard = None):
         """
         Gets a cards information.
         """
@@ -153,7 +153,7 @@ class Magic(commands.Cog):
         embed.set_author(name=card.type)
         embed.description = f"{card.text}\n\n*{card.flavor}*\n\n**Mana:** {card.mana_cost}\n**Rarity:** " \
                             f"{card.rarity}"
-        embed.add_field(name="Colour", value=card.colors)
+        embed.add_field(name="Colour", value=' '.join(card.colors))
         embed.add_field(name="Set Name", value=card.set_name)
 
         await ctx.send(embed=embed)
