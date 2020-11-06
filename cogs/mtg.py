@@ -78,7 +78,7 @@ class MagicCard(commands.Converter):
         try:
             await p.stop()
             await p.message.delete()
-        except (menus.MenuError, discord.HTTPException):
+        except (menus.MenuError, discord.HTTPException, TypeError):
             pass
         if answer is None:
             return None
