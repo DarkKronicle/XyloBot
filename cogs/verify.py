@@ -1069,7 +1069,7 @@ class Verify(commands.Cog):
             await ctx.send("User not in verify queue.")
             return
         await self.reject_user(member, guild)
-        settings = await self.get_verify_config(ctx.guild)
+        settings = await self.get_verify_config(ctx.guild.id)
 
         self._done_cache.invalidate(self, guild.id, member.id)
 
