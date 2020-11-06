@@ -70,7 +70,7 @@ class MagicCard(commands.Converter):
             await ctx.send(e)
             return
 
-        answer = await ctx.prompt("There were multiple results that were returned. Send the number of what you want here.")
+        answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
         if answer is None:
             return None
         try:
