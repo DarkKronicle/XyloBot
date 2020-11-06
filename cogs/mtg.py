@@ -52,7 +52,7 @@ class MagicCard(commands.Converter):
         if isint:
             async with ctx.typing():
                 card = Card.where(multiverseid=id).where(page=1).where(pageSize=1).all()
-            if card is None or len(card) is None:
+            if card is None or len(card) == 0:
                 raise commands.BadArgument("No cards found by that ID!")
             return card[0]
 
@@ -68,6 +68,7 @@ class MagicCard(commands.Converter):
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)
+            return
 
         answer = await ctx.prompt("There were multiple results that were returned. Send the number of what you want here.")
         if answer is None:
