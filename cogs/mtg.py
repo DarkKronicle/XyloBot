@@ -75,9 +75,9 @@ class MagicCard(commands.Converter):
             return None
         try:
             answer = int(answer)
-            if answer < 0 or answer > len(p.entries):
+            if answer < 1 or answer > len(p.entries):
                 raise commands.BadArgument("That was too big/too small.")
-            card = cards[answer]
+            card = cards[answer - 1]
             return card
         except ValueError:
             raise commands.BadArgument("You need to specify a correct number.")
