@@ -280,7 +280,7 @@ class XyloBot(commands.Bot):
         util = self.get_cog('Utility')
         if util is None:
             return None
-        return await util.get_utility_config(guild_id)
+        return await util.get_utility_config(guild_id).log_channel
 
     @storage_cache.cache(maxsize=1024)
     async def get_guild_prefix(self, guild_id):

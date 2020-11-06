@@ -125,25 +125,28 @@ class Magic(commands.Cog):
             await ctx.send(e)
 
     @mtg.command(name="image", aliases=["i"])
-    async def image_card(self, ctx: Context, card: MagicCard = None):
+    async def image_card(self, ctx: Context, *card):
         """
         Gets a cards image.
         """
-        if card is None:
-            return await ctx.send_help('mtg id')
+        if card is None or len(card is None):
+            return await ctx.send_help('mtg image')
+
+        card = await MagicCard().convert(ctx, ' '.join(card))
 
         async with ctx.typing():
             image = await self.image_from_card(card)
             await ctx.send(file=image)
 
     @mtg.command(name="info", aliases=["in"])
-    async def info_card(self, ctx: Context, card: MagicCard = None):
+    async def info_card(self, ctx: Context, *card):
         """
         Gets a cards information.
         """
-        if card is None:
-            return await ctx.send_help('mtg id')
+        if card is None or len(card is None):
+            return await ctx.send_help('mtg info')
 
+        card = await MagicCard().convert(ctx, ' '.join(card))
         card: Card
 
         embed = discord.Embed(
