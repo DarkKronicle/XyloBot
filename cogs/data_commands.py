@@ -264,7 +264,7 @@ class DataCommands(commands.Cog):
             user_data["fields"] = {}
         user_data["fields"][field] = data
         await self.update_user(ctx.guild.id, member.id, user_data)
-        log = await ctx.bot.get_log_channel(ctx.guild)
+        log = await ctx.bot.get_log_channel(ctx.guild.id)
 
         await ctx.send(f"Edited your {field}!")
         if log is not None:
