@@ -60,7 +60,7 @@ class MagicCard(commands.Converter):
             cards = Card.where(name=argument).where(page=1).where(pageSize=50).all()
             # Breaks if ID's are none. So just getting rid of them for now.
             for c in cards.copy():
-                if cards.multiverse_id is None:
+                if c.multiverse_id is None:
                     cards.remove(c)
 
         if cards is None or len(cards) == 0:
