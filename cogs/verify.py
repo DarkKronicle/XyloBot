@@ -955,7 +955,7 @@ class Verify(commands.Cog):
         command = "DELETE FROM verify_queue WHERE guild_id = $${0}$$ AND user_id = $${1}$$;"
         command = command.format(str(guild.id), str(member.id))
         insert = "INSERT INTO user_data(guild_id, user_id, info) " \
-                 "VALUES({0}, {1}, $${2}$$) ON CONFLICT (guild_id, user_id) UPDATE DO SET info = EXCLUDED.info;"
+                 "VALUES({0}, {1}, $${2}$$) ON CONFLICT (guild_id, user_id) DO UPDATE SET info = EXCLUDED.info;"
         insert = insert.format(guild.id, member.id, json.dumps(info))
 
         async with db.MaybeAcquire() as con:
