@@ -151,7 +151,7 @@ class Magic(commands.Cog):
             title=card.name
         )
         embed.set_author(name=card.type)
-        embed.description = f"{card.description}\n\n*{card.flavor}*\n\n**Mana:** {card.mana_cost}\n**Rarity:** " \
+        embed.description = f"{card.text}\n\n*{card.flavor}*\n\n**Mana:** {card.mana_cost}\n**Rarity:** " \
                             f"{card.rarity}"
         embed.add_field(name="Colour", value=card.colors)
         embed.add_field(name="Set Name", value=card.set_name)
