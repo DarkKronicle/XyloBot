@@ -164,6 +164,7 @@ class Magic(commands.Cog):
             message = message + f"**Power:** {card.power}\n"
         if card.life is not None:
             message = message + f"**Life:** {card.life}\n"
+        embed.description = message
         embed.add_field(name="Colour", value=' '.join(card.colors))
         embed.add_field(name="Set Name", value=card.set_name)
 
