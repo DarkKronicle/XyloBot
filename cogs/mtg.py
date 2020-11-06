@@ -156,7 +156,7 @@ class Magic(commands.Cog):
         embed.add_field(name="Colour", value=card.colors)
         embed.add_field(name="Set Name", value=card.set_name)
 
-        await ctx.send()
+        await ctx.send(embed=embed)
 
     async def image_from_card(self, card):
         try:
