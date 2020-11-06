@@ -1,9 +1,10 @@
+import discord
 from mtgsdk import Card
 from discord.ext import commands, menus
 
 from util import discord_util
 from util.context import Context
-from util.paginator import SimplePages
+from util.paginator import SimplePages, Pages, SimplePageSource
 
 
 class CardEntry:
@@ -15,11 +16,66 @@ class CardEntry:
         return f"{self.name} (ID: {self.id})"
 
 
+class CardEntrySource(SimplePageSource):
+
+    async def format_page(self, menu, entries):
+        await super().format_page(menu, entries)
+        menu.embed.description = menu.embed.description + "\n\n*To view more information run the command `x>mtg image <ID>`*"
+        return menu.embed
+
+
+class CardPages(Pages):
+
+    def __init__(self, entries, *, per_page=15):
+        converted = [CardEntry(entry) for entry in entries]
+        super().__init__(CardEntrySource(converted, per_page=per_page))
+        self.embed = discord.Embed(colour=discord.Colour.dark_green())
+
+
 class CardPages(SimplePages):
 
     def __init__(self, entries, *, per_page=15):
         converted = [CardEntry(entry) for entry in entries]
         super().__init__(converted, per_page=per_page)
+
+
+class MagicCard(commands.Converter):
+
+    async def convert(self, ctx: Context, argument):
+        isint = False
+        id = 0
+        try:
+            id = int(argument)
+            isint = True
+        except ValueError:
+            pass
+        if isint:
+            card = Card.where(multiverseid=id).where(page=1).where(pageSize=1).all()
+            if card is None or len(card) is None:
+                raise commands.BadArgument("No cards found by that ID!")
+            return card[0]
+
+        cards = Card.where(name=argument).where(page=1).where(pageSize=50).all()
+
+        if cards is None or len(cards) == 0:
+            raise commands.BadArgument("No cards found with that name.")
+        if len(cards) == 1:
+            return cards[0]
+        try:
+            p = CardPages(entries=cards)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
+
+        answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
+        if answer is None:
+            return None
+        try:
+            answer = int(answer)
+            card = cards[answer]
+            return card
+        except ValueError:
+            raise commands.BadArgument("You need to specify a correct number.")
 
 
 class Magic(commands.Cog):
@@ -54,27 +110,27 @@ class Magic(commands.Cog):
         except menus.MenuError as e:
             await ctx.send(e)
 
-    @mtg.command(name="id")
-    async def by_id(self, ctx: Context, id: int = None):
+    @mtg.command(name="image", aliases=["i"])
+    async def image_card(self, ctx: Context, card: MagicCard = None):
         """
         Gets a card by ID. (Seen in the search command)
         """
-        if id is None:
+        if card is None:
             return await ctx.send_help('mtg id')
 
-        card = Card.where(multiverseid=id).where(page=1).where(pageSize=1).all()
-        if card is None or len(card) == 0:
-            return await ctx.send("No card by that ID found.")
+        async with ctx.typing():
+            image = await self.image_from_id(card.multiverse_id)
+            await ctx.send(file=image)
 
-        card = card[0]
+    async def image_from_card(self, card):
         try:
             image = await discord_util.get_file_from_image(card.image_url, "magic.png")
         except Exception:
-            return await ctx.send("Something went wrong with that image. Try again later.")
+            raise commands.CommandError("Something went wrong with that image. Try again later.")
         if image is None:
-            return await ctx.send("Couldn't download image. Try again later.")
+            raise commands.CommandError("Couldn't download image. Try again later.")
 
-        await ctx.send(file=image)
+        return image
 
 
 def setup(bot):
