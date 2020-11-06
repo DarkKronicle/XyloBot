@@ -504,7 +504,7 @@ class AutoReactions(commands.Cog):
         Edit data about auto reactions.
         """
         if ctx.invoked_subcommand is None:
-            return ctx.send_help("!ar help")
+            return await ctx.send_help("!ar help")
 
     @ar_edit.command(name="name")
     async def edit_name(self, ctx: Context, autoreaction: AutoReactionName = None, newname: str = None):

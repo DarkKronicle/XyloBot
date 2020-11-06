@@ -55,7 +55,8 @@ class MagicCard(commands.Converter):
                 raise commands.BadArgument("No cards found by that ID!")
             return card[0]
 
-        cards = Card.where(name=argument).where(page=1).where(pageSize=50).all()
+        async with ctx.typing():
+            cards = Card.where(name=argument).where(page=1).where(pageSize=50).all()
 
         if cards is None or len(cards) == 0:
             raise commands.BadArgument("No cards found with that name.")
@@ -119,7 +120,7 @@ class Magic(commands.Cog):
             return await ctx.send_help('mtg id')
 
         async with ctx.typing():
-            image = await self.image_from_id(card.multiverse_id)
+            image = await self.image_from_card(card)
             await ctx.send(file=image)
 
     async def image_from_card(self, card):
