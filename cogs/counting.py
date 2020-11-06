@@ -51,7 +51,7 @@ class Counting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # I want this to be persistent through multiple commands.
-        self.counter_cooldown = self.command_cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
+        self.counter_cooldown = self.command_cooldown = commands.CooldownMapping.from_cooldown(1, 30, commands.BucketType.user)
 
         # Load up the global counter
         exists = os.path.exists(self.counter_name)

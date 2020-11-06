@@ -127,7 +127,7 @@ class Magic(commands.Cog):
     @mtg.command(name="image", aliases=["i"])
     async def image_card(self, ctx: Context, card: MagicCard = None):
         """
-        Gets a card by ID. (Seen in the search command)
+        Gets a cards image.
         """
         if card is None:
             return await ctx.send_help('mtg id')
@@ -135,6 +135,28 @@ class Magic(commands.Cog):
         async with ctx.typing():
             image = await self.image_from_card(card)
             await ctx.send(file=image)
+
+    @mtg.command(name="info", aliases=["in"])
+    async def image_card(self, ctx: Context, card: MagicCard = None):
+        """
+        Gets a cards information.
+        """
+        if card is None:
+            return await ctx.send_help('mtg id')
+
+        card: Card
+
+        embed = discord.Embed(
+            colour=discord.Colour.light_gray(),
+            title=card.name
+        )
+        embed.set_author(name=card.type)
+        embed.description = f"{card.description}\n\n*{card.flavor}*\n\n**Mana:** {card.mana_cost}\n**Rarity:** " \
+                            f"{card.rarity}"
+        embed.add_field(name="Colour", value=card.colors)
+        embed.add_field(name="Set Name", value=card.set_name)
+
+        await ctx.send()
 
     async def image_from_card(self, card):
         try:
