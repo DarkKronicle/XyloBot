@@ -58,6 +58,10 @@ class MagicCard(commands.Converter):
 
         async with ctx.typing():
             cards = Card.where(name=argument).where(page=1).where(pageSize=50).all()
+            # Breaks if ID's are none. So just getting rid of them for now.
+            for c in cards.copy():
+                if cards.multiverse_id is None:
+                    cards.remove(c)
 
         if cards is None or len(cards) == 0:
             raise commands.BadArgument("No cards found with that name.")
@@ -71,6 +75,11 @@ class MagicCard(commands.Converter):
             return
 
         answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
+        try:
+            await p.stop()
+            await p.message.delete()
+        except (menus.MenuError, discord.HTTPException):
+            pass
         if answer is None:
             return None
         try:
