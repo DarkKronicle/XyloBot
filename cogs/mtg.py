@@ -129,7 +129,7 @@ class Magic(commands.Cog):
         """
         Gets a cards image.
         """
-        if card is None or len(card is None):
+        if card is None or len(card) == 0:
             return await ctx.send_help('mtg image')
 
         card = await MagicCard().convert(ctx, ' '.join(card))
@@ -143,7 +143,7 @@ class Magic(commands.Cog):
         """
         Gets a cards information.
         """
-        if card is None or len(card is None):
+        if card is None or len(card) == 0:
             return await ctx.send_help('mtg info')
 
         card = await MagicCard().convert(ctx, ' '.join(card))
