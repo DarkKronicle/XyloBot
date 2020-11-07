@@ -243,13 +243,6 @@ class Utility(commands.Cog):
         time0 = ctx.message.created_at.microsecond / 1000
         sent = await ctx.send("Pinging")
         time1 = sent.created_at.microsecond / 1000
-        await asyncio.sleep(0.5)
-        await sent.edit(content="Pinging.")
-        await asyncio.sleep(0.5)
-        await sent.edit(content="Pinging..")
-        await asyncio.sleep(0.5)
-        await sent.edit(content="Pinging...")
-        await asyncio.sleep(0.5)
         dif1 = time1 - time0
         await sent.edit(content=f"Pong! Pinging time was {dif1}ms")
 
