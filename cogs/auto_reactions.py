@@ -342,7 +342,7 @@ class AutoReactions(commands.Cog):
         if autoreaction is None or len(autoreaction) == 0:
             return await ctx.send_help('autoreactions')
 
-        autoreaction = await AutoReactionName().convert(' '.join(autoreaction))
+        autoreaction = await AutoReactionName().convert(ctx, ' '.join(autoreaction))
 
         if autoreaction is not None:
             embed = await self.get_about_embed(autoreaction)
