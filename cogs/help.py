@@ -78,7 +78,7 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
               f"command/category]` for more specific help.\n" \
               f"*Use the reactions to look through commands*" \
               f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \
-              f"   [Support Server](https://discord.gg/X2Kmd7t)   [GitHub](https://github.com/DarkKronicle/XyloBot/)"
+              f" - [Support Server](https://discord.gg/X2Kmd7t) - [GitHub](https://github.com/DarkKronicle/XyloBot/)"
 
         embed = discord.Embed(title="Xylo Help - Categories", description=top, colour=discord.Colour.blue())
 
