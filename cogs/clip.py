@@ -164,17 +164,12 @@ class Clip(commands.Cog):
         await ctx.send("Clip has been updated/created!")
 
     @clip_command.command(name="delete")
-    async def del_clip(self, ctx: Context):
+    async def del_clip(self, ctx: Context, name: ClipName = None):
         """
         Delete a clip.
         """
-        name = await ctx.ask("What name will this have?")
         if name is None:
-            return await ctx.timeout()
-        if not all(c in self.characters for c in name):
-            return await ctx.send("You can only only use `<a-z> <0-9> - _ ! /` in the name.")
-        if len(name) > 100:
-            return await ctx.send("The name is too long!")
+            return await ctx.send_help("c delete")
         command = "DELETE FROM clip_storage WHERE user_id={0} AND name=$${1}$$;"
         command = command.format(str(ctx.author.id), name)
         async with db.MaybeAcquire() as con:

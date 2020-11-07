@@ -46,6 +46,10 @@ class Counter:
 
 
 class Counting(commands.Cog):
+    """
+    Play the global counting game.
+    """
+
     counter_name = "data/counter.json"
 
     def __init__(self, bot):
@@ -110,7 +114,17 @@ class Counting(commands.Cog):
         """
         Become an incrementer and help the cause!
         """
+
         # Error handling/cooldown.
+
+        # Don't want them to increment it all by themselves
+        if self.counter.is_last(ctx.author.id):
+            await ctx.delete()
+            return await ctx.send(embed=discord.Embed(
+                description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
+                colour=discord.Colour.red()
+            ), delete_after=15)
+
         bucket = self.counter_cooldown.get_bucket(ctx.message)
         retry_after = bucket.update_rate_limit()
         if retry_after:
@@ -118,14 +132,6 @@ class Counting(commands.Cog):
             return await ctx.send(embed=discord.Embed(
                 description=f"You're currently on cooldown. Try again in `{math.ceil(retry_after)}` seconds. Right "
                             f"now we're at {self.counter.count}.",
-                colour=discord.Colour.red()
-            ), delete_after=15)
-
-        # Don't want them to increment it all by themselves.
-        if self.counter.is_last(ctx.author.id):
-            await ctx.delete()
-            return await ctx.send(embed=discord.Embed(
-                description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
                 colour=discord.Colour.red()
             ), delete_after=15)
         # end
