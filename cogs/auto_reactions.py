@@ -335,10 +335,15 @@ class AutoReactions(commands.Cog):
 
     @commands.command(name="autoreactions", aliases=["ar", "autoreaction"])
     @commands.guild_only()
-    async def autoreaction(self, ctx: commands.Context, autoreaction: AutoReactionName = None):
+    async def autoreaction(self, ctx: commands.Context, *autoreaction):
         """
         View current AutoReactions
         """
+        if autoreaction is None or len(autoreaction) == 0:
+            return await ctx.send_help('autoreactions')
+
+        autoreaction = await AutoReactionName().convert(' '.join(autoreaction))
+
         if autoreaction is not None:
             embed = await self.get_about_embed(autoreaction)
             return await ctx.send(embed=embed)

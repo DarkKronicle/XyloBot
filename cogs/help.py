@@ -75,9 +75,10 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
     async def format_page(self, menu, cogs):
         prefix = await self.help_command.context.bot.get_guild_prefix(self.help_command.context.guild.id)
         top = f"Prefixes you can use: `{prefix}`, `x>`\nUse `help [" \
-              f"command]` for " \
-              f"specific info on a command.\nUse `help [category]` for specific info in a category. \n" \
-              f"*Use the reactions to look through commands*"
+              f"command/category]` for more specific help.\n" \
+              f"*Use the reactions to look through commands*" \
+              f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \
+              f"   [Support Server](https://discord.gg/X2Kmd7t)   [GitHub](https://github.com/DarkKronicle/XyloBot/)"
 
         embed = discord.Embed(title="Xylo Help - Categories", description=top, colour=discord.Colour.blue())
 
@@ -89,7 +90,7 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
 
         maximum = self.get_max_pages()
         if maximum > 1:
-            embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} categories)')
+            embed.set_footer(text=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} categories)')
 
         pfp = self.help_command.context.bot.user.avatar_url
         embed.set_thumbnail(url=pfp)

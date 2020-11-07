@@ -57,7 +57,7 @@ class MagicCard(commands.Converter):
             return card[0]
 
         async with ctx.typing():
-            cards = Card.where(name=argument).where(page=1).where(pageSize=50).all()
+            cards = Card.where(name=argument).where(page=1).where(pageSize=30).all()
             # Breaks if ID's are none. So just getting rid of them for now.
             for c in cards.copy():
                 if c.multiverse_id is None:

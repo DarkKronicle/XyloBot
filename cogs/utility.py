@@ -451,10 +451,11 @@ class Utility(commands.Cog):
         )
         owner = bot.get_user(bot.owner_id)
         embed.set_author(name=str(owner), icon_url=owner.avatar_url)
-        message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice Channels: `{voice}`\n\nUptime: `{uptime}`"
+        message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice " \
+                  f"Channels: `{voice}`\n\nUptime: `{uptime}` " \
+                  f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \
+                  f"   [Support Server](https://discord.gg/X2Kmd7t)   [GitHub](https://github.com/DarkKronicle/XyloBot/)"
         embed.description = message
-        embed.add_field(name="Support Server", value="https://discord.gg/X2Kmd7t")
-        embed.add_field(name="Invite Link", value="https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot")
         await ctx.send(embed=embed)
 
 
