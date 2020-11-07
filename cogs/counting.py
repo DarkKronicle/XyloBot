@@ -109,7 +109,7 @@ class Counting(commands.Cog):
         "+ FOREVER"
     ]
 
-    @commands.command(name="increment", aliases=["i", "inc", "+"])
+    @commands.command(name="increment", aliases=["+"])
     async def increment(self, ctx: Context):
         """
         Become an incrementer and help the cause!
@@ -166,7 +166,7 @@ class Counting(commands.Cog):
         "*Slow mo walking*"
     ]
 
-    @commands.command(name="decrement", aliases=["d", "dec", "-"])
+    @commands.command(name="decrement", aliases=["-"])
     async def decrement(self, ctx: Context):
         """
         Become a decrementer and DESTROY THE INCREMENTERS.
