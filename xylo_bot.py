@@ -213,7 +213,17 @@ class XyloBot(commands.Bot):
     async def time_loop(self):
         time = round_time()
         for loop in self.loops:
-            await self.loops[loop](time)
+            try:
+                await self.loops[loop](time)
+            except Exception as error:
+                if isinstance(e, (discord.Forbidden, discord.errors.Forbidden)):
+                    return
+                e = discord.Embed(title='Loop Error', colour=0xcc3366)
+
+                exc = ''.join(traceback.format_exception(type(error), error, error.__traceback__, chain=False))
+                e.description = f'```py\n{exc}\n```'
+                e.timestamp = datetime.utcnow()
+                await self.log.send(embed=e)
 
     first_loop = True
 

@@ -181,11 +181,14 @@ class AutoReactionConfig:
             for e in reacts["emojis"]:
                 try:
                     await message.add_reaction(e)
-                except discord.HTTPException:
+                except (discord.HTTPException, discord.Forbidden):
                     pass
         if len(reacts["text"]) != 0:
             for t in reacts["text"]:
-                await message.channel.send(t)
+                try:
+                    await message.channel.send(t)
+                except (discord.HTTPException, discord.Forbidden):
+                    pass
 
 
 class AutoReactionName(commands.Converter):
