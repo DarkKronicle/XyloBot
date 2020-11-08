@@ -18,9 +18,24 @@ class FireDrawGame(Game):
     def __init__(self, channel, owner):
         super().__init__(channel, owner)
 
+    text = [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "i am better than you",
+        "pog champ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "gottem",
+        "boi",
+        "ez",
+        "ez dub for the champion"
+           ]
+
     async def start(self, bot: commands.Bot):
         self.started = True
-        answer = get_random_string(random.randint(4, 10))
+        answer = ""
+        if random.randint(0, 100) > 90:
+            answer = random.choice(self.text)
+        else:
+            answer = get_random_string(random.randint(4, 10))
         message = await self.channel.send("Ready?")
         emoji1 = random.choice(self.emojis)
         emoji2 = random.choice(self.emojis)

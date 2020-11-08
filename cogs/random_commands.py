@@ -211,6 +211,20 @@ class RandomCommands(commands.Cog, name="Random"):
 
         await ctx.send(f"After much deliberation, I am certain that {choice} is better.")
 
+    @commands.command(name="simp")
+    @commands.guild_only()
+    async def simp(self, ctx: Context, simp: commands.Greedy[discord.Member] = None):
+        if simp is None:
+            simp = [ctx.author]
+        if len(simp) == 1:
+            simp = simp[0]
+            tosimp = self.seeded_choose(simp.id, ctx.guild.members)
+            return await ctx.send(f"In this server {simp.display_name} simps most for {tosimp.display_name}")
+        one = simp[0]
+        two = simp[1]
+        tosimp = self.seeded_int(one.id + two.id, 0, 100)
+        await ctx.send(f"{one.display_name} simps for {two.display_name} a total of {tosimp}%.")
+
 
 def setup(bot):
     bot.add_cog(RandomCommands())
