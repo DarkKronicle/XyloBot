@@ -20,12 +20,6 @@ from xylo_bot import XyloBot
 # Most functionality taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py#L81
 # Under MPL-2.0
 
-def duplicate(string, times):
-    message = ""
-    for i in range(times):
-        message = message + string
-    return message
-
 
 class Owner(commands.Cog):
     """
@@ -171,25 +165,19 @@ class Owner(commands.Cog):
         await ctx.send('\n'.join(f'{status}: `{module}`' for status, module in statuses))
 
     @commands.command(name="*list", hidden=True)
-    async def _list(self, ctx: Context, *, root):
-        if root is None:
-            root = "."
+    async def _list(self, ctx: Context, *, start_path):
+        if start_path is None:
+            start_path = "."
 
         message = "Directory list"
-        for root, dirs, files in os.walk(root):
-            for d in dirs:
-                count = os.path.join(root, d).count("/")
-                message = message + duplicate("-", count) + d + "\n"
+        # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
+        for root, dirs, files in os.walk(start_path):
+            level = root.replace(start_path, "").count(os.sep)
+            indent = ' ' * 2 * level
+            message = message + "{}{}/\n".format(indent, os.path.basename(root))
+            subindent = ' ' * 2 * level
             for f in files:
-                ext = os.path.splitext(f)
-                if len(ext) > 0:
-                    ext = ext[1]
-                    if ext in (".sample", ".pyc"):
-                        continue
-                else:
-                    continue
-                count = os.path.join(root, f).count("/")
-                message = message + duplicate("-", count) + f + "\n"
+                message = message + "{}{}\n".format(subindent, f)
 
         if len(message) > 2000:
             message = message[:2000]
