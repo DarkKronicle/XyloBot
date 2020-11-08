@@ -184,6 +184,8 @@ class Owner(commands.Cog):
                 count = os.path.join(root, f).count("/")
                 message = message + duplicate("-", count) + f
 
+        await ctx.send(message)
+
 
 def setup(bot):
     bot.add_cog(Owner(bot))
