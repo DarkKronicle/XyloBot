@@ -179,10 +179,17 @@ class Owner(commands.Cog):
         for root, dirs, files in os.walk(root):
             for d in dirs:
                 count = os.path.join(root, d).count("/")
-                message = message + duplicate("-", count) + d
+                message = message + duplicate("-", count) + d + "\n"
             for f in files:
+                ext = os.path.splitext(f)
+                if len(ext) > 0:
+                    ext = ext[1]
+                    if ext in (".sample", ".pyc"):
+                        continue
+                else:
+                    continue
                 count = os.path.join(root, f).count("/")
-                message = message + duplicate("-", count) + f
+                message = message + duplicate("-", count) + f + "\n"
 
         if len(message) > 2000:
             message = message[:2000]
