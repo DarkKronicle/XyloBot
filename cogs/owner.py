@@ -39,6 +39,10 @@ class DisplayablePath(object):
             self.depth = 0
 
     @property
+    def full_name(self):
+        return os.path.join(self.parent, self.path.name)
+
+    @property
     def displayname(self):
         if self.path.is_dir():
             return self.path.name + '/'
@@ -91,6 +95,34 @@ class DisplayablePath(object):
             parent = parent.parent
 
         return ''.join(reversed(parts))
+
+
+def get_dir_tree(start_path, *, blocked_extensions=None, blocked_directories=None, blocked_files=None, pretty=True):
+    if blocked_files is None:
+        blocked_files = []
+    if blocked_directories is None:
+        blocked_directories = []
+    if blocked_extensions is None:
+        blocked_extensions = []
+
+    def criteria(path):
+        if path.name in blocked_directories:
+            return False
+        ext = os.path.splitext(path.name)
+        if path.name in blocked_files:
+            return False
+        if len(ext) > 0 and ext in blocked_extensions:
+            return False
+        return True
+
+    paths = DisplayablePath.make_tree(start_path, criteria=criteria)
+    message = ""
+    for path in paths:
+        if pretty:
+            message = message + path.displayable() + "\n"
+        else:
+            message = message + path.full_name + "\n"
+    return message
 
 
 class Owner(commands.Cog):
@@ -247,18 +279,25 @@ class Owner(commands.Cog):
         ext_blacklist = (".pyc", ".cfg")
         # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
 
-        def criteria(path):
-            if path.name in dir_blacklist:
-                return False
-            ext = os.path.splitext(path.name)
-            if len(ext) > 0 and ext in ext_blacklist:
-                return False
-            return True
+        message = "```\n" + get_dir_tree(start_path, blocked_directories=dir_blacklist, blocked_extensions=ext_blacklist)
+        if len(message) > 1990:
+            message = message[:1990]
+        message = message + "```"
+        await ctx.send(message)
 
-        paths = DisplayablePath.make_tree(start_path, criteria=criteria)
-        message = "```\n"
-        for path in paths:
-            message = message + path.displayable() + "\n"
+    @commands.command(name="*plist", hidden=True)
+    async def _list(self, ctx: Context, *start_path):
+        if start_path is None or len(start_path) == 0:
+            start_path = "."
+        else:
+            start_path = ' '.join(start_path)
+
+        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv")
+        ext_blacklist = (".pyc", ".cfg")
+        # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
+
+        message = "```\n" + get_dir_tree(start_path, blocked_directories=dir_blacklist,
+                                         blocked_extensions=ext_blacklist, pretty=False)
         if len(message) > 1990:
             message = message[:1990]
         message = message + "```"
