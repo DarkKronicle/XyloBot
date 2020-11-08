@@ -20,6 +20,12 @@ from xylo_bot import XyloBot
 # Most functionality taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py#L81
 # Under MPL-2.0
 
+def duplicate(string, times):
+    message = ""
+    for i in range(times):
+        message = message + string
+    return message
+
 
 class Owner(commands.Cog):
     """
@@ -102,9 +108,11 @@ class Owner(commands.Cog):
         else:
             await ctx.send('Reloaded!')
 
-    @_reload.command(name="program", hidden=True)
+    @_reload.command(name="restart", hidden=True)
     async def restart(self, ctx: Context):
-        await self.run_process('git pull')
+        async with ctx.typing():
+            stdout, stderr = await self.run_process('git pull')
+        await ctx.send(f"{stdout}\n\n{stderr}")
         try:
             p = psutil.Process(os.getpid())
             for handler in p.open_files() + p.connections():
@@ -161,6 +169,20 @@ class Owner(commands.Cog):
                     statuses.append(("✅", module))
 
         await ctx.send('\n'.join(f'{status}: `{module}`' for status, module in statuses))
+
+    @commands.command(name="*list", hidden=True)
+    async def _list(self, ctx: Context, *, root):
+        if root is None:
+            root = "."
+
+        message = ""
+        for root, dirs, files in os.walk(root):
+            for d in dirs:
+                count = os.path.join(root, d).count("/")
+                message = message + duplicate("-", count) + d
+            for f in files:
+                count = os.path.join(root, f).count("/")
+                message = message + duplicate("-", count) + f
 
 
 def setup(bot):

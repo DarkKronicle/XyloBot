@@ -165,7 +165,7 @@ class API(commands.Cog):
         url = f"<https://lmgtfy.app/?q={content}&iie=1>"
         url = url.replace(' ', '+')
         await ctx.send(embed=discord.Embed(
-            description=f"I have the perfect solution for you! [Click here]({url})\n*`{content}`*",
+            description=f"I have the perfect solution for you! [Click here]({url})\n\n`{content}`",
             colour=discord.Colour.blue()
         ))
 
@@ -180,7 +180,7 @@ class API(commands.Cog):
         url = f"<https://google.com/search?q={content}>"
         url = url.replace(' ', '%20')
         await ctx.send(embed=discord.Embed(
-            description=f"I have the perfect solution for you! [Click here]({url})\n*`{content}`*",
+            description=f"I have the perfect solution for you! [Click here]({url})\n`{content}`",
             colour=discord.Colour.blue()
         ))
 
@@ -195,7 +195,7 @@ class API(commands.Cog):
         url = f"<https://www.google.com/search?tbm=isch&q={content}>"
         url = url.replace(' ', '%20')
         await ctx.send(embed=discord.Embed(
-            description=f"I have the perfect solution for you! [Click here]({url})\n*`{content}`*",
+            description=f"I have the perfect solution for you! [Click here]({url})\n`{content}`",
             colour=discord.Colour.blue()
         ))
 
