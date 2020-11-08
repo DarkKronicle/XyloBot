@@ -286,7 +286,7 @@ class Owner(commands.Cog):
         await ctx.send(message)
 
     @commands.command(name="*plist", hidden=True)
-    async def _list(self, ctx: Context, *start_path):
+    async def plist(self, ctx: Context, *start_path):
         if start_path is None or len(start_path) == 0:
             start_path = "."
         else:
