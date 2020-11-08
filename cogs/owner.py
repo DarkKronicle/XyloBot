@@ -20,6 +20,78 @@ from xylo_bot import XyloBot
 # Most functionality taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py#L81
 # Under MPL-2.0
 
+from pathlib import Path
+
+
+class DisplayablePath(object):
+    display_filename_prefix_middle = '├──'
+    display_filename_prefix_last = '└──'
+    display_parent_prefix_middle = '    '
+    display_parent_prefix_last = '│   '
+
+    def __init__(self, path, parent_path, is_last):
+        self.path = Path(str(path))
+        self.parent = parent_path
+        self.is_last = is_last
+        if self.parent:
+            self.depth = self.parent.depth + 1
+        else:
+            self.depth = 0
+
+    @property
+    def displayname(self):
+        if self.path.is_dir():
+            return self.path.name + '/'
+        return self.path.name
+
+    @classmethod
+    def make_tree(cls, root, parent=None, is_last=False, criteria=None):
+        root = Path(str(root))
+        criteria = criteria or cls._default_criteria
+
+        displayable_root = cls(root, parent, is_last)
+        yield displayable_root
+
+        children = sorted(list(path
+                               for path in root.iterdir()
+                               if criteria(path)),
+                          key=lambda s: str(s).lower())
+        count = 1
+        for path in children:
+            is_last = count == len(children)
+            if path.is_dir():
+                yield from cls.make_tree(path,
+                                         parent=displayable_root,
+                                         is_last=is_last,
+                                         criteria=criteria)
+            else:
+                yield cls(path, displayable_root, is_last)
+            count += 1
+
+    @classmethod
+    def _default_criteria(cls, path):
+        return True
+
+    def displayable(self):
+        if self.parent is None:
+            return self.displayname
+
+        _filename_prefix = (self.display_filename_prefix_last
+                            if self.is_last
+                            else self.display_filename_prefix_middle)
+
+        parts = ['{!s} {!s}'.format(_filename_prefix,
+                                    self.displayname)]
+
+        parent = self.parent
+        while parent and parent.parent is not None:
+            parts.append(self.display_parent_prefix_middle
+                         if parent.is_last
+                         else self.display_parent_prefix_last)
+            parent = parent.parent
+
+        return ''.join(reversed(parts))
+
 
 class Owner(commands.Cog):
     """
@@ -170,28 +242,24 @@ class Owner(commands.Cog):
             start_path = "."
 
         dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__")
-        ext_blacklist = (".pyc")
-        message = "Directory list\n```"
+        ext_blacklist = ".pyc"
         # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
-        for root, dirs, files in os.walk(start_path):
-            level = root.replace(start_path, "", 1).count(os.sep)
-            dindent = '-' * 2 * (level - 1)
-            basename = os.path.basename(root)
-            if basename in dir_blacklist:
-                continue
-            message = message + "{}{}/\n".format(dindent, basename)
-            subindent = '-' * 2 * level
-            for f in files:
-                ext = os.path.splitext(f)
-                if len(ext) == 0:
-                    continue
-                elif ext[1] in ext_blacklist:
-                    continue
-                message = message + "{}{}\n".format(subindent, f)
 
+        def criteria(path):
+            if path.name in dir_blacklist:
+                return False
+            ext = os.path.splitext(path.name)
+            if len(ext) > 0 and ext == ext_blacklist:
+                return False
+            return True
+
+        paths = DisplayablePath.make_tree(start_path, criteria=criteria)
+        message = "```\n"
+        for path in paths:
+            message = message + path.displayable() + "\n"
         if len(message) > 1990:
             message = message[:1990]
-        message = message + "\n```"
+        message = message + "```"
         await ctx.send(message)
 
 
