@@ -175,7 +175,7 @@ class Owner(commands.Cog):
         if root is None:
             root = "."
 
-        message = ""
+        message = "Directory list"
         for root, dirs, files in os.walk(root):
             for d in dirs:
                 count = os.path.join(root, d).count("/")
@@ -184,6 +184,8 @@ class Owner(commands.Cog):
                 count = os.path.join(root, f).count("/")
                 message = message + duplicate("-", count) + f
 
+        if len(message) > 2000:
+            message = message[:2000]
         await ctx.send(message)
 
 
