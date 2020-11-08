@@ -39,12 +39,6 @@ class DisplayablePath(object):
             self.depth = 0
 
     @property
-    def full_name(self):
-        if self.parent is not None:
-            return self.parent + "/" + self.path.name
-        return self.path.name
-
-    @property
     def displayname(self):
         if self.path.is_dir():
             return self.path.name + '/'
@@ -123,7 +117,7 @@ def get_dir_tree(start_path, *, blocked_extensions=None, blocked_directories=Non
         if pretty:
             message = message + path.displayable() + "\n"
         else:
-            message = message + path.full_name + "\n"
+            message = message + str(path) + "\n"
     return message
 
 
