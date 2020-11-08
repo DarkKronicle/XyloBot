@@ -237,19 +237,21 @@ class Owner(commands.Cog):
         await ctx.send('\n'.join(f'{status}: `{module}`' for status, module in statuses))
 
     @commands.command(name="*list", hidden=True)
-    async def _list(self, ctx: Context, *, start_path):
-        if start_path is None:
+    async def _list(self, ctx: Context, *start_path):
+        if start_path is None or len(start_path) == 0:
             start_path = "."
+        else:
+            start_path = ' '.join(start_path)
 
-        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__")
-        ext_blacklist = ".pyc"
+        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv")
+        ext_blacklist = (".pyc", ".cfg")
         # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
 
         def criteria(path):
             if path.name in dir_blacklist:
                 return False
             ext = os.path.splitext(path.name)
-            if len(ext) > 0 and ext == ext_blacklist:
+            if len(ext) > 0 and ext in ext_blacklist:
                 return False
             return True
 
