@@ -169,18 +169,23 @@ class Owner(commands.Cog):
         if start_path is None:
             start_path = "."
 
-        message = "Directory list"
+        blacklist = ("pycache", ".git", "hooks")
+        message = "Directory list\n```"
         # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
         for root, dirs, files in os.walk(start_path):
-            level = root.replace(start_path, "").count(os.sep)
-            indent = ' ' * 2 * level
-            message = message + "{}{}/\n".format(indent, os.path.basename(root))
-            subindent = ' ' * 2 * level
+            level = root.replace(start_path, "", 1).count(os.sep)
+            indent = '-' * 2 * level
+            basename = os.path.basename(root)
+            if basename in blacklist:
+                continue
+            message = message + "{}{}/\n".format(indent, basename)
+            subindent = '-' * 2 * level
             for f in files:
                 message = message + "{}{}\n".format(subindent, f)
 
-        if len(message) > 2000:
-            message = message[:2000]
+        if len(message) > 1990:
+            message = message[:1990]
+        message = message + "\n```"
         await ctx.send(message)
 
 
