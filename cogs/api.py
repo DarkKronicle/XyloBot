@@ -164,7 +164,10 @@ class API(commands.Cog):
         content = ' '.join(args)
         url = f"<https://lmgtfy.app/?q={content}&iie=1>"
         url = url.replace(' ', '+')
-        await ctx.send(f"I have the perfect solution for you! [Click here]({url})")
+        await ctx.send(embed=discord.Embed(
+            description=f"I have the perfect solution for you! [Click here]({url})",
+            colour=discord.Colour.blue()
+        ))
 
     @commands.command(name="google")
     async def google(self, ctx: Context, *args):
@@ -176,7 +179,10 @@ class API(commands.Cog):
         content = ' '.join(args)
         url = f"<https://google.com/search?q={content}>"
         url = url.replace(' ', '%20')
-        await ctx.send(f"I have the perfect solution for you! [Click here]({url})")
+        await ctx.send(embed=discord.Embed(
+            description=f"I have the perfect solution for you! [Click here]({url})",
+            colour=discord.Colour.blue()
+        ))
 
     @commands.command(name="imagegoogle", aliases=["igoogle"])
     async def igoogle(self, ctx: Context, *args):
@@ -188,7 +194,10 @@ class API(commands.Cog):
         content = ' '.join(args)
         url = f"<https://www.google.com/search?tbm=isch&q={content}>"
         url = url.replace(' ', '%20')
-        await ctx.send(f"I have the perfect image for you! [Click here]({url})")
+        await ctx.send(embed=discord.Embed(
+            description=f"I have the perfect solution for you! [Click here]({url})",
+            colour=discord.Colour.blue()
+        ))
 
     @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.command(name="yoda", aliases=["yodaspeak"])
