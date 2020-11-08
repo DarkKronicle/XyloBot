@@ -10,6 +10,7 @@ import re
 import subprocess
 import sys
 
+import psutil
 from discord.ext import commands
 
 from util.context import Context
@@ -52,7 +53,10 @@ class Owner(commands.Cog):
                 continue
 
             if root.startswith('cogs/'):
-                ret.append((False, root.replace('/', '.')))
+                if root.count("/") > 1:
+                    ret.append((True, root.replace('/', '.')))
+                else:
+                    ret.append((False, root.replace('/', '.')))
             elif root.count('/') > 0:
                 # We want to make sure it's in a sub directory. If it isn't then we don't need to worry about it.
                 ret.append((True, root.replace('/', '.')))
@@ -97,6 +101,19 @@ class Owner(commands.Cog):
             await ctx.send(f'{e.__class__.__name__}: {e}')
         else:
             await ctx.send('Reloaded!')
+
+    @_reload.command(name="program", hidden=True)
+    async def restart(self, ctx: Context):
+        await self.run_process('git pull')
+        try:
+            p = psutil.Process(os.getpid())
+            for handler in p.open_files() + p.connections():
+                os.close(handler.fd)
+        except Exception as e:
+            await ctx.send(e)
+
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
 
     @_reload.command(name='all', hidden=True)
     async def _reload_all(self, ctx: Context):

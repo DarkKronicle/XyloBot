@@ -219,7 +219,7 @@ class RandomCommands(commands.Cog, name="Random"):
         if len(simp) == 1:
             simp = simp[0]
             tosimp = self.seeded_choose(simp.id, ctx.guild.members)
-            return await ctx.send(f"In this server {simp.display_name} simps most for {tosimp.display_name}")
+            return await ctx.send(f"In this server {simp.display_name} simps most for {tosimp.display_name}.")
         one = simp[0]
         two = simp[1]
         tosimp = self.seeded_int(one.id + two.id, 0, 100)

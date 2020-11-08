@@ -30,6 +30,9 @@ class Channels(commands.Cog):
         self.questions: list = self.file.data["questions"]
         self.next_question: str = random.choice(self.questions)
 
+    def cog_unload(self):
+        self.bot.remove_loop("qotd")
+
     @commands.group(name="!qotd", aliases=["!q"])
     @commands.guild_only()
     @checks.is_mod()

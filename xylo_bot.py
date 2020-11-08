@@ -267,10 +267,7 @@ class XyloBot(commands.Bot):
 
     @discord.utils.cached_property
     def log(self):
-        wh_id = int(self.config['webhook_id'])
-        wh_token = self.config['webhook_token']
-        wh = discord.Webhook.partial(id=wh_id, token=wh_token, adapter=discord.AsyncWebhookAdapter(self.session))
-        return wh
+        return self.get_channel(771174464099975168)
 
     async def close(self):
         await super().close()
