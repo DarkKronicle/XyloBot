@@ -40,7 +40,7 @@ class DisplayablePath(object):
 
     @property
     def full_name(self):
-        if self.path.parent is not None:
+        if self.parent is not None:
             return self.parent + "/" + self.path.name
         return self.path.name
 
