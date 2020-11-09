@@ -117,7 +117,9 @@ def get_dir_tree(start_path, *, blocked_extensions=None, blocked_directories=Non
         if pretty:
             message = message + path.displayable() + "\n"
         else:
-            message = message + str(path) + "\n"
+            p = path.path.resolve()
+            # p = p.replace(start_path, "", 1)
+            message = message + p + "\n"
     return message
 
 
