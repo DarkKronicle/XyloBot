@@ -214,44 +214,6 @@ class Owner(commands.Cog):
         message = message + "```"
         await ctx.send(message)
 
-    @commands.command(name="*randline", hidden=True)
-    async def rand_line(self, ctx: Context):
-        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets")
-        ext_blacklist = (".pyc", ".cfg")
-        file_blacklist = ("configs.json", "owner.py", "requirements.txt", "LICENSE.txt")
-
-        paths = []
-        for p in DisplayablePath.make_tree(".", criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist, blocked_directories=dir_blacklist, blocked_files=file_blacklist)):
-            paths.append(p.path)
-        file_path = random.choice(paths)
-        text = file_path.read_text()
-        lines = text.split("\n")
-        for l in lines.copy():
-            if l == "":
-                lines.remove(l)
-        line_len = len(lines)
-        line_num = random.randint(0, line_len-1)
-        line_total = 10
-        line_one = 0
-        line_two = 0
-        if line_num - line_total > 0:
-            line_one = line_num - line_total
-            line_two = line_num
-        else:
-            line_one = 0
-            line_two = line_total
-        if line_two >= line_len:
-            line_two = line_len - 1
-
-        text = ""
-        line_cur = line_one
-        for i in range(line_two - line_one):
-            text = text + lines[line_cur] + "\n"
-            line_cur = line_cur + 1
-
-        line = text.replace("```", "")
-        await ctx.send(f"```PYTHON\n{line}\n```")
-
 
 def setup(bot):
     bot.add_cog(Owner(bot))

@@ -1,11 +1,14 @@
 import random
+from typing import Optional
 
 import discord
 import requests
+import typing
 from discord.ext import commands
 
 from storage.json_reader import JSONReader
 from util.context import Context
+from util.file_management import DisplayablePath
 
 
 class RandomCommands(commands.Cog, name="Random"):
@@ -222,6 +225,73 @@ class RandomCommands(commands.Cog, name="Random"):
         two = simp[1]
         tosimp = self.seeded_int(one.id + two.id, 0, 100)
         await ctx.send(f"{one.display_name} simps for {two.display_name} a total of {tosimp}%.")
+
+    @classmethod
+    def get_random_lines(cls, lines):
+        # Don't want to return any private information or just some weird ones.
+        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets")
+        ext_blacklist = (".pyc", ".cfg")
+        file_blacklist = ("configs.json", "owner.py", "requirements.txt", "LICENSE.txt")
+
+        # Create list of files
+        paths = []
+        for p in DisplayablePath.make_tree(".",
+                                           criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist,
+                                                                                   blocked_directories=dir_blacklist,
+                                                                                   blocked_files=file_blacklist)):
+            paths.append(p.path)
+        file_path = random.choice(paths)
+
+        # Get random file and get the text from that
+        text = file_path.read_text()
+        # Split into lines
+        all_lines = text.split("\n")
+        # Filter out blank ones
+        for l in all_lines.copy():
+            if l == "":
+                all_lines.remove(l)
+
+        # We want to try and get lines amount of lines.
+        line_len = len(all_lines)
+        line_total = lines
+
+        # Bit of weird jank math
+        if line_len < line_total:
+            line_num = 0
+        else:
+            line_num = random.randint(0, line_len - 1)
+
+        # We take the line, minus how many lines we want
+        if line_num - line_total > 0:
+            line_one = line_num - line_total
+            line_two = line_num
+        else:
+            line_one = 0
+            line_two = line_total
+        if line_two >= line_len:
+            line_two = line_len - 1
+
+        text = ""
+        line_cur = line_one
+        for i in range(line_two - line_one):
+            text = text + all_lines[line_cur] + "\n"
+            line_cur = line_cur + 1
+        return text
+
+    @commands.command(name="randline", hidden=True)
+    async def rand_line(self, ctx: Context, lines: typing.Optional[int] = 10):
+        if lines is None:
+            lines = 10
+        if lines < 1:
+            lines = 1
+        if lines > 20:
+            lines = 20
+
+        text = self.get_random_lines(lines)
+        line = text.replace("```", "")
+        if len(line) > 1990:
+            line = line[:1990]
+        await ctx.send(f"```PYTHON\n{line}\n```")
 
 
 def setup(bot):
