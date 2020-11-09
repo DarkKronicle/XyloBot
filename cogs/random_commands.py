@@ -280,6 +280,9 @@ class RandomCommands(commands.Cog, name="Random"):
 
     @commands.command(name="randline", hidden=True)
     async def rand_line(self, ctx: Context, lines: typing.Optional[int] = 10):
+        """
+        Get a random amount of lines from Xylo code.
+        """
         if lines is None:
             lines = 10
         if lines < 1:

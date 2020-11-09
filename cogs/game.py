@@ -8,6 +8,7 @@ from discord.ext import commands
 from cogs.games import quiz
 from cogs.games.fire_draw import FireDrawGame
 from cogs.games.cah import CAHGameInstance
+from cogs.games.speed_typing import SpeedTypingInstance
 from storage.json_reader import JSONReader
 from util import discord_util
 from util.context import Context
@@ -262,6 +263,11 @@ class Games(commands.Cog):
 
     async def quiz_done(self, channel):
         self.current_games[channel].pop("quiz")
+
+    @commands.command(name="typetest")
+    async def type_test(self, ctx: Context):
+        game = SpeedTypingInstance(ctx.channel, ctx.author)
+        await game.start(ctx.bot)
 
 
 def setup(bot):
