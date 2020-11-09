@@ -9,118 +9,18 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import psutil
 from discord.ext import commands
 
 from util.context import Context
+from util.file_management import DisplayablePath
 from xylo_bot import XyloBot
 
 
 # Most functionality taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py#L81
 # Under MPL-2.0
-
-from pathlib import Path, PosixPath
-
-
-class DisplayablePath(object):
-    display_filename_prefix_middle = '├──'
-    display_filename_prefix_last = '└──'
-    display_parent_prefix_middle = '    '
-    display_parent_prefix_last = '│   '
-
-    def __init__(self, path, parent_path, is_last):
-        self.path = Path(str(path))
-        self.parent = parent_path
-        self.is_last = is_last
-        if self.parent:
-            self.depth = self.parent.depth + 1
-        else:
-            self.depth = 0
-
-    @property
-    def displayname(self):
-        if self.path.is_dir():
-            return self.path.name + '/'
-        return self.path.name
-
-    @classmethod
-    def make_tree(cls, root, parent=None, is_last=False, criteria=None):
-        root = Path(str(root))
-        criteria = criteria or cls._default_criteria
-
-        displayable_root = cls(root, parent, is_last)
-        yield displayable_root
-
-        children = sorted(list(path
-                               for path in root.iterdir()
-                               if criteria(path)),
-                          key=lambda s: str(s).lower())
-        count = 1
-        for path in children:
-            is_last = count == len(children)
-            if path.is_dir():
-                yield from cls.make_tree(path,
-                                         parent=displayable_root,
-                                         is_last=is_last,
-                                         criteria=criteria)
-            else:
-                yield cls(path, displayable_root, is_last)
-            count += 1
-
-    @classmethod
-    def _default_criteria(cls, path):
-        return True
-
-    def displayable(self):
-        if self.parent is None:
-            return self.displayname
-
-        _filename_prefix = (self.display_filename_prefix_last
-                            if self.is_last
-                            else self.display_filename_prefix_middle)
-
-        parts = ['{!s} {!s}'.format(_filename_prefix,
-                                    self.displayname)]
-
-        parent = self.parent
-        while parent and parent.parent is not None:
-            parts.append(self.display_parent_prefix_middle
-                         if parent.is_last
-                         else self.display_parent_prefix_last)
-            parent = parent.parent
-
-        return ''.join(reversed(parts))
-
-
-def get_dir_tree(start_path, *, blocked_extensions=None, blocked_directories=None, blocked_files=None, pretty=True):
-    if blocked_files is None:
-        blocked_files = []
-    if blocked_directories is None:
-        blocked_directories = []
-    if blocked_extensions is None:
-        blocked_extensions = []
-
-    def criteria(path):
-        if path.name in blocked_directories:
-            return False
-        ext = os.path.splitext(path.name)
-        if path.name in blocked_files:
-            return False
-        if len(ext) > 0 and ext in blocked_extensions:
-            return False
-        return True
-
-    paths = DisplayablePath.make_tree(start_path, criteria=criteria)
-    full_start = str(Path(start_path).resolve())
-    message = ""
-    for path in paths:
-        if pretty:
-            message = message + path.displayable() + "\n"
-        else:
-            p = str(path.path.resolve()).replace(full_start, "", 1)
-            message = message + p + "\n"
-    return message
 
 
 class Owner(commands.Cog):
@@ -277,7 +177,13 @@ class Owner(commands.Cog):
         ext_blacklist = (".pyc", ".cfg")
         # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
 
-        message = "```\n" + get_dir_tree(start_path, blocked_directories=dir_blacklist, blocked_extensions=ext_blacklist)
+        paths = DisplayablePath.make_tree(start_path,
+                                          criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist,
+                                                                                  blocked_directories=dir_blacklist))
+        message = "```\n"
+        for path in paths:
+            message = message + path.displayable() + "\n"
+
         if len(message) > 1990:
             message = message[:1990]
         message = message + "```"
@@ -294,8 +200,14 @@ class Owner(commands.Cog):
         ext_blacklist = (".pyc", ".cfg")
         # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
 
-        message = "```\n" + get_dir_tree(start_path, blocked_directories=dir_blacklist,
-                                         blocked_extensions=ext_blacklist, pretty=False)
+        paths = DisplayablePath.make_tree(start_path, criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist, blocked_directories=dir_blacklist))
+        full_start = str(Path(start_path).resolve())
+
+        message = "```\n"
+        for path in paths:
+            p = str(path.path.resolve()).replace(full_start, "", 1)
+            message = message + p + "\n"
+
         if len(message) > 1990:
             message = message[:1990]
         message = message + "```"
