@@ -20,7 +20,7 @@ from xylo_bot import XyloBot
 # Most functionality taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py#L81
 # Under MPL-2.0
 
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 
 class DisplayablePath(object):
@@ -117,9 +117,9 @@ def get_dir_tree(start_path, *, blocked_extensions=None, blocked_directories=Non
         if pretty:
             message = message + path.displayable() + "\n"
         else:
-            p = path.path.resolve()
+            p: PosixPath = path.path.resolve()
             # p = p.replace(start_path, "", 1)
-            message = message + p + "\n"
+            message = message + str(p) + "\n"
     return message
 
 
