@@ -11,7 +11,7 @@ class SpeedTypingInstance(game.Game):
 
     def __init__(self, channel, owner, *, message=None):
         super().__init__(channel, owner)
-        if self.message is None:
+        if message is None:
             message = RandomCommands.get_random_lines(5).replace("\n", " ").replace("    ", "").replace("  ", " ")
             message = message.replace("@", "[@]")
             if message.endswith(" "):
