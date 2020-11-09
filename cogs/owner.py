@@ -229,8 +229,28 @@ class Owner(commands.Cog):
         for l in lines.copy():
             if l == "":
                 lines.remove(l)
-        line = random.choice(lines)
-        await ctx.send(f"```{line}```")
+        line_len = len(lines)
+        line_num = random.randint(0, line_len-1)
+        line_total = 10
+        line_one = 0
+        line_two = 0
+        if line_num - line_total > 0:
+            line_one = line_num - line_total
+            line_two = line_num
+        else:
+            line_one = 0
+            line_two = line_total
+        if line_two >= line_len:
+            line_two = line_len - 1
+
+        text = ""
+        line_cur = line_one
+        for i in range(line_two - line_one):
+            text = text + lines[line_cur] + "\n"
+            line_cur = line_cur + 1
+
+        line = text.replace("```", "")
+        await ctx.send(f"```PYTHON\n{line}\n```")
 
 
 def setup(bot):
