@@ -39,18 +39,15 @@ class SpeedTypingInstance(game.Game):
             else:
                 return True
 
-        start_time = datetime.now().microsecond / 1000
+        start_time = start_msg.created_at
         try:
             go = await bot.wait_for("message", timeout=120, check=check)
         except asyncio.TimeoutError:
             await self.timeout()
             await channel.send("Timed out.")
             return
-        done = await channel.send("Calculating...")
-        # start_time = start_msg.created_at.microsecond / 1000
-        # end_time = done.created_at.microsecond / 1000
-        end_time = datetime.now().microsecond / 1000
-        total_seconds = (end_time - start_time) / 1000
+        end_time = go.created_at
+        total_seconds = (end_time - start_time).total_seconds()
         text = go.content
         count = 0
         for i, c in enumerate(message):

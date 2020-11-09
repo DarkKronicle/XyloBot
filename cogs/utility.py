@@ -240,10 +240,10 @@ class Utility(commands.Cog):
 
     @commands.command(name="ping")
     async def ping(self, ctx: Context):
-        time0 = ctx.message.created_at.microsecond / 1000
+        time0 = ctx.message.created_at
         sent = await ctx.send("Pinging")
-        time1 = sent.created_at.microsecond / 1000
-        dif1 = time1 - time0
+        time1 = sent.created_at
+        dif1 = round((time1 - time0).total_seconds() * 1000)
         await sent.edit(content=f"Pong! Pinging time was {dif1}ms")
 
     @commands.command(name="grade")
