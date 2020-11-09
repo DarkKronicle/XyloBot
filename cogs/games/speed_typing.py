@@ -19,7 +19,8 @@ class SpeedTypingInstance(game.Game):
             if message.startswith(" "):
                 message = message[1:]
             if len(message) > 1900:
-                self.message = message[:1900]
+                message = message[:1900]
+            self.message = message
         else:
             self.message = message
 
