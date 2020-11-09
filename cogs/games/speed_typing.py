@@ -24,10 +24,8 @@ class SpeedTypingInstance(game.Game):
     async def round(self, bot):
         channel = self.channel
         users = self.users
-        message = RandomCommands.get_random_lines(5).replace("\n", " ")
+        message = RandomCommands.get_random_lines(5).replace("\n", " ").replace("    ", "").replace("  ", " ")
         message = message.replace("@", "[@]")
-        for i in range(5):
-            message = message.replace("  ", " ")
         if len(message) > 1900:
             message = message[:1900]
         start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{message}\n```")
@@ -48,7 +46,8 @@ class SpeedTypingInstance(game.Game):
             await self.timeout()
             await channel.send("Timed out.")
             return
-        end_time = go.created_at.microsecond / 1000
+        done = await channel.send("Calculating...")
+        end_time = done.created_at.microsecond / 1000
         total_seconds = (end_time - start_time) / 1000
         text = go.content
         count = 0
