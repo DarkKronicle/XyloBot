@@ -3,6 +3,7 @@ import json
 from json import JSONDecodeError
 
 import discord
+import typing
 from discord.ext import commands
 
 from cogs.games import quiz
@@ -265,7 +266,7 @@ class Games(commands.Cog):
         self.current_games[channel].pop("quiz")
 
     @commands.command(name="typetest")
-    async def type_test(self, ctx: Context, *, custom_text=None):
+    async def type_test(self, ctx: Context, custom_text: typing.Optional[str] = None):
         """
         Test your typing speed!
         """
