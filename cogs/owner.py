@@ -219,9 +219,11 @@ class Owner(commands.Cog):
         dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets")
         ext_blacklist = (".pyc", ".cfg")
         file_blacklist = ("configs.json", "owner.py", "requirements.txt", "LICENSE.txt")
-        paths = DisplayablePath.make_tree(".", criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist, blocked_directories=dir_blacklist, blocked_files=file_blacklist))
-        path = random.choice(paths)
-        file_path: Path = path.path
+
+        paths = []
+        for p in DisplayablePath.make_tree(".", criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist, blocked_directories=dir_blacklist, blocked_files=file_blacklist)):
+            paths.append(p.path)
+        file_path = random.choice(paths)
         text = file_path.read_text()
         lines = text.split("\n")
         for l in lines.copy():
