@@ -216,7 +216,7 @@ class XyloBot(commands.Bot):
             try:
                 await self.loops[loop](time)
             except Exception as error:
-                if isinstance(e, (discord.Forbidden, discord.errors.Forbidden)):
+                if isinstance(error, (discord.Forbidden, discord.errors.Forbidden)):
                     return
                 e = discord.Embed(title='Loop Error', colour=0xcc3366)
 

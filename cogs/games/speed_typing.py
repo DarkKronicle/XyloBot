@@ -9,8 +9,19 @@ from util import game
 
 class SpeedTypingInstance(game.Game):
 
-    def __init__(self, channel, owner):
+    def __init__(self, channel, owner, *, message=None):
         super().__init__(channel, owner)
+        if self.message is None:
+            message = RandomCommands.get_random_lines(5).replace("\n", " ").replace("    ", "").replace("  ", " ")
+            message = message.replace("@", "[@]")
+            if message.endswith(" "):
+                message = message[:len(message)-1]
+            if message.startswith(" "):
+                message = message[1:]
+            if len(message) > 1900:
+                self.message = message[:1900]
+        else:
+            self.message = message
 
     async def start(self, bot):
         self.started = True
@@ -25,11 +36,8 @@ class SpeedTypingInstance(game.Game):
     async def round(self, bot):
         channel = self.channel
         users = self.users
-        message = RandomCommands.get_random_lines(5).replace("\n", " ").replace("    ", "").replace("  ", " ")
-        message = message.replace("@", "[@]")
-        if len(message) > 1900:
-            message = message[:1900]
-        start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{message}\n```")
+
+        start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{self.message}\n```")
 
         def check(msg: discord.Message):
             nonlocal channel
@@ -50,7 +58,7 @@ class SpeedTypingInstance(game.Game):
         total_seconds = (end_time - start_time).total_seconds()
         text = go.content
         count = 0
-        for i, c in enumerate(message):
+        for i, c in enumerate(self.message):
             if i >= len(text):
                 break
             try:
@@ -58,11 +66,11 @@ class SpeedTypingInstance(game.Game):
                     count += 1
             except IndexError:
                 break
-        accuracy = round(count / len(message) * 100)
+        accuracy = round(count / len(self.message) * 100)
         wpm = len(text) / (5 * (total_seconds / 60))
         await channel.send(embed=discord.Embed(
             title="Results",
-            description=f"You finished after `{total_seconds}` seconds, typed at a speed of `{wpm} WPM`, and an accuracy of `{accuracy}%`",
+            description=f"You finished after `{round(total_seconds)}` seconds, typed at a speed of `{round(wpm)} WPM`, and an accuracy of `{accuracy}%`",
             colour=discord.Colour.gold()
         ))
         await self.end(go.author)

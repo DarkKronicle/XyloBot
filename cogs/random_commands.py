@@ -215,6 +215,9 @@ class RandomCommands(commands.Cog, name="Random"):
     @commands.command(name="simp")
     @commands.guild_only()
     async def simp(self, ctx: Context, simp: commands.Greedy[discord.Member] = None):
+        """
+        How much you, or someone else simps for someone else.
+        """
         if simp is None:
             simp = [ctx.author]
         if len(simp) == 1:
@@ -229,7 +232,7 @@ class RandomCommands(commands.Cog, name="Random"):
     @classmethod
     def get_random_lines(cls, lines):
         # Don't want to return any private information or just some weird ones.
-        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets")
+        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets", ".gitignore")
         ext_blacklist = (".pyc", ".cfg")
         file_blacklist = ("config.json", "owner.py", "requirements.txt", "LICENSE.txt")
 

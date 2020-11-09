@@ -265,11 +265,11 @@ class Games(commands.Cog):
         self.current_games[channel].pop("quiz")
 
     @commands.command(name="typetest")
-    async def type_test(self, ctx: Context):
+    async def type_test(self, ctx: Context, *, custom_text=None):
         """
         Test your typing speed!
         """
-        game = SpeedTypingInstance(ctx.channel, ctx.author)
+        game = SpeedTypingInstance(ctx.channel, ctx.author, message=custom_text)
         await game.start(ctx.bot)
 
 
