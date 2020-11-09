@@ -231,7 +231,7 @@ class RandomCommands(commands.Cog, name="Random"):
         # Don't want to return any private information or just some weird ones.
         dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets")
         ext_blacklist = (".pyc", ".cfg")
-        file_blacklist = ("configs.json", "owner.py", "requirements.txt", "LICENSE.txt")
+        file_blacklist = ("config.json", "owner.py", "requirements.txt", "LICENSE.txt")
 
         # Create list of files
         paths = []
