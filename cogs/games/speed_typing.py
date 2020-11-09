@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 import discord
 
@@ -38,16 +39,17 @@ class SpeedTypingInstance(game.Game):
             else:
                 return True
 
+        start_time = datetime.now().microsecond / 1000
         try:
             go = await bot.wait_for("message", timeout=120, check=check)
-            await asyncio.sleep(3)
         except asyncio.TimeoutError:
             await self.timeout()
             await channel.send("Timed out.")
             return
         done = await channel.send("Calculating...")
-        start_time = start_msg.created_at.microsecond / 1000
-        end_time = done.created_at.microsecond / 1000
+        # start_time = start_msg.created_at.microsecond / 1000
+        # end_time = done.created_at.microsecond / 1000
+        end_time = datetime.now().microsecond / 1000
         total_seconds = (end_time - start_time) / 1000
         text = go.content
         count = 0
