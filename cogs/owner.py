@@ -112,12 +112,13 @@ def get_dir_tree(start_path, *, blocked_extensions=None, blocked_directories=Non
         return True
 
     paths = DisplayablePath.make_tree(start_path, criteria=criteria)
+    full_start = str(Path(start_path).resolve())
     message = ""
     for path in paths:
         if pretty:
             message = message + path.displayable() + "\n"
         else:
-            p = str(path.path.resolve()).replace(start_path, "", 1)
+            p = str(path.path.resolve()).replace(full_start, "", 1)
             message = message + p + "\n"
     return message
 
