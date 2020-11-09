@@ -24,7 +24,7 @@ class SpeedTypingInstance(game.Game):
     async def round(self, bot):
         channel = self.channel
         users = self.users
-        message = RandomCommands.get_random_lines(3).replace("\n", " ")
+        message = RandomCommands.get_random_lines(5).replace("\n", " ")
         message = message.replace("@", "[@]")
         for i in range(5):
             message = message.replace("  ", " ")
@@ -49,7 +49,7 @@ class SpeedTypingInstance(game.Game):
             await channel.send("Timed out.")
             return
         end_time = go.created_at.microsecond / 1000
-        total_minutes = (end_time - start_time) / (1000 * 60)
+        total_seconds = (end_time - start_time) / 1000
         text = go.content
         count = 0
         for i, c in enumerate(message):
@@ -61,10 +61,10 @@ class SpeedTypingInstance(game.Game):
             except IndexError:
                 break
         accuracy = round(count / len(message) * 100)
-        wpm = len(text) / (5 * total_minutes)
+        wpm = len(text) / (5 * (total_seconds / 60))
         await channel.send(embed=discord.Embed(
             title="Results",
-            description=f"You typed at a speed of `{wpm} WPM`, and an accuracy of `{accuracy}%`",
+            description=f"You finished after `{total_seconds}` seconds, typed at a speed of `{wpm} WPM`, and an accuracy of `{accuracy}%`",
             colour=discord.Colour.gold()
         ))
         await self.end(go.author)
