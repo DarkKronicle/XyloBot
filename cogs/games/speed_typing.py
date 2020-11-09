@@ -24,7 +24,7 @@ class SpeedTypingInstance(game.Game):
     async def round(self, bot):
         channel = self.channel
         users = self.users
-        message = RandomCommands.get_random_lines(10).replace("\n", " ")
+        message = RandomCommands.get_random_lines(3).replace("\n", " ")
         for i in range(5):
             message = message.replace("  ", " ")
         if len(message) > 1900:
@@ -48,7 +48,7 @@ class SpeedTypingInstance(game.Game):
             await channel.send("Timed out.")
             return
         end_time = go.created_at.microsecond / 1000
-        total_minutes = (end_time - start_time) / 1000 / 60
+        total_minutes = (end_time - start_time) / (1000 * 60)
         text = go.content
         count = 0
         for i, c in enumerate(message):
