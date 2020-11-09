@@ -52,7 +52,7 @@ class DisplayablePath(object):
         return True
 
     @classmethod
-    def block_criteria(cls, *, blocked_extensions=None, blocked_directories=None, blocked_files=None):
+    def block_criteria(cls, *, blocked_extensions=None, blocked_directories=None, blocked_files=None, dir=True):
         if blocked_files is None:
             blocked_files = []
         if blocked_directories is None:
@@ -62,6 +62,8 @@ class DisplayablePath(object):
 
         def criteria(path):
             if path.is_dir():
+                if not dir:
+                    return False
                 if path.name in blocked_directories:
                     return False
             else:

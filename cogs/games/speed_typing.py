@@ -29,7 +29,6 @@ class SpeedTypingInstance(game.Game):
         if len(message) > 1900:
             message = message[:1900]
         start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{message}\n```")
-        start_time = start_msg.created_at.microsecond / 1000
 
         def check(msg: discord.Message):
             nonlocal channel
@@ -47,6 +46,7 @@ class SpeedTypingInstance(game.Game):
             await channel.send("Timed out.")
             return
         done = await channel.send("Calculating...")
+        start_time = start_msg.created_at.microsecond / 1000
         end_time = done.created_at.microsecond / 1000
         total_seconds = (end_time - start_time) / 1000
         text = go.content
