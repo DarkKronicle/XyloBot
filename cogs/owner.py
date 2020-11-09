@@ -6,6 +6,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 import asyncio
 import importlib
 import os
+import random
 import re
 import subprocess
 import sys
@@ -212,6 +213,22 @@ class Owner(commands.Cog):
             message = message[:1990]
         message = message + "```"
         await ctx.send(message)
+
+    @commands.command(name="*randline", hidden=True)
+    async def rand_line(self, ctx: Context):
+        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets")
+        ext_blacklist = (".pyc", ".cfg")
+        file_blacklist = ("configs.json", "owner.py", "requirements.txt", "LICENSE.txt")
+        paths = DisplayablePath.make_tree(".", criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist, blocked_directories=dir_blacklist, blocked_files=file_blacklist))
+        path = random.choice(paths)
+        file_path: Path = path.path
+        text = file_path.read_text()
+        lines = text.split("\n")
+        for l in lines.copy():
+            if l == "":
+                lines.remove(l)
+        line = random.choice(lines)
+        await ctx.send(f"```{line}```")
 
 
 def setup(bot):
