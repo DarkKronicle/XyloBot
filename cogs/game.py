@@ -266,6 +266,9 @@ class Games(commands.Cog):
 
     @commands.command(name="typetest")
     async def type_test(self, ctx: Context):
+        """
+        Test your typing speed!
+        """
         game = SpeedTypingInstance(ctx.channel, ctx.author)
         await game.start(ctx.bot)
 

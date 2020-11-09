@@ -24,7 +24,9 @@ class SpeedTypingInstance(game.Game):
     async def round(self, bot):
         channel = self.channel
         users = self.users
-        message = RandomCommands.get_random_lines(10).replace("\n", " ").replace("    ", "")
+        message = RandomCommands.get_random_lines(10).replace("\n", " ")
+        for i in range(5):
+            message = message.replace("  ", " ")
         if len(message) > 1900:
             message = message[:1900]
         start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{message}\n```")
@@ -52,8 +54,11 @@ class SpeedTypingInstance(game.Game):
         for i, c in enumerate(message):
             if i >= len(text):
                 break
-            if text[i] == c:
-                count += 1
+            try:
+                if text[i] == c:
+                    count += 1
+            except IndexError:
+                break
         accuracy = round(count / len(message) * 100)
         wpm = len(text) * 60 / (5 * total_minutes)
         await channel.send(embed=discord.Embed(
