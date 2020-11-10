@@ -214,6 +214,31 @@ class Owner(commands.Cog):
         message = message + "```"
         await ctx.send(message)
 
+    @commands.command(name="*blist", hidden=True)
+    async def blist(self, ctx: Context, *start_path):
+        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets", ".gitignore")
+        ext_blacklist = (".pyc", ".cfg")
+        file_blacklist = ("config.json", "owner.py", "requirements.txt", "LICENSE.txt")
+
+        # Create list of files
+        paths = []
+        for p in DisplayablePath.make_tree(".",
+                                           criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist,
+                                                                                   blocked_directories=dir_blacklist,
+                                                                                   blocked_files=file_blacklist,
+                                                                                   dir=False)):
+            if not p.path.is_dir():
+                paths.append(p)
+
+        message = "```\n"
+        for path in paths:
+            message = message + path.displayable() + "\n"
+
+        if len(message) > 1990:
+            message = message[:1990]
+        message = message + "```"
+        await ctx.send(message)
+
 
 def setup(bot):
     bot.add_cog(Owner(bot))
