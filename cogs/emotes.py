@@ -14,11 +14,14 @@ class Emotes(commands.Cog):
 
     @commands.command(name=":thumb")
     async def thumb(self, ctx: Context, *, extra):
+        if extra is None:
+            extra = "Thumb"
         embed = discord.Embed(
             description=extra,
             colour=discord.Colour.magenta()
         )
         with open("assets/emotes/thumb.png", "r") as buffer:
+            buffer.seek(0)
             file = discord.File(fp=buffer, filename="thumb.png")
         embed.set_image(url="attachment://thumb.png")
         embed.set_author(icon_url=ctx.author.avatar_url, name=ctx.author.display_name)
