@@ -165,9 +165,9 @@ class AutoReactionConfig:
         }
         for reaction in self.reactions:
             if reaction.filtered(message):
+                reaction.add()
                 if stats is not None:
                     stats[reaction.id] = reaction.get_uses()
-                reaction.add()
                 if reaction.reaction_type == ReactionType.reaction:
                     reacts["emojis"].extend(reaction.get_data())
                 if reaction.reaction_type == ReactionType.text:
@@ -343,13 +343,19 @@ class AutoReactions(commands.Cog):
         View current AutoReactions
         """
         if autoreaction is None or len(autoreaction) == 0:
-            return await ctx.send_help('autoreactions')
+            return await self.send_list_menu(ctx)
 
         autoreaction = await AutoReactionName().convert(ctx, ' '.join(autoreaction))
 
         if autoreaction is not None:
             embed = await self.get_about_embed(autoreaction)
             return await ctx.send(embed=embed)
+        reactions = await self.get_autoreactions(ctx.guild.id)
+        if len(reactions.reactions) == 0:
+            return await ctx.send("This guild currently has no auto reactions.")
+        await self.send_list_menu(ctx)
+
+    async def send_list_menu(self, ctx):
         reactions = await self.get_autoreactions(ctx.guild.id)
         if len(reactions.reactions) == 0:
             return await ctx.send("This guild currently has no auto reactions.")
