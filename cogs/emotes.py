@@ -21,7 +21,7 @@ async def simple_emote(filename, sendname, ctx, description, *, embed=None):
 
 class Emotes(commands.Cog):
     """
-    Send a fun little picture to express your opinion and mood. (All of these start with : to prevent issues)
+    Send a fun little picture to express your opinion and mood.
     """
 
     def __init__(self, bot):
@@ -36,10 +36,10 @@ class Emotes(commands.Cog):
             extra = "Thumb"
         await simple_emote("assets/emotes/thumb.png", "thumb.png", ctx, extra)
 
-    @commands.command(name=":whoputyou")
+    @commands.command(name=":disgust")
     async def whoputyou(self, ctx: Context, *, extra: commands.clean_content = None):
         """
-        Who put YOU on the planet
+        Show your disgust
         """
         if extra is None:
             extra = "Who put you on the planet?"
@@ -80,6 +80,24 @@ class Emotes(commands.Cog):
         if extra is None:
             extra = "RAGE"
         await simple_emote("assets/emotes/rage.gif", "rage.gif", ctx, extra)
+
+    @commands.command(name=":satan")
+    async def satan(self, ctx: Context, *, extra: commands.clean_content = None):
+        """
+        LET EVERYTHING BURN
+        """
+        if extra is None:
+            extra = "BURN BURN BURN"
+        await simple_emote("assets/emotes/elmosatan.gif", "elmosatan.gif", ctx, extra)
+
+    @commands.command(name=":checkmate")
+    async def checkmate(self, ctx: Context, *, extra: commands.clean_content = None):
+        """
+        Checkmate
+        """
+        if extra is None:
+            extra = "checkmate"
+        await simple_emote("assets/emotes/checkmate.gif", "checkmate.gif", ctx, extra)
 
 
 def setup(bot):
