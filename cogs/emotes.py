@@ -55,9 +55,9 @@ class Emotes(commands.Cog):
         await simple_emote("assets/emotes/why.png", ctx, extra)
 
     @commands.command(name=":dude")
-    async def why(self, ctx: Context, *, extra: commands.clean_content):
+    async def dude(self, ctx: Context, *, extra: commands.clean_content):
         """
-        Why?
+        Dude
         """
         if extra is None:
             extra = "dude"
