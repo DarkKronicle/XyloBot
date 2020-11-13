@@ -225,8 +225,7 @@ class Owner(commands.Cog):
         for p in DisplayablePath.make_tree(".",
                                            criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist,
                                                                                    blocked_directories=dir_blacklist,
-                                                                                   blocked_files=file_blacklist,
-                                                                                   dir=False)):
+                                                                                   blocked_files=file_blacklist)):
             if not p.path.is_dir():
                 paths.append(p)
 
