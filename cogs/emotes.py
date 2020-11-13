@@ -4,6 +4,21 @@ from discord.ext import commands
 from util.context import Context
 
 
+async def simple_emote(filename, ctx, description, *, embed=None):
+    if embed is None:
+        embed = discord.Embed(
+            description=description,
+            colour=discord.Colour.magenta()
+        )
+    with open(filename, "rb") as buffer:
+        buffer.seek(0)
+        file = discord.File(fp=buffer, filename="whoputyou.png")
+
+    embed.set_image(url="attachment://whoputyou.png")
+    embed.set_author(icon_url=ctx.author.avatar_url, name=ctx.author.display_name)
+    await ctx.send(embed=embed, file=file)
+
+
 class Emotes(commands.Cog):
     """
     Send a fun little picture to express your opinion and mood. (All of these start with : to prevent issues)
@@ -13,19 +28,31 @@ class Emotes(commands.Cog):
         self.bot = bot
 
     @commands.command(name=":thumb")
-    async def thumb(self, ctx: Context, *, extra: str):
+    async def thumb(self, ctx: Context, *, extra: str = None):
+        """
+        Show your approval
+        """
         if extra is None:
             extra = "Thumb"
-        embed = discord.Embed(
-            description=extra,
-            colour=discord.Colour.magenta()
-        )
-        with open("assets/emotes/thumb.png", "rb") as buffer:
-            buffer.seek(0)
-            file = discord.File(fp=buffer, filename="thumb.png")
-        embed.set_image(url="attachment://thumb.png")
-        embed.set_author(icon_url=ctx.author.avatar_url, name=ctx.author.display_name)
-        await ctx.send(embed=embed, file=file)
+        await simple_emote("assets/emotes/thumb.png", ctx, extra)
+
+    @commands.command(name=":thumb")
+    async def thumb(self, ctx: Context, *, extra: str = None):
+        """
+        Who put YOU on the planet
+        """
+        if extra is None:
+            extra = "Who put you on the planet?"
+        await simple_emote("assets/emotes/whoputyou.png", ctx, extra)
+
+    @commands.command(name=":why")
+    async def thumb(self, ctx: Context, *, extra: str = None):
+        """
+        Who put YOU on the planet
+        """
+        if extra is None:
+            extra = "Why?"
+        await simple_emote("assets/emotes/why.png", ctx, extra)
 
 
 def setup(bot):
