@@ -28,7 +28,7 @@ class Emotes(commands.Cog):
         self.bot = bot
 
     @commands.command(name=":thumb")
-    async def thumb(self, ctx: Context, extra: commands.clean_content = None):
+    async def thumb(self, ctx: Context, *, extra: commands.clean_content):
         """
         Show your approval
         """
@@ -37,7 +37,7 @@ class Emotes(commands.Cog):
         await simple_emote("assets/emotes/thumb.png", ctx, extra)
 
     @commands.command(name=":whoputyou")
-    async def whoputyou(self, ctx: Context, extra: commands.clean_content = None):
+    async def whoputyou(self, ctx: Context, *, extra: commands.clean_content):
         """
         Who put YOU on the planet
         """
@@ -46,7 +46,7 @@ class Emotes(commands.Cog):
         await simple_emote("assets/emotes/whoputyou.png", ctx, extra)
 
     @commands.command(name=":why")
-    async def why(self, ctx: Context, extra: commands.clean_content = None):
+    async def why(self, ctx: Context, *, extra: commands.clean_content):
         """
         Why?
         """
