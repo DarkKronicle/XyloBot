@@ -34,23 +34,19 @@ class Emotes(commands.Cog):
         """
         if extra is None:
             extra = "Thumb"
-        else:
-            extra = ' '.join(extra)
         await simple_emote("assets/emotes/thumb.png", ctx, extra)
 
-    @commands.command(name=":thumb")
-    async def thumb(self, ctx: Context, extra: commands.clean_content = None):
+    @commands.command(name=":whoputyou")
+    async def whoputyou(self, ctx: Context, extra: commands.clean_content = None):
         """
         Who put YOU on the planet
         """
         if extra is None:
             extra = "Who put you on the planet?"
-        else:
-            extra = ' '.join(extra)
         await simple_emote("assets/emotes/whoputyou.png", ctx, extra)
 
     @commands.command(name=":why")
-    async def thumb(self, ctx: Context, extra: commands.clean_content = None):
+    async def why(self, ctx: Context, extra: commands.clean_content = None):
         """
         Why?
         """
