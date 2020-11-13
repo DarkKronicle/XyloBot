@@ -79,7 +79,7 @@ class Emotes(commands.Cog):
         """
         if extra is None:
             extra = "RAGE"
-        await simple_emote("assets/emotes/calm.gif", "rage.gif", ctx, extra)
+        await simple_emote("assets/emotes/rage.gif", "rage.gif", ctx, extra)
 
 
 def setup(bot):
