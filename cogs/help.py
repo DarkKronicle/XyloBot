@@ -57,10 +57,11 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
 
         for command in cogs_commands:
             name = f"`{command.name}`"
+            full_name = f'[{command.name}](https://github.com/DarkKronicle/XyloBot/ "{command.description}")'
             name_count = len(name) + 1
             if name_count + count < 800:
                 count += name_count
-                page.append(name)
+                page.append(full_name)
             else:
                 if count + end_length + 1 > 800:
                     page.pop()
@@ -76,11 +77,11 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
         prefix = await self.help_command.context.bot.get_guild_prefix(self.help_command.context.guild.id)
         top = f"Prefixes you can use: `{prefix}`, `x>`\nUse `help [" \
               f"command/category]` for more specific help.\n" \
-              f"*Use the reactions to look through commands*" \
+              f"*Hover over commands to view description and use the reactions to look through commands*" \
               f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \
               f" - [Support Server](https://discord.gg/X2Kmd7t) - [GitHub](https://github.com/DarkKronicle/XyloBot/)"
 
-        embed = discord.Embed(title="Xylo Help - Categories", description=top, colour=discord.Colour.blue())
+        embed = discord.Embed(title="Xylo Help", description=top, colour=discord.Colour.purple())
 
         for cog in cogs:
             cmds = self.cogs_commands.get(cog)
@@ -106,17 +107,17 @@ class GroupHelpPageSource(menus.ListPageSource):
         self.description = self.group.description
 
     async def format_page(self, menu, commands):
-        embed = discord.Embed(title=self.title, description=self.description, colour=discord.Colour.blue())
+        embed = discord.Embed(title=self.title, description=self.description, colour=discord.Colour.purple())
 
         for command in commands:
             signature = f'{command.qualified_name} {command.signature}'
-            embed.add_field(name=signature, value=command.short_doc or 'No help given...', inline=False)
+            embed.add_field(name=signature, value=command.short_doc or 'No help given...', inline=True)
 
         maximum = self.get_max_pages()
         if maximum > 1:
             embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} commands)')
 
-        embed.set_footer(text=f'Use `help [command]` for more information on a specific command.')
+        embed.set_footer(text=f'Use help [command] for more information on a specific command.')
         return embed
 
 
@@ -132,7 +133,7 @@ class Help(commands.HelpCommand):
 
     def __init__(self):
         super().__init__(command_attrs={
-            'cooldown': commands.Cooldown(2, 9, commands.BucketType.user),
+            'cooldown': commands.Cooldown(2, 10, commands.BucketType.user),
             'help': 'Shows help information for specific commands.'
         })
 

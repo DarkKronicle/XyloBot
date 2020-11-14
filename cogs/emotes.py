@@ -17,6 +17,7 @@ async def simple_emote(filename, sendname, ctx, description, *, embed=None):
     embed.set_image(url=f"attachment://{sendname}")
     embed.set_author(icon_url=ctx.author.avatar_url, name=ctx.author.display_name)
     await ctx.send(embed=embed, file=file)
+    await ctx.delete()
 
 
 class Emotes(commands.Cog):

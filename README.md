@@ -34,6 +34,20 @@ Open source bots that are extremely cool and helped me understand some really co
 
 - [Vexs Emoji List](https://gist.github.com/Vexs/629488c4bb4126ad2a9909309ed6bd71)
 
+### Emotes
+
+- [checkmate](https://www.purefandom.com/2018/12/01/anime-glasses-game-smart-sadistic-scary/)
+
+- [Disgust](https://www.purefandom.com/2018/12/01/anime-glasses-game-smart-sadistic-scary/)
+
+- [Rage](https://wifflegif.com/gifs/187478-fullmetal-alchemist-brotherhood-gif)
+
+- [Satan](https://giphy.com/gifs/i-did-a-thing-e5kbmb3wX3J1S)
+
+- [Thumb](https://www.klipartz.com/en/sticker-png-liges)
+
+- [Chill](https://giphy.com/gifs/justin-just-be-chill-lqM68D2hniKxm9gHwj)
+
 ## Contributing
 
 If you have anything, feel free to send a pull request, as well as any bugs you may find.
