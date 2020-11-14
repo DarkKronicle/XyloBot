@@ -57,7 +57,11 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
 
         for command in cogs_commands:
             name = f"`{command.name}`"
-            full_name = f'[{command.name}](https://github.com/DarkKronicle/XyloBot/ "{command.description}")'
+            if command.description:
+                cdescription = command.description.split("\n", 1)[0]
+            else:
+                cdescription = "No information..."
+            full_name = f'[{name}](https://github.com/DarkKronicle/XyloBot/ "{cdescription}")'
             name_count = len(name) + 1
             if name_count + count < 800:
                 count += name_count
