@@ -60,7 +60,7 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
             if command.description:
                 cdescription = command.description.split("\n", 1)[0]
             else:
-                cdescription = "No information..."
+                cdescription = command.help or "No information..."
             full_name = f'[{name}](https://github.com/DarkKronicle/XyloBot/ "{cdescription}")'
             name_count = len(name) + 1
             if name_count + count < 800:
