@@ -306,7 +306,7 @@ class Verify(commands.Cog):
 
         command = "INSERT INTO verify_settings(guild_id, setup_channel, setup_log, welcome_channel, unverified_role, " \
                   "roles, fields, " \
-                  "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, $${6}$$, $${7}$$, $${8}$$) ON CONFLICT (guild_id) DO NOTHING;"
+                  "active, messages) VALUES({0}, {1}, {2}, {3}, $${4}$$, $${5}$$, $${6}$$, $${7}$$, $${8}$$);"
         command = command.format(str(ctx.guild.id), str(channel.id), str(log.id), str(welcome.id), str(unverified.id),
                                  json.dumps(roles_dict), json.dumps(fields), "TRUE", json.dumps(messages))
         async with db.MaybeAcquire() as con:
