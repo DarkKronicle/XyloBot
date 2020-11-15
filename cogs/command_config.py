@@ -48,7 +48,7 @@ class CommandName(commands.Converter):
 
 
 class CommandPermissions:
-    class _PermissionData:
+    class PermissionData:
         def __init__(self):
             self.allowed = set()
             self.denied = set()
@@ -68,7 +68,7 @@ class CommandPermissions:
 
             # Put it in...
             if channel_id not in self._storage:
-                self._storage[channel_id] = self._PermissionData()
+                self._storage[channel_id] = self.PermissionData()
 
             # Add info baby.
             data = self._storage[channel_id]
@@ -199,7 +199,7 @@ class CommandSettings(commands.Cog):
         self.get_command_config.invalidate(self, guild_id)
 
     async def reset_channel(self, guild_id, name, channel_id=None):
-        delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id"
+        delete = "DELETE FROM command_config WHERE guild_id={0} AND name=$${1}$$ AND channel_id;"
         delete = delete.format(str(guild_id), str(name))
         if channel_id is None:
             delete = delete + " IS NULL;"
@@ -244,7 +244,7 @@ class CommandSettings(commands.Cog):
         Enables a command. If you don't specify the channel it will do the full server.
         """
         if command is None:
-            return await ctx.send("Please put in a proper command!")
+            return await ctx.send("Please use a proper command (can include arguments).")
         if channel is None:
             channel_id = None
             name = "the server"
@@ -253,7 +253,7 @@ class CommandSettings(commands.Cog):
             name = channel.mention
 
         await self.enable_command(ctx.guild.id, command, channel_id=channel_id)
-        await ctx.send(f"Successfully enabled for {name}!")
+        await ctx.send(f"Enabled for {name}!")
 
     @commandconfig.command(name="disable")
     @commands.guild_only()
@@ -264,7 +264,7 @@ class CommandSettings(commands.Cog):
         Disables a command. If you don't specify the channel it will do the full server.
         """
         if command is None:
-            return await ctx.send("Please put in a proper command!")
+            return await ctx.send("Please use a proper command (can include arguments).")
         if channel is None:
             channel_id = None
             name = "the server"
@@ -273,7 +273,7 @@ class CommandSettings(commands.Cog):
             name = channel.mention
 
         await self.disable_command(ctx.guild.id, command, channel_id=channel_id)
-        await ctx.send(f"Successfully disabled for {name}!")
+        await ctx.send(f"Disabled for {name}!")
 
     @commandconfig.command(name="resetcmd")
     @checks.is_mod()
@@ -284,7 +284,7 @@ class CommandSettings(commands.Cog):
         Clears a current setting from the database. If channel is not specified it will do the guild.
         """
         if command is None:
-            return await ctx.send("Please put in a proper command!")
+            return await ctx.send("Please use a proper command (can include arguments).")
         if channel is None:
             channel_id = None
             name = "the server"
@@ -293,7 +293,7 @@ class CommandSettings(commands.Cog):
             name = channel.mention
 
         await self.reset_channel(ctx.guild.id, command, channel_id=channel_id)
-        await ctx.send(f"Successfully deleted for {name}!")
+        await ctx.send(f"Deleted for {name}!")
 
     @commandconfig.command(name="whitelistcmd", aliases=["white", "whitelist", "wcmd"])
     @checks.is_mod()
@@ -306,7 +306,9 @@ class CommandSettings(commands.Cog):
         Essentially disables the command on the guild then enables it on this channel. Whitelisting one command multiple
         times will add for all.
         """
-        if channel is None or command is None:
+        if command is None:
+            return await ctx.send("Please use a proper command (can include arguments).")
+        if channel is None:
             return await ctx.send_help('!commandconfig whitelistcmd')
         await self.disable_command(ctx.guild.id, command, channel_id=channel.id)
         await self.enable_command(ctx.guild.id, command, channel_id=channel.id)
@@ -322,7 +324,7 @@ class CommandSettings(commands.Cog):
             channel_id = channel.id
         data = settings.get_data(channel_id=channel_id)
         if data is None or (len(data.allowed) == 0 and len(data.denied) == 0):
-            return await ctx.send("No command settings for this!")
+            return await ctx.send("No command settings for what you specified.")
         message = ""
         if len(data.allowed) != 0:
             message = "Allowed:\n```\n"
@@ -362,7 +364,7 @@ class CommandSettings(commands.Cog):
         """
         commands = ["!verify", "auth", "whoami", "whois", "social", "edit", "editother"]
         await self.bulk_disable_command(ctx.guild.id, commands)
-        await ctx.send("Successfully disabled commands:\n\n" + ', '.join(commands))
+        await ctx.send("Disabled commands:\n\n" + ', '.join(commands))
 
     @group_config.command(name="games")
     @checks.is_mod()
@@ -373,7 +375,7 @@ class CommandSettings(commands.Cog):
         """
         commands = ["cah", "quiz", "duel"]
         await self.bulk_disable_command(ctx.guild.id, commands)
-        await ctx.send("Successfully disabled commands:\n\n" + ', '.join(commands))
+        await ctx.send("Disabled commands:\n\n" + ', '.join(commands))
 
     @group_config.command(name="random")
     @checks.is_mod()
@@ -384,7 +386,7 @@ class CommandSettings(commands.Cog):
         """
         commands = ["president", "ship", "product", "idea", "rate"]
         await self.bulk_disable_command(ctx.guild.id, commands)
-        await ctx.send("Successfully disabled commands:\n\n" + ', '.join(commands))
+        await ctx.send("Disabled commands:\n\n" + ', '.join(commands))
 
 
 def setup(bot):

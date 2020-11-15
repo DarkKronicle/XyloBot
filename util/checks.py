@@ -12,22 +12,6 @@ async def check_permissions(ctx, perms, *, check=all):
     return check(getattr(resolved, name, None) == value for name, value in perms.items())
 
 
-def is_channel(ctx, channel_id):
-    if channel_id is None:
-        return False
-
-    channel = ctx.guild.get_channel(channel_id)
-    if channel is None:
-        return False
-
-
-def has_permissions(*, check=all, **perms):
-    async def predicate(ctx):
-        return await check_permissions(ctx, perms, check=check)
-
-    return commands.check(predicate)
-
-
 async def check_guild_permissions(ctx, perms, *, check=all):
     is_owner = await ctx.bot.is_owner(ctx.author)
     if is_owner:

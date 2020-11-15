@@ -59,7 +59,8 @@ class DataCommands(commands.Cog):
         "last": "Last Name",
         "school": "School",
         "extra": "Description",
-        "birthday": "Birthday"
+        "birthday": "Birthday",
+        "nicks": "What names you go by"
     }
 
     limits = {
@@ -67,7 +68,8 @@ class DataCommands(commands.Cog):
         "last": 20,
         "school": 30,
         "extra": 200,
-        "birthday": 10
+        "birthday": 10,
+        "nicks": 200
     }
 
     def __init__(self, bot: commands.Bot):

@@ -439,11 +439,9 @@ class Utility(commands.Cog):
                     voice = voice + 1
 
         embed = discord.Embed(
-            title="Current Stats",
+            title="Current Global Stats",
             colour=discord.Colour.purple()
         )
-        owner = bot.get_user(bot.owner_id)
-        embed.set_author(name=str(owner), icon_url=owner.avatar_url)
         message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice " \
                   f"Channels: `{voice}`\n\nUptime: `{uptime}` " \
                   f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \

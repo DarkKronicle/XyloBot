@@ -11,7 +11,6 @@ Rapptz did in RoboDanny.
 Tutorial on how this stuff works: https://realpython.com/primer-on-python-decorators/#caching-return-values
 """
 import asyncio
-import enum
 from functools import wraps
 import inspect
 
@@ -34,19 +33,9 @@ def _wrap_new_coroutine(value):
     return new_coroutine()
 
 
-class Strategy(enum.Enum):
-    lru = 1
-    raw = 2
-
-
-def cache(maxsize=64, strategy=Strategy.lru):
+def cache(maxsize=64):
     def decorator(func):
-        if strategy is Strategy.lru:
-            _internal_cache = LRU(maxsize)
-        elif strategy is Strategy.raw:
-            _internal_cache = {}
-        else:
-            _internal_cache = {}
+        _internal_cache = LRU(maxsize)
 
         def create_key(*args, **kwargs):
             def _true_repr(o):
@@ -72,10 +61,6 @@ def cache(maxsize=64, strategy=Strategy.lru):
                     return _wrap_and_store_coroutine(_internal_cache, key, value)
                 _internal_cache[key] = value
 
-            if strategy is Strategy.raw:
-                if len(_internal_cache) > maxsize:
-                    to_del = list(_internal_cache)[0]
-                    del _internal_cache[to_del]
             if asyncio.iscoroutinefunction(func):
                 return _wrap_new_coroutine(value)
             return value
