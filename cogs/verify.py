@@ -192,7 +192,7 @@ class Verify(commands.Cog):
         # Kind of a mess right here... but it works.
         settings = await self.get_verify_config(ctx.guild.id)
         # Don't want to override old preferences, they can still edit using other commands.
-        if not settings.config:
+        if settings.config is not None:
             return await ctx.send(
                 "This server has already been setup! Have an admin use `!verify clearsettings` if you want to "
                 "re-setup the settings.")
