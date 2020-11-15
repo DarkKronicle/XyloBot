@@ -240,7 +240,7 @@ class Verify(commands.Cog):
             return await ctx.send("Could not find the role.")
 
         ask_roles = await ctx.ask("What roles should I give to the user when they join? (Separate by spaces and use "
-                                  "role ID's. Use `none` if you don't want any)", timeout=180)
+                                  "role ID's. Use `none` if you don't want any)", timeout=180, allow_none=True)
         if ask_roles is None:
             return await ctx.timeout()
 
