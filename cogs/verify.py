@@ -313,6 +313,7 @@ class Verify(commands.Cog):
             con.execute(command)
 
         await ctx.send("You're all setup!")
+        self.get_verify_config.invalidate(self, ctx.guild.id)
         await self.mod_verify_current(ctx)
 
     @mod_verify.command(name="roles")

@@ -182,7 +182,7 @@ class Utility(commands.Cog):
         """
         answer = await ctx.ask('What message should I send to a new member on join? (Use `none` if you want to disable it.)')
         if answer is None:
-            await ctx.timeout()
+            return await ctx.timeout()
 
         self.get_utility_config.invalidate(self, ctx.guild.id)
 

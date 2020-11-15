@@ -61,11 +61,11 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
                 cdescription = command.description.split("\n", 1)[0]
             else:
                 cdescription = command.help or "No information..."
-            full_name = f'[{name}](https://github.com/DarkKronicle/XyloBot/ "{cdescription}")'
+            # full_name = f'[{name}](https://github.com/DarkKronicle/XyloBot/ "{cdescription}")'
             name_count = len(name) + 1
             if name_count + count < 800:
                 count += name_count
-                page.append(full_name)
+                page.append(name)
             else:
                 if count + end_length + 1 > 800:
                     page.pop()
