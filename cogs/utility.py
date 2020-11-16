@@ -449,6 +449,23 @@ class Utility(commands.Cog):
         embed.description = message
         await ctx.send(embed=embed)
 
+    @commands.command(name="user", aliases=["pfp"])
+    async def user(self, ctx: Context, user: discord.Member = None):
+        """Get data about a user"""
+        if user is None:
+            user = ctx.author
+        url = user.avatar_url
+        embed = discord.Embed(
+            description=f"{user.display_name} - ID: `{user.id}`",
+            colour=discord.Colour.magenta()
+        )
+        embed.set_image(url=url)
+        embed.set_author(name=str(user))
+        if ctx.guild is not None:
+            embed.add_field(name="Joined Guild", value=user.joined_at.strftime("%m/%d/%Y, %H:%M:%S UTC"))
+        embed.add_field(name="Created Account", value=user.created_at.strftime("%m/%d/%Y, %H:%M:%S UTC"))
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
