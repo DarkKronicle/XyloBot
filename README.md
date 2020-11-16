@@ -48,6 +48,16 @@ Open source bots that are extremely cool and helped me understand some really co
 
 - [Chill](https://giphy.com/gifs/justin-just-be-chill-lqM68D2hniKxm9gHwj)
 
+- [Idiot](https://allreactions.tumblr.com/post/132173485130/dwights-philosophy-httpifttt1mxgbpg)
+
+- [Yes](https://giphy.com/gifs/the-office-steve-carell-55SfA4BxofRBe)
+
+- [Power](https://giphy.com/gifs/vine-anime-kid-Sw79eJg29HByy4wGC4)
+
+- [MyDudes](https://giphy.com/gifs/weird-scream-dudes-dvDCHPFnxnYubsrNvl)
+
+- [No](https://giphy.com/gifs/jason-clarke-meme-no-bugs-bunny-W2zOnQonnYsNXnUxXo)
+
 ## Contributing
 
 If you have anything, feel free to send a pull request, as well as any bugs you may find.
