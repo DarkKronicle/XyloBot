@@ -79,7 +79,11 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
 
     async def format_page(self, menu, cogs):
         prefix = await self.help_command.context.bot.get_guild_prefix(self.help_command.context.guild.id)
-        top = f"Prefixes you can use: `{prefix}`, `x>`\nUse `help [" \
+        if prefix is not None:
+            prefixes = f"`{prefix}`, `x>`"
+        else:
+            prefixes = f"`x>`"
+        top = f"Prefixes you can use: `{prefixes}\nUse `help [" \
               f"command/category]` for more specific help.\n" \
               f"*Hover over commands to view description and use the reactions to look through commands*" \
               f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \
@@ -91,7 +95,7 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
             cmds = self.cogs_commands.get(cog)
             if cmds:
                 val = self.short_cog(cog, cmds)
-                embed.add_field(name=cog.qualified_name, value=val, inline=True)
+                embed.add_field(name=cog.qualified_name, value=val, inline=False)
 
         maximum = self.get_max_pages()
         if maximum > 1:
@@ -115,7 +119,7 @@ class GroupHelpPageSource(menus.ListPageSource):
 
         for command in commands:
             signature = f'{command.qualified_name} {command.signature}'
-            embed.add_field(name=signature, value=command.short_doc or 'No help given...', inline=True)
+            embed.add_field(name=signature, value=command.short_doc or 'No help given...', inline=False)
 
         maximum = self.get_max_pages()
         if maximum > 1:
