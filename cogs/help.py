@@ -78,7 +78,10 @@ class BotHelpPageSource(menus.ListPageSource, ABC):
         return description + ' '.join(page) + "\n" + end_note.format(str(left))
 
     async def format_page(self, menu, cogs):
-        prefix = await self.help_command.context.bot.get_guild_prefix(self.help_command.context.guild.id)
+        if self.help_command.context.guild is None:
+            prefix = None
+        else:
+            prefix = await self.help_command.context.bot.get_guild_prefix(self.help_command.context.guild.id)
         if prefix is not None:
             prefixes = f"`{prefix}`, `x>`"
         else:
