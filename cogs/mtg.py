@@ -77,8 +77,13 @@ class MagicCard(commands.Converter):
         answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
         try:
             await p.stop()
-            await p.message.delete()
+            # await p.message.delete()
         except (menus.MenuError, discord.HTTPException, TypeError):
+            try:
+                # Lets try to delete the message again...
+                await p.message.delete()
+            except (menus.MenuError, discord.HTTPException, TypeError):
+                pass
             pass
         if answer is None:
             return None
@@ -90,6 +95,31 @@ class MagicCard(commands.Converter):
             return card
         except ValueError:
             raise commands.BadArgument("You need to specify a correct number.")
+
+
+def append_exists(message, **kwargs):
+    for k, v in kwargs.items():
+        if v is None:
+            continue
+        message = message + f"**{k}:** {v}\n"
+    return message
+
+
+def color_from_card(card):
+    if card.colors is None:
+        return discord.Colour.light_gray()
+    color = card.colors[0]
+    if color == "W":
+        return discord.Colour.lighter_gray()
+    if color == "U":
+        return discord.Colour.blue()
+    if color == "R":
+        return discord.Colour.red()
+    if color == "B":
+        return discord.Colour.darker_grey()
+    if color == "G":
+        return discord.Colour.green()
+    return discord.Colour.dark_grey()
 
 
 class Magic(commands.Cog):
@@ -125,7 +155,7 @@ class Magic(commands.Cog):
             await ctx.send(e)
 
     @mtg.command(name="image", aliases=["i"])
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(2, 15, commands.BucketType.user)
     async def image_card(self, ctx: Context, *, card: MagicCard = None):
         """
         Gets a cards image.
@@ -133,59 +163,20 @@ class Magic(commands.Cog):
         if card is None:
             return await ctx.send_help('mtg image')
         card: Card
+        legal = card.legalities or {"format": None, "legality": None}
+        description = append_exists("", Set=card.set_name, CMC=card.cmc, Legality=legal["legality"],
+                                    Format=legal["format"], Rarity=card.rarity)
+        color_from_card(card)
         embed = discord.Embed(
-            description=f"**Set:** {card.set_name}\n**CMC:** {card.cmc}\n*{card.rarity}*",
+            description=description,
             colour=discord.Colour.light_grey()
         )
         embed.set_author(name=card.name)
-        embed.set_image(url=card.image_url)
+        if card.image_url is not None:
+            embed.set_image(url=card.image_url)
+        if card.release_date is not None:
+            embed.set_footer(text=card.release_date)
         await ctx.send(embed=embed)
-
-    @mtg.command(name="info", aliases=["in"])
-    @commands.cooldown(1, 15, commands.BucketType.user)
-    async def info_card(self, ctx: Context, *card):
-        """
-        Gets a cards information.
-        """
-        if card is None or len(card) == 0:
-            return await ctx.send_help('mtg info')
-
-        card = await MagicCard().convert(ctx, ' '.join(card))
-        card: Card
-
-        embed = discord.Embed(
-            colour=discord.Colour.light_gray(),
-            title=card.name
-        )
-        embed.set_author(name=card.type)
-        message = ""
-        if card.text is not None:
-            message = message + f"{card.text}\n\n"
-        if card.flavor is not None:
-            message = message + f"{card.flavor}\n\n"
-        if card.mana_cost is not None:
-            message = message + f"**Mana:** {card.mana_cost}\n"
-        if card.rarity is not None:
-            message = message + f"**Rarity:** {card.rarity}\n"
-        if card.power is not None:
-            message = message + f"**Power:** {card.power}\n"
-        if card.life is not None:
-            message = message + f"**Life:** {card.life}\n"
-        embed.description = message
-        embed.add_field(name="Colour", value=' '.join(card.colors))
-        embed.add_field(name="Set Name", value=card.set_name)
-
-        await ctx.send(embed=embed)
-
-    async def image_from_card(self, card):
-        try:
-            image = await discord_util.get_file_from_image(card.image_url, "magic.png")
-        except Exception:
-            raise commands.CommandError("Something went wrong with that image. Try again later.")
-        if image is None:
-            raise commands.CommandError("Couldn't download image. Try again later.")
-
-        return image
 
 
 def setup(bot):

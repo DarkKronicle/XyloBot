@@ -33,8 +33,8 @@ from discord.ext import menus
 
 class Pages(menus.MenuPages):
 
-    def __init__(self, source):
-        super().__init__(source=source, check_embeds=True)
+    def __init__(self, source, **kwargs):
+        super().__init__(source=source, check_embeds=True, **kwargs)
 
     async def finalize(self, timed_out):
         try:
