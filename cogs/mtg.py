@@ -163,9 +163,12 @@ class Magic(commands.Cog):
         if card is None:
             return await ctx.send_help('mtg image')
         card: Card
-        legal = card.legalities or {"format": None, "legality": None}
-        description = append_exists("", Set=card.set_name, CMC=card.cmc, Legality=legal[0],
-                                    Format=legal[0], Rarity=card.rarity)
+        if card.legalities is not None:
+            legal = card.legalities[0]
+        else:
+            legal = {"format": None, "legality": None}
+        description = append_exists("", Set=card.set_name, CMC=round(card.cmc), Legality=legal["format"],
+                                    Format=legal["legality"], Rarity=card.rarity)
         embed = discord.Embed(
             description=description,
             colour=color_from_card(card)
