@@ -106,9 +106,9 @@ def append_exists(message, **kwargs):
 
 
 def color_from_card(card):
-    if card.colors is None:
+    if card.color_identity is None:
         return discord.Colour.light_gray()
-    color = card.colors[0]
+    color = card.color_identity[0]
     if color == "W":
         return discord.Colour.lighter_gray()
     if color == "U":
@@ -164,15 +164,17 @@ class Magic(commands.Cog):
             return await ctx.send_help('mtg image')
         card: Card
         if card.legalities is not None:
-            legal = card.legalities[0]
+            try:
+                legal = card.legalities[0]
+            except IndexError:
+                legal = card.legalities
         else:
             legal = {"format": None, "legality": None}
-        description = append_exists("", Set=card.set_name, CMC=round(card.cmc), Legality=legal["format"],
-                                    Format=legal["legality"], Rarity=card.rarity)
+        description = append_exists("", Set=card.set_name, CMC=round(card.cmc), Format=legal["format"],
+                                    Legality=legal["legality"], Rarity=card.rarity)
         embed = discord.Embed(
             description=description,
             colour=color_from_card(card)
-
         )
         embed.set_author(name=card.name)
         if card.image_url is not None:
