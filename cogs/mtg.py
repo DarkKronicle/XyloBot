@@ -97,8 +97,7 @@ class Magic(commands.Cog):
     Experimental module for MTG
     """
 
-    @commands.group(name="mtg", aliases=["magic", "m"], hidden=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.group(name="mtg", aliases=["magic", "m"])
     async def mtg(self, ctx: Context):
         """
         Magic the Gathering commands
@@ -107,6 +106,7 @@ class Magic(commands.Cog):
             return await ctx.send_help('mtg')
 
     @mtg.command(name="search")
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def search(self, ctx: Context, *args):
         """
         Searches for a MTG card.
@@ -125,23 +125,24 @@ class Magic(commands.Cog):
             await ctx.send(e)
 
     @mtg.command(name="image", aliases=["i"])
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def image_card(self, ctx: Context, *, card: MagicCard = None):
         """
         Gets a cards image.
         """
-        # if card is None or len(card) == 0:
-        #     return await ctx.send_help('mtg image')
-        #
-        # card = await MagicCard().convert(ctx, ' '.join(card))
         if card is None:
             return await ctx.send_help('mtg image')
-
-        async with ctx.typing():
-            # image = await self.image_from_card(card)
-            # await ctx.send(file=image)
-            await ctx.send(card.image_url)
+        card: Card
+        embed = discord.Embed(
+            description=f"**Set:** {card.set_name}\n**CMC:** {card.cmc}\n*{card.rarity}*",
+            colour=discord.Colour.light_grey()
+        )
+        embed.set_author(name=card.name)
+        embed.set_image(url=card.image_url)
+        await ctx.send(embed=embed)
 
     @mtg.command(name="info", aliases=["in"])
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def info_card(self, ctx: Context, *card):
         """
         Gets a cards information.
