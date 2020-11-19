@@ -163,7 +163,10 @@ class Magic(commands.Cog):
         if card is None:
             return await ctx.send_help('mtg image')
         card: Card
-        legal = card.legalities or {"format": None, "legality": None}
+        if card.legalities is None:
+            legal = {"format": None, "legality": None}
+        else:
+            legal = card.legalities
         description = append_exists("", Set=card.set_name, CMC=card.cmc, Legality=legal["legality"],
                                     Format=legal["format"], Rarity=card.rarity)
         color_from_card(card)
