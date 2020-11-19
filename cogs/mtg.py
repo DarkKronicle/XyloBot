@@ -125,18 +125,21 @@ class Magic(commands.Cog):
             await ctx.send(e)
 
     @mtg.command(name="image", aliases=["i"])
-    async def image_card(self, ctx: Context, *card):
+    async def image_card(self, ctx: Context, *, card: MagicCard = None):
         """
         Gets a cards image.
         """
-        if card is None or len(card) == 0:
+        # if card is None or len(card) == 0:
+        #     return await ctx.send_help('mtg image')
+        #
+        # card = await MagicCard().convert(ctx, ' '.join(card))
+        if card is None:
             return await ctx.send_help('mtg image')
 
-        card = await MagicCard().convert(ctx, ' '.join(card))
-
         async with ctx.typing():
-            image = await self.image_from_card(card)
-            await ctx.send(file=image)
+            # image = await self.image_from_card(card)
+            # await ctx.send(file=image)
+            await ctx.send(card.image_url)
 
     @mtg.command(name="info", aliases=["in"])
     async def info_card(self, ctx: Context, *card):
