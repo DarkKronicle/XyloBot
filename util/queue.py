@@ -10,12 +10,10 @@ class QueueProcess:
         self.queue = queue
 
     async def __aenter__(self):
-        print("Entering")
         await self.queue.wait_until_complete()
         self.queue.occupied = True
 
     async def __aexit__(self, *args):
-        print("Exiting")
         self.queue.occupied = False
 
 
