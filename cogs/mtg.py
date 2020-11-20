@@ -65,7 +65,7 @@ def append_exists(message, **kwargs):
         else:
             m = message
             suffix = ""
-        if v is None:
+        if m is None:
             continue
         message = message + f"**{k}:** {m}{suffix}\n"
     return message
