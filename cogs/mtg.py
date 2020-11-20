@@ -100,8 +100,9 @@ class Magic(commands.Cog):
     Using Scryfall API for MTG cards.
     """
 
-    def __init__(self):
-        self.queue = queue.SimpleQueue(0.5)
+    def __init__(self, bot):
+        self.queue = queue.SimpleQueue(0.5, bot)
+        self.bot = bot
 
     @commands.group(name="mtg", aliases=["magic", "m"])
     async def mtg(self, ctx: Context):
@@ -142,4 +143,4 @@ class Magic(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Magic())
+    bot.add_cog(Magic(bot))

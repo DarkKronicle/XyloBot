@@ -25,12 +25,13 @@ class SimpleQueue:
     second.
     """
 
-    def __init__(self, sleep_for, *, refresh=0.1):
+    def __init__(self, bot, sleep_for, *, refresh=0.1):
         self.occupied = False
         self.sleep_for = sleep_for
         self.waiting = []
         self.running = False
         self.refresh = refresh
+        self.bot = bot
 
     async def loop(self):
         self.running = True
@@ -50,7 +51,7 @@ class SimpleQueue:
         print(str(key))
         if not self.running:
             self.running = True
-            asyncio.get_running_loop().run_in_executor(None, self.loop)
+            self.bot.loop.run_in_executor(None, self.loop)
         while True:
             if key not in self.waiting:
                 return
