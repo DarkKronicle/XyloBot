@@ -101,7 +101,7 @@ class Magic(commands.Cog):
     """
 
     def __init__(self, bot):
-        self.queue = queue.SimpleQueue(0.5, bot)
+        self.queue = queue.SimpleQueue(bot, 0.5)
         self.bot = bot
 
     @commands.group(name="mtg", aliases=["magic", "m"])

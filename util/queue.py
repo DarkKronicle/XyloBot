@@ -33,7 +33,7 @@ class SimpleQueue:
         self.refresh = refresh
         self.bot = bot
 
-    async def loop(self):
+    async def inc_loop(self):
         self.running = True
         while self.running:
             if not self.occupied:
@@ -51,7 +51,7 @@ class SimpleQueue:
         print(str(key))
         if not self.running:
             self.running = True
-            self.bot.loop.run_in_executor(None, self.loop)
+            self.bot.loop.run_in_executor(None, self.inc_loop)
         while True:
             if key not in self.waiting:
                 return
