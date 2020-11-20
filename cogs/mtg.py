@@ -1,6 +1,5 @@
 import discord
-from mtgsdk import Card
-from discord.ext import commands, menus
+from discord.ext import commands
 from scrython.cards.cards_object import CardsObject
 
 from util import queue
@@ -43,21 +42,17 @@ class CardPages(SimplePages):
 
 class MagicCard(commands.Converter):
 
-    def __init__(self, *, queue=None):
+    def __init__(self, queue):
         self.queue = queue
 
     async def convert(self, ctx: Context, argument):
-        if self.queue is None:
-            card = scrython.cards.Named(fuzzy=argument)
-            try:
-                await card.request_data()
-            except scrython.foundation.ScryfallError as e:
-                await ctx.send(e.error_details)
-                return None
-        else:
+        try:
             async with queue.QueueProcess(self.queue):
                 card = scrython.cards.Named(fuzzy=argument)
                 await card.request_data(loop=ctx.bot.loop)
+        except scrython.foundation.ScryfallError as e:
+            await ctx.send(e.error_details)
+            return None
         return card
 
 
@@ -114,7 +109,7 @@ class Magic(commands.Cog):
 
     @mtg.command(name="image", aliases=["i"])
     @commands.cooldown(2, 15, commands.BucketType.user)
-    async def image_card(self, ctx: Context, *, card = None):
+    async def image_card(self, ctx: Context, *, card=None):
         """
         Gets a cards image.
         """
