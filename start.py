@@ -54,7 +54,10 @@ def database():
 def patch_scrython():
     """
     Scrython and discord.py don't really like to share asyncio loops. To fix this I change where it uses loops to
-    just use async functions that can be called whenever. Not just in the __init__.
+    just use async functions that can be called whenever. Not just in the __init__. There's probably a better fix
+    but this one prevents the most hassle and works well with discord commands.
+
+    Scrython is under the MIT license https://github.com/NandaScott/Scrython
     """
     def new_init(self, _url, override=False, **kwargs):
         self.params = {

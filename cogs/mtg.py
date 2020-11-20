@@ -49,7 +49,11 @@ class MagicCard(commands.Converter):
     async def convert(self, ctx: Context, argument):
         if self.queue is None:
             card = scrython.cards.Named(fuzzy=argument)
-            await card.request_data()
+            try:
+                await card.request_data()
+            except scrython.foundation.ScryfallError as e:
+                await ctx.send(e.error_details)
+                return None
         else:
             async with queue.QueueProcess(self.queue):
                 card = scrython.cards.Named(fuzzy=argument)
@@ -107,31 +111,13 @@ class Magic(commands.Cog):
         if ctx.invoked_subcommand is None:
             return await ctx.send_help('mtg')
 
-    @mtg.command(name="search")
-    @commands.cooldown(1, 15, commands.BucketType.user)
-    async def search(self, ctx: Context, *args):
-        """
-        Searches for a MTG card.
-        """
-        if len(args) == 0:
-            return await ctx.send_help('m search')
-
-        cards = Card.where(name=' '.join(args)).where(page=1).where(pageSize=50).all()
-
-        if len(cards) == 0:
-            return await ctx.send("None found")
-        try:
-            p = CardPages(entries=cards)
-            await p.start(ctx)
-        except menus.MenuError as e:
-            await ctx.send(e)
-
     @mtg.command(name="image", aliases=["i"])
     @commands.cooldown(2, 15, commands.BucketType.user)
-    async def image_card(self, ctx: Context, *, card: MagicCard = None):
+    async def image_card(self, ctx: Context, *, card = None):
         """
         Gets a cards image.
         """
+        card = await MagicCard(queue=self.queue).convert(ctx, card)
         if card is None:
             return await ctx.send_help('mtg image')
         card: CardsObject
