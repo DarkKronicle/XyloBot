@@ -48,18 +48,19 @@ class MagicCard(commands.Converter):
         self.queue = queue
 
     async def convert(self, ctx: Context, argument):
-        async with queue.QueueProcess(self.queue):
-            try:
-                card = scrython.cards.Named(fuzzy=argument)
-                await card.request_data(loop=ctx.bot.loop)
-            except scrython.foundation.ScryfallError as e:
-                await asyncio.sleep(0.1)
-                auto = scrython.cards.Autocomplete(q=argument)
-                await auto.request_data(loop=ctx.bot.loop)
-                searches = auto.data()
-                if len(searches) > 10:
-                    searches = searches[:10]
-                raise commands.BadArgument(e.error_details['details'] + f"Did you mean:\n" + "\n".join(searches))
+        async with ctx.typing():
+            async with queue.QueueProcess(self.queue):
+                try:
+                    card = scrython.cards.Named(fuzzy=argument)
+                    await card.request_data(loop=ctx.bot.loop)
+                except scrython.foundation.ScryfallError as e:
+                    await asyncio.sleep(0.1)
+                    auto = scrython.cards.Autocomplete(q=argument)
+                    await auto.request_data(loop=ctx.bot.loop)
+                    searches = auto.data()
+                    if len(searches) > 10:
+                        searches = searches[:10]
+                    raise commands.BadArgument(e.error_details['details'] + f" Did you mean:\n" + "\n".join(searches))
         return card
 
 
@@ -103,7 +104,7 @@ def card_embed(card: CardsObject):
         description=description,
         colour=color_from_card(card)
     )
-    embed.set_author(name=card.name())
+    embed.set_author(name=card.name(), url=card.scryfall_uri())
     url = card.image_uris(0, "large")
     if url is not None:
         embed.set_image(url=str(url))
@@ -135,6 +136,8 @@ class Magic(commands.Cog):
         """
         Gets a card based off of it's name.
         """
+        if card is None:
+            return await ctx.send_help('mtg image')
         card = await MagicCard(queue=self.queue).convert(ctx, card)
         if card is None:
             return await ctx.send_help('mtg image')
