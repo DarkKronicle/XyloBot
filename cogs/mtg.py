@@ -1,7 +1,7 @@
 import asyncio
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, menus
 from scrython.cards.cards_object import CardsObject
 
 from util import queue
@@ -12,18 +12,17 @@ import scrython
 
 class CardEntry:
     def __init__(self, entry):
-        self.name = entry.name
-        self.id = entry.multiverse_id
+        self.name = entry.name()
 
     def __str__(self):
-        return f"{self.name} (ID: {self.id})"
+        return f"{self.name}"
 
 
 class CardEntrySource(SimplePageSource):
 
     async def format_page(self, menu, entries):
         await super().format_page(menu, entries)
-        menu.embed.description = menu.embed.description + "\n\n*To view more information run the command `x>mtg image <ID>`*"
+        # menu.embed.description = menu.embed.description + "\n\n*To view more information run the command `x>mtg image <ID>`*"
         return menu.embed
 
 
@@ -148,10 +147,50 @@ class Magic(commands.Cog):
         """
         Gets a card based off of it's name.
         """
-        async with queue.QueueProcess(queue=self.queue):
-            card = scrython.cards.Random()
-            await card.request_data(loop=ctx.bot.loop)
+        async with ctx.typing():
+            async with queue.QueueProcess(queue=self.queue):
+                card = scrython.cards.Random()
+                await card.request_data(loop=ctx.bot.loop)
 
+        await ctx.send(embed=card_embed(card))
+
+    @mtg.command(name="similar", aliases=["sim"])
+    async def similar(self, ctx: Context, *, card = None):
+        if card is None:
+            return await ctx.send_help('mtg image')
+        card = await MagicCard(queue=self.queue).convert(ctx, card)
+        card: CardsObject
+        cards = card.all_parts()
+        if len(cards) == 0:
+            return await ctx.send(embed=card_embed(card))
+        try:
+            p = CardPages(entries=cards)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
+            return
+        answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
+        try:
+            await p.stop()
+        except (menus.MenuError, discord.HTTPException, TypeError):
+            try:
+                # Lets try to delete the message again...
+                await p.message.delete()
+            except (menus.MenuError, discord.HTTPException, TypeError):
+                pass
+            pass
+        if answer is None:
+            return await ctx.timeout()
+        try:
+            answer = int(answer)
+            if answer < 1 or answer > len(p.entries):
+                raise commands.BadArgument("That was too big/too small.")
+            card = cards[answer - 1]
+        except ValueError:
+            raise commands.BadArgument("You need to specify a correct number.")
+        async with queue.QueueProcess(queue=self.queue):
+            card = scrython.cards.Id(id=card.id)
+            await card.request_data()
         await ctx.send(embed=card_embed(card))
 
 
