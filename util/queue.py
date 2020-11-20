@@ -49,7 +49,7 @@ class SimpleQueue:
         print(str(key))
         if not self.running:
             self.running = True
-            asyncio.new_event_loop().create_task(self.loop())
+            asyncio.get_event_loop().create_task(self.loop())
         while True:
             if key not in self.waiting:
                 return

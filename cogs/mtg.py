@@ -135,9 +135,9 @@ class Magic(commands.Cog):
             colour=color_from_card(card)
         )
         embed.set_author(name=card.name())
-        url = card.image_uris(0, "png")
+        url = card.image_uris(0, "large")
         if url is not None:
-            embed.add_field(name="Image", value=str(url))
+            embed.set_image(url=str(url))
         # footer = ""
         # if card.multiverse_id is not None:
         #     footer = footer + f"ID: {card.multiverse_id}"
