@@ -57,7 +57,7 @@ class MagicCard(commands.Converter):
         else:
             async with queue.QueueProcess(self.queue):
                 card = scrython.cards.Named(fuzzy=argument)
-                await card.request_data()
+                await card.request_data(loop=ctx.bot.loop)
         return card
 
 

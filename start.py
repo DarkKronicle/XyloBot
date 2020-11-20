@@ -75,8 +75,8 @@ def patch_scrython():
         async with client.get(url, **kwargs) as response:
             return await response.json()
 
-    async def request_data(self):
-        async with aiohttp.ClientSession() as client:
+    async def request_data(self, *, loop=None):
+        async with aiohttp.ClientSession(loop=loop) as client:
             self.scryfallJson = await self.get_request(client, self._url)
         if self.scryfallJson['object'] == 'error':
             raise ScryfallError(self.scryfallJson, self.scryfallJson['details'])
