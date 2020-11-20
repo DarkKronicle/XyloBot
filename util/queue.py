@@ -51,7 +51,7 @@ class SimpleQueue:
         print(str(key))
         if not self.running:
             self.running = True
-            self.bot.loop.run_in_executor(None, self.inc_loop)
+            self.bot.loop.run(self.inc_loop())
         while True:
             if key not in self.waiting:
                 return
