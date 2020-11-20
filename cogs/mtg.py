@@ -60,10 +60,10 @@ class MagicCard(commands.Converter):
 def append_exists(message, **kwargs):
     for k, v in kwargs.items():
         if isinstance(v, tuple):
-            m = message[0]
-            suffix = message[1]
+            m = v[0]
+            suffix = v[1]
         else:
-            m = message
+            m = v
             suffix = ""
         if m is None:
             continue

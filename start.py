@@ -83,13 +83,6 @@ def patch_scrython():
     FoundationObject.get_request = get_request
 
 
-def my_except_hook(exctype, value, traceback):
-    if exctype == RuntimeError:
-        print("DARK YOU NEED TO FIX ME!")
-    else:
-        sys.__excepthook__(exctype, value, traceback)
-
-
 def main():
     patch_scrython()
     db.Table.create_data(config['postgresql_name'], config['postgresql_user'], config['postgresql_password'])
