@@ -141,7 +141,7 @@ class Magic(commands.Cog):
         await ctx.send(embed=card_embed(card))
 
     @mtg.command(name="random")
-    async def image_card(self, ctx: Context):
+    async def random(self, ctx: Context):
         """
         Gets a card based off of it's name.
         """
