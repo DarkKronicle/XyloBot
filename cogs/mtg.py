@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 from scrython.cards.cards_object import CardsObject
@@ -46,12 +48,18 @@ class MagicCard(commands.Converter):
         self.queue = queue
 
     async def convert(self, ctx: Context, argument):
-        try:
-            async with queue.QueueProcess(self.queue):
+        async with queue.QueueProcess(self.queue):
+            try:
                 card = scrython.cards.Named(fuzzy=argument)
                 await card.request_data(loop=ctx.bot.loop)
-        except scrython.foundation.ScryfallError as e:
-            raise commands.BadArgument(e.error_details['details'])
+            except scrython.foundation.ScryfallError as e:
+                await asyncio.sleep(0.1)
+                auto = scrython.cards.Autocomplete(q=argument)
+                await auto.request_data(loop=ctx.bot.loop)
+                searches = auto.data()
+                if len(searches) > 10:
+                    searches = searches[:10]
+                raise commands.BadArgument(e.error_details['details'] + f"Did you mean:\n" + "\n".join(searches))
         return card
 
 
@@ -89,6 +97,21 @@ def color_from_card(card):
     return discord.Colour.dark_grey()
 
 
+def card_embed(card: CardsObject):
+    description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_image(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+    return embed
+
+
 class Magic(commands.Cog):
     """
     Using Scryfall API for MTG cards.
@@ -99,6 +122,7 @@ class Magic(commands.Cog):
         self.bot = bot
 
     @commands.group(name="mtg", aliases=["magic", "m"])
+    @commands.cooldown(2, 15, commands.BucketType.user)
     async def mtg(self, ctx: Context):
         """
         Magic the Gathering commands
@@ -107,33 +131,25 @@ class Magic(commands.Cog):
             return await ctx.send_help('mtg')
 
     @mtg.command(name="image", aliases=["i"])
-    @commands.cooldown(2, 15, commands.BucketType.user)
     async def image_card(self, ctx: Context, *, card=None):
         """
-        Gets a cards image.
+        Gets a card based off of it's name.
         """
         card = await MagicCard(queue=self.queue).convert(ctx, card)
         if card is None:
             return await ctx.send_help('mtg image')
-        card: CardsObject
-        description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
-        embed = discord.Embed(
-            description=description,
-            colour=color_from_card(card)
-        )
-        embed.set_author(name=card.name())
-        url = card.image_uris(0, "large")
-        if url is not None:
-            embed.set_image(url=str(url))
-        # footer = ""
-        # if card.multiverse_id is not None:
-        #     footer = footer + f"ID: {card.multiverse_id}"
-        # if card.release_date is not None:
-        #     footer = footer + f"- {card.multiverse_id}"
-        # if footer != "":
-        #     embed.set_footer(text=footer)
+        await ctx.send(embed=card_embed(card))
 
-        await ctx.send(embed=embed)
+    @mtg.command(name="random")
+    async def image_card(self, ctx: Context):
+        """
+        Gets a card based off of it's name.
+        """
+        async with queue.QueueProcess(queue=self.queue):
+            card = scrython.cards.Random()
+            await card.request_data(loop=ctx.bot.loop)
+
+        await ctx.send(embed=card_embed(card))
 
 
 def setup(bot):
