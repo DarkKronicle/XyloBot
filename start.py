@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import importlib
 import logging
+import sys
 import traceback
 
 import nest_asyncio
@@ -34,7 +35,8 @@ def database():
             return
 
     print(f"Preparing to create {len(db.Table.all_tables())} tables.")
-    connection = psycopg2.connect(f"dbname={config['postgresql_name']} user={config['postgresql_user']} password={config['postgresql_password']}")
+    connection = psycopg2.connect(
+        f"dbname={config['postgresql_name']} user={config['postgresql_user']} password={config['postgresql_password']}")
     for table in db.Table.all_tables():
         try:
             run(table.create(connection=connection))
@@ -46,7 +48,15 @@ def database():
     connection.close()
 
 
+def my_except_hook(exctype, value, traceback):
+    if exctype == RuntimeError:
+        print("DARK YOU NEED TO FIX ME!")
+    else:
+        sys.__excepthook__(exctype, value, traceback)
+
+
 def main():
+    sys.excepthook = my_except_hook
     db.Table.create_data(config['postgresql_name'], config['postgresql_user'], config['postgresql_password'])
     database()
     run_bot()
