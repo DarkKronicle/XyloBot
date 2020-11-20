@@ -14,7 +14,7 @@ from scrython.cards.cards_object import CardsObject
 class Searched(CardsObject):
 
     def __init__(self, json, **kwargs):
-        super().__init__(url="", **kwargs)
+        super().__init__(_url="", **kwargs)
         self.scryfallJson = json
 
 
