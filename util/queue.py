@@ -50,7 +50,7 @@ class SimpleQueue:
         print(str(key))
         if not self.running:
             self.running = True
-            asyncio.run(self.loop())
+            asyncio.get_running_loop().run_in_executor(None, self.loop)
         while True:
             if key not in self.waiting:
                 return
