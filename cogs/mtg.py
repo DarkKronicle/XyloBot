@@ -1,10 +1,12 @@
 import discord
 from mtgsdk import Card
 from discord.ext import commands, menus
+from scrython.cards.cards_object import CardsObject
 
-from util import discord_util
+from util import queue
 from util.context import Context
 from util.paginator import SimplePages, Pages, SimplePageSource
+import scrython
 
 
 class CardEntry:
@@ -41,60 +43,17 @@ class CardPages(SimplePages):
 
 class MagicCard(commands.Converter):
 
+    def __init__(self, *, queue=None):
+        self.queue = queue
+
     async def convert(self, ctx: Context, argument):
-        isint = False
-        id = 0
-        try:
-            id = int(argument)
-            isint = True
-        except ValueError:
-            pass
-        if isint:
-            async with ctx.typing():
-                card = Card.where(multiverseid=id).where(page=1).where(pageSize=1).all()
-            if card is None or len(card) == 0:
-                raise commands.BadArgument("No cards found by that ID!")
-            return card[0]
+        if self.queue is None:
+            card = scrython.cards.Named(fuzzy=argument)
+        else:
+            async with queue.QueueProcess(self.queue):
+                card = scrython.cards.Named(fuzzy=argument)
 
-        async with ctx.typing():
-            cards = Card.where(name=argument).where(page=1).where(pageSize=30).all()
-            # Breaks if ID's are none. So just getting rid of them for now.
-            for c in cards.copy():
-                if c.multiverse_id is None:
-                    cards.remove(c)
-
-        if cards is None or len(cards) == 0:
-            raise commands.BadArgument("No cards found with that name.")
-        if len(cards) == 1:
-            return cards[0]
-        try:
-            p = CardPages(entries=cards)
-            await p.start(ctx)
-        except menus.MenuError as e:
-            await ctx.send(e)
-            return
-
-        answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
-        try:
-            await p.stop()
-            # await p.message.delete()
-        except (menus.MenuError, discord.HTTPException, TypeError):
-            try:
-                # Lets try to delete the message again...
-                await p.message.delete()
-            except (menus.MenuError, discord.HTTPException, TypeError):
-                pass
-            pass
-        if answer is None:
-            return None
-        try:
-            answer = int(answer)
-            if answer < 1 or answer > len(p.entries):
-                raise commands.BadArgument("That was too big/too small.")
-            card = cards[answer - 1]
-            return card
-        except ValueError:
-            raise commands.BadArgument("You need to specify a correct number.")
+        return card
 
 
 def append_exists(message, **kwargs):
@@ -106,10 +65,10 @@ def append_exists(message, **kwargs):
 
 
 def color_from_card(card):
-    if card.color_identity is None:
+    if card.colors() is None:
         return discord.Colour.light_gray()
     try:
-        color = card.color_identity[0]
+        color = card.colors()[0]
     except IndexError:
         color = card.color_identity
     if color == "W":
@@ -127,10 +86,14 @@ def color_from_card(card):
 
 class Magic(commands.Cog):
     """
-    Experimental module for MTG
+    Using Scryfall API for MTG cards.
     """
 
-    @commands.group(name="mtg", aliases=["magic", "m"])
+    def __init__(self):
+        self.queue = queue.SimpleQueue(0.5)
+
+    @commands.group(name="mtg", aliases=["magic", "m"], hidden=True)
+    @commands.is_owner()
     async def mtg(self, ctx: Context):
         """
         Magic the Gathering commands
@@ -165,25 +128,24 @@ class Magic(commands.Cog):
         """
         if card is None:
             return await ctx.send_help('mtg image')
-        card: Card
-        if card.legalities is not None:
-            try:
-                legal = card.legalities[0]
-            except IndexError:
-                legal = card.legalities
-        else:
-            legal = {"format": None, "legality": None}
-        description = append_exists("", Set=card.set_name, CMC=round(card.cmc), Format=legal["format"],
-                                    Legality=legal["legality"], Rarity=card.rarity, ID=card.id)
+        card: CardsObject
+        description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=card.prices("usd"))
         embed = discord.Embed(
             description=description,
             colour=color_from_card(card)
         )
-        embed.set_author(name=card.name)
-        if card.image_url is not None:
-            embed.set_image(url=card.image_url)
-        if card.release_date is not None:
-            embed.set_footer(text=card.release_date)
+        embed.set_author(name=card.name())
+        url = card.image_uris(0, "png")
+        if url is not None:
+            embed.add_field(name="Image", value=str(url))
+        # footer = ""
+        # if card.multiverse_id is not None:
+        #     footer = footer + f"ID: {card.multiverse_id}"
+        # if card.release_date is not None:
+        #     footer = footer + f"- {card.multiverse_id}"
+        # if footer != "":
+        #     embed.set_footer(text=footer)
+
         await ctx.send(embed=embed)
 
 
