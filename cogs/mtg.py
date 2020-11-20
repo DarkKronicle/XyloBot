@@ -51,8 +51,7 @@ class MagicCard(commands.Converter):
                 card = scrython.cards.Named(fuzzy=argument)
                 await card.request_data(loop=ctx.bot.loop)
         except scrython.foundation.ScryfallError as e:
-            await ctx.send(e.error_details)
-            return None
+            raise commands.BadArgument(e.error_details['details'])
         return card
 
 
