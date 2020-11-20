@@ -59,9 +59,15 @@ class MagicCard(commands.Converter):
 
 def append_exists(message, **kwargs):
     for k, v in kwargs.items():
+        if isinstance(v, tuple):
+            m = message[0]
+            suffix = message[1]
+        else:
+            m = message
+            suffix = ""
         if v is None:
             continue
-        message = message + f"**{k}:** {v}\n"
+        message = message + f"**{k}:** {m}{suffix}\n"
     return message
 
 
@@ -93,8 +99,7 @@ class Magic(commands.Cog):
     def __init__(self):
         self.queue = queue.SimpleQueue(0.5)
 
-    @commands.group(name="mtg", aliases=["magic", "m"], hidden=True)
-    @commands.is_owner()
+    @commands.group(name="mtg", aliases=["magic", "m"])
     async def mtg(self, ctx: Context):
         """
         Magic the Gathering commands
@@ -130,7 +135,7 @@ class Magic(commands.Cog):
         if card is None:
             return await ctx.send_help('mtg image')
         card: CardsObject
-        description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=card.prices("usd"))
+        description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
         embed = discord.Embed(
             description=description,
             colour=color_from_card(card)
