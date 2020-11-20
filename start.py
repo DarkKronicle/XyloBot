@@ -4,9 +4,12 @@ import importlib
 import logging
 import sys
 import traceback
+import urllib
 
-import nest_asyncio
+import aiohttp
+import scrython
 import psycopg2
+from scrython.foundation import FoundationObject, ScryfallError
 
 from storage import db
 from storage.json_reader import JSONReader
@@ -48,6 +51,38 @@ def database():
     connection.close()
 
 
+def patch_scrython():
+    """
+    Scrython and discord.py don't really like to share asyncio loops. To fix this I change where it uses loops to
+    just use async functions that can be called whenever. Not just in the __init__.
+    """
+    def new_init(self, _url, override=False, **kwargs):
+        self.params = {
+            'format': kwargs.get('format', 'json'), 'face': kwargs.get('face', ''),
+            'version': kwargs.get('version', ''), 'pretty': kwargs.get('pretty', '')
+        }
+
+        self.encodedParams = urllib.parse.urlencode(self.params)
+        self._url = 'https://api.scryfall.com/{0}&{1}'.format(_url, self.encodedParams)
+
+        if override:
+            self._url = _url
+
+    async def get_request(self, client, url, **kwargs):
+        async with client.get(url, **kwargs) as response:
+            return await response.json()
+
+    async def request_data(self):
+        async with aiohttp.ClientSession() as client:
+            self.scryfallJson = await self.get_request(client, self._url)
+        if self.scryfallJson['object'] == 'error':
+            raise ScryfallError(self.scryfallJson, self.scryfallJson['details'])
+
+    FoundationObject.__init__ = new_init
+    FoundationObject.request_data = request_data
+    FoundationObject.get_request = get_request
+
+
 def my_except_hook(exctype, value, traceback):
     if exctype == RuntimeError:
         print("DARK YOU NEED TO FIX ME!")
@@ -56,7 +91,7 @@ def my_except_hook(exctype, value, traceback):
 
 
 def main():
-    sys.excepthook = my_except_hook
+    patch_scrython()
     db.Table.create_data(config['postgresql_name'], config['postgresql_user'], config['postgresql_password'])
     database()
     run_bot()

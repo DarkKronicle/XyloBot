@@ -49,10 +49,11 @@ class MagicCard(commands.Converter):
     async def convert(self, ctx: Context, argument):
         if self.queue is None:
             card = scrython.cards.Named(fuzzy=argument)
+            await card.request_data()
         else:
             async with queue.QueueProcess(self.queue):
                 card = scrython.cards.Named(fuzzy=argument)
-
+                await card.request_data()
         return card
 
 
