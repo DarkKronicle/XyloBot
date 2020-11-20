@@ -162,53 +162,6 @@ class Magic(commands.Cog):
 
         await ctx.send(embed=card_embed(card))
 
-    @mtg.command(name="similar", aliases=["sim"])
-    async def similar(self, ctx: Context, *, card=None):
-        """
-        View similar cards to a card.
-        """
-        if card is None:
-            return await ctx.send_help('mtg image')
-        card = await MagicCard(queue=self.queue).convert(ctx, card)
-        if card is None:
-            return await ctx.send_help('mtg image')
-        card: CardsObject
-        try:
-            cards = card.all_parts()
-        except KeyError:
-            return await ctx.send(embed=card_embed(card))
-
-        try:
-            p = CardPages(entries=cards)
-            await p.start(ctx)
-        except menus.MenuError as e:
-            await ctx.send(e)
-            return
-
-        answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
-        try:
-            await p.stop()
-        except (menus.MenuError, discord.HTTPException, TypeError):
-            try:
-                # Lets try to delete the message again...
-                await p.message.delete()
-            except (menus.MenuError, discord.HTTPException, TypeError):
-                pass
-            pass
-        if answer is None:
-            return await ctx.timeout()
-        try:
-            answer = int(answer)
-            if answer < 1 or answer > len(p.entries):
-                raise commands.BadArgument("That was too big/too small.")
-            card = cards[answer - 1]
-        except ValueError:
-            raise commands.BadArgument("You need to specify a correct number.")
-        async with queue.QueueProcess(queue=self.queue):
-            card = scrython.cards.Id(id=card.id)
-            await card.request_data()
-        await ctx.send(embed=card_embed(card))
-
     @mtg.command(name="search")
     async def search(self, ctx: Context, *, card=None):
         """
