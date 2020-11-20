@@ -47,7 +47,6 @@ def database():
 
 
 def main():
-    nest_asyncio.apply()
     db.Table.create_data(config['postgresql_name'], config['postgresql_user'], config['postgresql_password'])
     database()
     run_bot()

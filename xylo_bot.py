@@ -2,6 +2,7 @@ import math
 import textwrap
 from collections import Counter
 
+import nest_asyncio
 from discord.ext import tasks, menus, commands
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, \
     MemberNotFound
@@ -125,6 +126,7 @@ class XyloBot(commands.Bot):
         messages = join.data["wakeup"]
         message = random.choice(messages)
         await self.log.send(message)
+        nest_asyncio.apply()
 
     async def on_command_error(self, ctx: commands.Context, error):
         # Don't want to be spammed by people just typing in random commands.
