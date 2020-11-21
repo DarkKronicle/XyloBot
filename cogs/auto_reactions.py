@@ -591,8 +591,8 @@ class AutoReactions(commands.Cog):
             return await ctx.send("You can only react with 10 emojis maximum.")
         if message is None:
             one = False
-            async for m in ctx.channel.history(limit=1):
-                if not one:
+            async for m in ctx.channel.history(limit=2):
+                if one:
                     message = m
                     break
                 else:
