@@ -3,12 +3,14 @@ from discord.ext import commands
 
 # https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/utils/checks.py#L11
 # MPL-2.0
-async def check_permissions(ctx, perms, *, check=all):
+async def check_permissions(ctx, perms, *, check=all, channel=None):
     is_owner = await ctx.bot.is_owner(ctx.author)
     if is_owner:
         return True
 
-    resolved = ctx.channel.permissions_for(ctx.author)
+    if channel is None:
+        channel = ctx.channel
+    resolved = channel.permissions_for(ctx.author)
     return check(getattr(resolved, name, None) == value for name, value in perms.items())
 
 

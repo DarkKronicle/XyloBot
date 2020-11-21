@@ -580,6 +580,31 @@ class AutoReactions(commands.Cog):
 
         await ctx.send(message)
 
+    @commands.command(name="react", hidden=True)
+    @commands.is_owner()
+    async def react(self, ctx: Context, message: typing.Optional[discord.Message] = None, emojis: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
+        """
+        Reacts to a message. If none specified it will react to the last message.
+        """
+        if emojis is None or len(emojis) == 0:
+            return await ctx.send("You need to specify at least one emoji!")
+        elif len(emojis) > 10:
+            return await ctx.send("You can only react with 10 emojis maximum.")
+        if message is None:
+            async for m in ctx.channel.history(limit=1):
+                message = m
+                break
+            if message is None:
+                return await ctx.send("Something went wrong finding a message...")
+        if await checks.check_permissions(ctx, {'add_reactions': True, 'administrator': True}, channel=message.channel, check=any):
+            try:
+                for emoji in emojis:
+                    await message.add_reaction(emoji)
+            except discord.HTTPException:
+                return await ctx.send("Something went wrong!")
+        else:
+            return await ctx.send("You don't have permission to add reactions to that message!")
+
 
 def setup(bot):
     bot.add_cog(AutoReactions(bot))
