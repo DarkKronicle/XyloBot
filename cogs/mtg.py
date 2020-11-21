@@ -170,8 +170,11 @@ class Magic(commands.Cog):
         if card is None:
             return await ctx.send_help('mtg image')
         async with queue.QueueProcess(queue=self.queue):
-            cards = scrython.cards.Search(q=card)
-            await cards.request_data()
+            try:
+                cards = scrython.cards.Search(q=card)
+                await cards.request_data()
+            except scrython.foundation.ScryfallError as e:
+                return await ctx.send(e.error_details["details"])
         if len(cards.data()) == 0:
             return await ctx.send("No cards with that name found.")
         try:
