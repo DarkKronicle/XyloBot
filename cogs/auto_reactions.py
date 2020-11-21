@@ -580,8 +580,7 @@ class AutoReactions(commands.Cog):
 
         await ctx.send(message)
 
-    @commands.command(name="react", hidden=True)
-    @commands.is_owner()
+    @commands.command(name="react")
     async def react(self, ctx: Context, message: typing.Optional[discord.Message] = None, emojis: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
         """
         Reacts to a message. If none specified it will react to the last message.
@@ -591,14 +590,24 @@ class AutoReactions(commands.Cog):
         elif len(emojis) > 10:
             return await ctx.send("You can only react with 10 emojis maximum.")
         if message is None:
+            one = False
             async for m in ctx.channel.history(limit=1):
-                message = m
-                break
+                if not one:
+                    message = m
+                    break
+                else:
+                    one = True
             if message is None:
                 return await ctx.send("Something went wrong finding a message...")
         if await checks.check_permissions(ctx, {'add_reactions': True, 'administrator': True}, channel=message.channel, check=any):
             try:
                 for emoji in emojis:
+                    if emoji is None:
+                        continue
+                    if isinstance(emoji, discord.Emoji):
+                        if emoji.guild.id not in (ctx.guild.id, 658371169728331788):
+                            # We don't want cross guild stuff... but Xylo's server is fine.
+                            continue
                     await message.add_reaction(emoji)
             except discord.HTTPException:
                 return await ctx.send("Something went wrong!")
