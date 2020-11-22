@@ -70,7 +70,7 @@ class Magic(commands.Cog):
         if ctx.invoked_subcommand is None:
             return await ctx.send_help('mtg')
 
-    @mtg.command(name="image", aliases=["i"])
+    @mtg.command(name="card", aliases=["c"])
     async def image_card(self, ctx: Context, *, card=None):
         """
         Gets a card based off of it's name.
