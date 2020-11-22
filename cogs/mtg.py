@@ -123,7 +123,7 @@ def card_legal_embed(card: CardsObject):
     embed.set_author(name=card.name() + " - Legalities", url=card.scryfall_uri())
     url = card.image_uris(0, "large")
     if url is not None:
-        embed.set_image(url=str(url))
+        embed.set_thumbnail(url=str(url))
     if card.released_at() is not None:
         embed.set_footer(text=card.released_at())
 

@@ -21,6 +21,7 @@ class CardSearchSource(menus.ListPageSource):
         super().__init__(entries, per_page=per_page)
 
     async def format_page(self, menu, entries):
+        embed = discord.Embed(discord.Colour.magenta())
         pages = []
         for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
             pages.append(f"**{index + 1}.** {entry.name()}")
@@ -28,15 +29,16 @@ class CardSearchSource(menus.ListPageSource):
         maximum = self.get_max_pages()
         if maximum > 1:
             footer = f"Page {menu.current_page + 1}/{maximum} ({len(self.entries)} entries.)"
-            menu.embed.set_footer(text=footer)
+            embed.set_footer(text=footer)
 
-        menu.embed.description = '\n'.join(pages)
+        embed.description = '\n'.join(pages)
         if len(menu.query) > 20:
             q = menu.query[:20]
         else:
             q = menu.query + "..."
-        menu.embed.set_author(name=f"Search Results For: {q}")
-        menu.embed.colour = discord.Colour.magenta()
+        embed.set_author(name=f"Search Results For: {q}")
+        embed.colour = discord.Colour.magenta()
+        menu.embed = embed
         return menu.embed
 
     async def format_card(self, menu, card):
