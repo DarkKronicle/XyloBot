@@ -82,7 +82,7 @@ def color_from_card(card):
     return discord.Colour.dark_grey()
 
 
-def card_embed(card: CardsObject):
+def card_image_embed(card: CardsObject):
     description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
     embed = discord.Embed(
         description=description,
@@ -92,6 +92,45 @@ def card_embed(card: CardsObject):
     url = card.image_uris(0, "large")
     if url is not None:
         embed.set_image(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+    return embed
+
+
+def card_text_embed(card: CardsObject):
+    # https://github.com/NandaScott/Scrython/blob/master/examples/get_and_format_card.py
+    if card.type_line() == 'Creature':
+        pt = "({}/{})".format(card.power(), card.toughness())
+    else:
+        pt = ""
+
+    if card.cmc() == 0:
+        mana_cost = ""
+    else:
+        mana_cost = card.mana_cost()
+
+    description = """
+    {cardname} {mana_cost}
+    {type_line} -- {set_code} 
+    {oracle_text} {power_toughness}
+    *{rarity}*
+    """.format(
+        cardname=card.name(),
+        mana_cost=mana_cost,
+        type_line=card.type_line(),
+        set_code=card.set_code(),
+        rarity=card.rarity(),
+        oracle_text=card.oracle_text(),
+        power_toughness=pt
+    ).replace("    ", "")
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name(), url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_thumbnail(url=str(url))
     if card.released_at() is not None:
         embed.set_footer(text=card.released_at())
     return embed
@@ -125,7 +164,7 @@ class Magic(commands.Cog):
         card = await MagicCard(queue=self.queue).convert(ctx, card)
         if card is None:
             return await ctx.send_help('mtg image')
-        await ctx.send(embed=card_embed(card))
+        await ctx.send(embed=card_image_embed(card))
 
     @mtg.command(name="random")
     async def random(self, ctx: Context):
@@ -137,7 +176,7 @@ class Magic(commands.Cog):
                 card = scrython.cards.Random()
                 await card.request_data(loop=ctx.bot.loop)
 
-        await ctx.send(embed=card_embed(card))
+        await ctx.send(embed=card_image_embed(card))
 
     @mtg.command(name="search")
     async def search(self, ctx: Context, *, card=None):

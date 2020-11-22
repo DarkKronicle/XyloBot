@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import menus
 
-from cogs.mtg import card_embed
+from cogs.mtg import card_image_embed, card_text_embed
 from util.paginator import Pages
 
 
@@ -32,8 +32,11 @@ class CardSearchSource(menus.ListPageSource):
         return menu.embed
 
     async def format_card(self, menu, card):
-        embed = card_embed(card)
-        embed.set_footer(text=f"{menu.current_card + 1}/{len(self.entries)}")
+        if menu.image:
+            embed = card_image_embed(card)
+        else:
+            embed = card_text_embed(card)
+        embed.set_footer(text=f"{embed.footer} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
 
@@ -54,6 +57,7 @@ class CardSearch(Pages):
         self.current_card = 0
         self.card_view = False
         self.query = query
+        self.image = True
 
     def _skip_singles(self):
         max_pages = self._source.get_max_pages()
@@ -126,6 +130,12 @@ class CardSearch(Pages):
             await self.show_checked_page(self._source.get_max_pages() - 1)
         else:
             await self.show_card_page(len(self.entries) - 1)
+
+    @menus.button('📘',
+                  position=menus.Last(4), skip_if=_skip_doubles)
+    async def go_to_last_page(self, payload):
+        """switches from image based formatting to text based"""
+        self.image = not self.image
 
     @menus.button('↩️', position=menus.Last(2))
     async def go_current_page(self, payload):
