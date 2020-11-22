@@ -3,6 +3,7 @@ import asyncio
 import discord
 from discord.ext import menus
 
+from cogs.mtg import card_embed
 from util.paginator import Pages
 
 
