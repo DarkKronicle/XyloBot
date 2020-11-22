@@ -36,7 +36,7 @@ class CardSearchSource(menus.ListPageSource):
             embed = cogs.mtg.card_image_embed(card)
         else:
             embed = cogs.mtg.card_text_embed(card)
-        embed.set_footer(text=f"{embed.footer} - Showing card {menu.current_card + 1}/{len(self.entries)}")
+        embed.set_footer(text=f"{embed.footer.text} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
 
@@ -84,7 +84,7 @@ class CardSearch(Pages):
         self.embed.set_image(url=discord.Embed.Empty)
         await super().show_page(page_number)
 
-    @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(4))
+    @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(5))
     async def show_help(self, payload):
         """shows this message"""
         embed = discord.Embed(title='Paginator help', description='Hello! Welcome to the help page.')

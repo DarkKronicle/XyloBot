@@ -116,7 +116,7 @@ def card_text_embed(card: CardsObject):
         cardname=card.name(),
         mana_cost=mana_cost,
         type_line=card.type_line(),
-        set_code=card.set_code(),
+        set_code=card.set_name(),
         rarity=card.rarity(),
         oracle_text=card.oracle_text(),
         power_toughness=pt
