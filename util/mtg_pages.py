@@ -380,7 +380,7 @@ class SingleCardMenu(Pages):
         """
 
     def __init__(self, card):
-        super().__init__(CardSearchSource(card))
+        super().__init__(SingleCardSource(card))
         self.embed = discord.Embed(colour=discord.Colour.magenta())
 
     def _skip_double_triangle_buttons(self):
