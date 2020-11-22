@@ -86,12 +86,56 @@ def card_image_embed(card: CardsObject):
         description=description,
         colour=color_from_card(card)
     )
-    embed.set_author(name=card.name(), url=card.scryfall_uri())
+    embed.set_author(name=card.name() + " - Image", url=card.scryfall_uri())
     url = card.image_uris(0, "large")
     if url is not None:
         embed.set_image(url=str(url))
     if card.released_at() is not None:
         embed.set_footer(text=card.released_at())
+    return embed
+
+
+def card_prices_embed(card: CardsObject):
+    description = card.rarity()
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name() + " - Prices", url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_thumbnail(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+    embed.add_field(name="USD", value=f"${card.prices('usd')}")
+    embed.add_field(name="USD Foil", value=f"{card.prices('usd_foil')}")
+    embed.add_field(name="EUR", value=f"€{card.prices('eur')}")
+    embed.add_field(name="TIX", value=f"{card.prices('tix')}")
+    return embed
+
+
+def card_legal_embed(card: CardsObject):
+    description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name() + " - Legalities", url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_image(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+
+    legal = card.legalities()
+
+    def pretty(form, val):
+        return form.capitalize(), val.replace("_", " ").capitalize()
+
+    for k, v in legal.items():
+        name, value = pretty(k, v)
+        embed.add_field(name=name, value=value)
+
     return embed
 
 
@@ -125,7 +169,7 @@ def card_text_embed(card: CardsObject):
         description=description,
         colour=color_from_card(card)
     )
-    embed.set_author(name=card.name(), url=card.scryfall_uri())
+    embed.set_author(name=card.name() + " - Text", url=card.scryfall_uri())
     url = card.image_uris(0, "large")
     if url is not None:
         embed.set_thumbnail(url=str(url))

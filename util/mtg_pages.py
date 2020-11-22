@@ -2,9 +2,17 @@ import asyncio
 
 import discord
 from discord.ext import menus
+import enum
 
 import cogs.mtg
 from util.paginator import Pages
+
+
+class CardView(enum):
+    image = 0
+    text = 1
+    legalities = 2
+    prices = 3
 
 
 class CardSearchSource(menus.ListPageSource):
@@ -32,10 +40,17 @@ class CardSearchSource(menus.ListPageSource):
         return menu.embed
 
     async def format_card(self, menu, card):
-        if menu.image:
+        view = menu.view_type
+        if view == CardView.image:
             embed = cogs.mtg.card_image_embed(card)
-        else:
+        elif view == CardView.text:
             embed = cogs.mtg.card_text_embed(card)
+        elif view == CardView.legalities:
+            embed = cogs.mtg.card_legal_embed(card)
+        elif view == CardView.prices:
+            embed = cogs.mtg.card_prices_embed(card)
+        else:
+            embed = cogs.mtg.card_image_embed(card)
         embed.set_footer(text=f"{embed.footer.text} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
@@ -57,7 +72,7 @@ class CardSearch(Pages):
         self.current_card = 0
         self.card_view = False
         self.query = query
-        self.image = True
+        self.view_type = CardView.image
 
     def _skip_singles(self):
         max_pages = self._source.get_max_pages()
@@ -131,11 +146,15 @@ class CardSearch(Pages):
         else:
             await self.show_card_page(len(self.entries) - 1)
 
-    @menus.button('📘',
-                  position=menus.Last(4), skip_if=_skip_doubles)
+    @menus.button('🔄', position=menus.Last(4))
     async def go_to_last_page(self, payload):
-        """switches from image based formatting to text based"""
-        self.image = not self.image
+        """rotate through different card views"""
+        order = [CardView.image, CardView.text, CardView.legalities, CardView.prices]
+        num = order.index(self.view_type) + 1
+        if num >= len(order):
+            self.view_type = order[0]
+        else:
+            self.view_type = order[num]
         if self.card_view:
             await self.show_card_page(self.current_card)
 
