@@ -353,8 +353,8 @@ class SingleCardSource(menus.ListPageSource):
         self.card = card
         super().__init__(range(len(CardView)), per_page=per_page)
 
-    async def format_page(self, menu, entries):
-        view = CardView(entries[0])
+    async def format_page(self, menu, entry):
+        view = CardView(entry)
         if view == CardView.image:
             embed = card_image_embed(self.card)
         elif view == CardView.text:
