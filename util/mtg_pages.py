@@ -4,8 +4,144 @@ import discord
 from discord.ext import menus
 import enum
 
-import cogs.mtg
+from scrython.cards.cards_object import CardsObject
+
 from util.paginator import Pages
+
+
+def append_exists(message, **kwargs):
+    for k, v in kwargs.items():
+        if isinstance(v, tuple):
+            m = v[0]
+            suffix = v[1]
+        else:
+            m = v
+            suffix = ""
+        if m is None:
+            continue
+        message = message + f"**{k}:** {m}{suffix}\n"
+    return message
+
+
+def color_from_card(card):
+    try:
+        if card.colors() is None:
+            return discord.Colour.light_gray()
+        try:
+            color = card.colors()[0]
+        except IndexError:
+            color = card.colors()
+    except KeyError:
+        return discord.Colour.light_grey()
+    if color == "W":
+        return discord.Colour.lighter_gray()
+    if color == "U":
+        return discord.Colour.blue()
+    if color == "R":
+        return discord.Colour.red()
+    if color == "B":
+        return discord.Colour.darker_grey()
+    if color == "G":
+        return discord.Colour.green()
+    return discord.Colour.dark_grey()
+
+
+def card_image_embed(card: CardsObject):
+    description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name() + " - Image", url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_image(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+    return embed
+
+
+def card_prices_embed(card: CardsObject):
+    description = card.rarity()
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name() + " - Prices", url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_thumbnail(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+    embed.add_field(name="USD", value=f"${card.prices('usd')}")
+    embed.add_field(name="USD Foil", value=f"{card.prices('usd_foil')}")
+    embed.add_field(name="EUR", value=f"€{card.prices('eur')}")
+    embed.add_field(name="TIX", value=f"{card.prices('tix')}")
+    return embed
+
+
+def card_legal_embed(card: CardsObject):
+    description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name() + " - Legalities", url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_thumbnail(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+
+    legal = card.legalities()
+
+    def pretty(form, val):
+        return form.capitalize(), val.replace("_", " ").capitalize()
+
+    for k, v in legal.items():
+        name, value = pretty(k, v)
+        embed.add_field(name=name, value=value)
+
+    return embed
+
+
+def card_text_embed(card: CardsObject):
+    # https://github.com/NandaScott/Scrython/blob/master/examples/get_and_format_card.py
+    if card.type_line() == 'Creature':
+        pt = "({}/{})".format(card.power(), card.toughness())
+    else:
+        pt = ""
+
+    if card.cmc() == 0:
+        mana_cost = ""
+    else:
+        mana_cost = card.mana_cost()
+
+    description = """
+    {cardname} {mana_cost}
+    {type_line} -- {set_code} 
+    {oracle_text} {power_toughness}
+    *{rarity}*
+    """.format(
+        cardname=card.name(),
+        mana_cost=mana_cost,
+        type_line=card.type_line(),
+        set_code=card.set_name(),
+        rarity=card.rarity(),
+        oracle_text=card.oracle_text(),
+        power_toughness=pt
+    ).replace("    ", "")
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    embed.set_author(name=card.name() + " - Text", url=card.scryfall_uri())
+    url = card.image_uris(0, "large")
+    if url is not None:
+        embed.set_thumbnail(url=str(url))
+    if card.released_at() is not None:
+        embed.set_footer(text=card.released_at())
+    return embed
 
 
 class CardView(enum.Enum):
@@ -44,15 +180,15 @@ class CardSearchSource(menus.ListPageSource):
     async def format_card(self, menu, card):
         view = menu.view_type
         if view == CardView.image:
-            embed = cogs.mtg.card_image_embed(card)
+            embed = card_image_embed(card)
         elif view == CardView.text:
-            embed = cogs.mtg.card_text_embed(card)
+            embed = card_text_embed(card)
         elif view == CardView.legalities:
-            embed = cogs.mtg.card_legal_embed(card)
+            embed = card_legal_embed(card)
         elif view == CardView.prices:
-            embed = cogs.mtg.card_prices_embed(card)
+            embed = card_prices_embed(card)
         else:
-            embed = cogs.mtg.card_image_embed(card)
+            embed = card_image_embed(card)
         embed.set_footer(text=f"{embed.footer.text} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
@@ -99,18 +235,6 @@ class CardSearch(Pages):
     async def show_page(self, page_number):
         self.card_view = False
         await super().show_page(page_number)
-
-    @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(5))
-    async def show_help(self, payload):
-        """shows this message"""
-        embed = discord.Embed(title='Paginator help', description='Hello! Welcome to the help page.')
-        messages = []
-        for (emoji, button) in self.buttons.items():
-            messages.append(f'{emoji}: {button.action.__doc__}')
-
-        embed.add_field(name='What are these reactions for?', value='\n'.join(messages), inline=False)
-        embed.set_footer(text=f'We were on page {self.current_page + 1} before this message.')
-        await self.message.edit(content=None, embed=embed)
 
     @menus.button('\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f',
             position=menus.First(0), skip_if=_skip_doubles)
@@ -221,3 +345,44 @@ class CardSearch(Pages):
         self.current_card = card_number
         kwargs = await self._get_kwargs_from_card(card)
         await self.message.edit(**kwargs)
+
+
+class SingleCardSource(menus.ListPageSource):
+
+    def __init__(self, card, *, per_page=1):
+        self.card = card
+        super().__init__(range(len(CardView)), per_page=per_page)
+
+    async def format_page(self, menu, entries):
+        view = CardView(entries[0])
+        if view == CardView.image:
+            embed = card_image_embed(self.card)
+        elif view == CardView.text:
+            embed = card_text_embed(self.card)
+        elif view == CardView.legalities:
+            embed = card_legal_embed(self.card)
+        elif view == CardView.prices:
+            embed = card_prices_embed(self.card)
+        else:
+            embed = card_image_embed(self.card)
+        embed.set_footer(text=f"{embed.footer.text} - Showing type {menu.current_page + 1}/{len(self.entries)}")
+        menu.embed = embed
+        return menu.embed
+
+    def is_paginating(self):
+        # We always want buttons so that we can view card information.
+        return True
+
+
+class SingleCardMenu(Pages):
+    """
+        A menu that consists of two parts, the list of all cards, then the in depth card view on each.
+        """
+
+    def __init__(self, card):
+        super().__init__(CardSearchSource(card))
+        self.embed = discord.Embed(colour=discord.Colour.magenta())
+
+    def _skip_double_triangle_buttons(self):
+        # The way we are using the pages to go between different views would be really weird to skip to the beginning.
+        return True

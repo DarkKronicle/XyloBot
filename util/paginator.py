@@ -42,6 +42,17 @@ class Pages(menus.MenuPages):
         except discord.HTTPException:
             pass
 
+    @menus.button('*️⃣', position=menus.Last(5))
+    async def show_help(self, payload):
+        """shows this message"""
+        embed = discord.Embed(title='Pages help', description='Hopefully this makes the buttons less confusing.', colour=discord.Colour.purple())
+        messages = []
+        for (emoji, button) in self.buttons.items():
+            messages.append(f'{emoji}: {button.action.__doc__}')
+
+        embed.add_field(name='What do these reactions do?', value='\n'.join(messages), inline=False)
+        await self.message.edit(content=None, embed=embed)
+
 
 class SimplePageSource(menus.ListPageSource):
 
