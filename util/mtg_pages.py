@@ -34,6 +34,7 @@ class CardSearchSource(menus.ListPageSource):
     async def format_card(self, menu, card):
         embed = card_embed(card)
         embed.set_footer(text=f"{menu.current_card + 1}/{len(self.entries)}")
+        menu.embed = embed
         return menu.embed
 
     def is_paginating(self):
