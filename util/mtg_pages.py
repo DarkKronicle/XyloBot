@@ -136,6 +136,8 @@ class CardSearch(Pages):
     async def go_to_last_page(self, payload):
         """switches from image based formatting to text based"""
         self.image = not self.image
+        if self.card_view:
+            await self.show_card_page(self.current_card)
 
     @menus.button('↩️', position=menus.Last(2))
     async def go_current_page(self, payload):
