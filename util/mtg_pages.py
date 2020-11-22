@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import menus
 
-from cogs.mtg import card_image_embed, card_text_embed
+import cogs.mtg
 from util.paginator import Pages
 
 
@@ -33,9 +33,9 @@ class CardSearchSource(menus.ListPageSource):
 
     async def format_card(self, menu, card):
         if menu.image:
-            embed = card_image_embed(card)
+            embed = cogs.mtg.card_image_embed(card)
         else:
-            embed = card_text_embed(card)
+            embed = cogs.mtg.card_text_embed(card)
         embed.set_footer(text=f"{embed.footer} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
