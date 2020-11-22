@@ -347,14 +347,47 @@ class CardSearch(Pages):
         await self.message.edit(**kwargs)
 
 
-class SingleCardSource(menus.ListPageSource):
+class SingleCardMenu(menus.Menu):
+    """
+    A menu that can go through different info of a card.
+    """
 
-    def __init__(self, card, *, per_page=1):
+    @classmethod
+    def create_button_func(cls, view, *, doc):
+
+        async def button_func(self, payload):
+            await self.show_page(view)
+
+        button_func.__doc__ = doc
+        return button_func
+
+    def __init__(self, card):
+        super().__init__()
         self.card = card
-        super().__init__(range(len(CardView)), per_page=per_page)
+        self.embed = discord.Embed(colour=discord.Colour.magenta())
+        self.current_view = CardView.image
+        buttons = [
+            ("🗺️", CardView.image, "view the card image"),
+            ("📘", CardView.text, "view a copy paste-able text format"),
+            ("💸", CardView.price, "view prices of the card"),
+            ("🧾", CardView.legalities, "view the legalities of the card")
+        ]
 
-    async def format_page(self, menu, entry):
-        view = CardView(entry)
+        for emoji, view, doc in buttons:
+            self.add_button(menus.Button(emoji, self.create_button_func(view, doc=doc)))
+
+    @menus.button('*️⃣', position=menus.Last(0))
+    async def show_help(self, payload):
+        """shows this message"""
+        embed = discord.Embed(title='Pages help', description='Hopefully this makes the buttons less confusing.', colour=discord.Colour.purple())
+        messages = []
+        for (emoji, button) in self.buttons.items():
+            messages.append(f'{emoji}: {button.action.__doc__}')
+
+        embed.add_field(name='What do these reactions do?', value='\n'.join(messages), inline=False)
+        await self.message.edit(content=None, embed=embed)
+
+    async def format_page(self, view):
         if view == CardView.image:
             embed = card_image_embed(self.card)
         elif view == CardView.text:
@@ -365,34 +398,26 @@ class SingleCardSource(menus.ListPageSource):
             embed = card_prices_embed(self.card)
         else:
             embed = card_image_embed(self.card)
-        embed.set_footer(text=f"{embed.footer.text} - Showing type {menu.current_page + 1}/{len(self.entries)}")
-        menu.embed = embed
-        return menu.embed
+        self.embed = embed
+        return self.embed
 
-    def is_paginating(self):
-        # We always want buttons so that we can view card information.
-        return True
+    async def _get_kwargs_from_page(self, view):
+        value = await self.format_page(view)
+        if isinstance(value, dict):
+            return value
+        elif isinstance(value, str):
+            return {'content': value, 'embed': None}
+        elif isinstance(value, discord.Embed):
+            return {'embed': value, 'content': None}
+
+    async def show_page(self, view):
+        self.current_view = view
+        kwargs = await self._get_kwargs_from_page(view)
+        await self.message.edit(**kwargs)
+
+    async def send_initial_message(self, ctx, channel):
+        kwargs = await self._get_kwargs_from_page(CardView.image)
+        return await channel.send(**kwargs)
 
 
-class SingleCardMenu(Pages):
-    """
-        A menu that consists of two parts, the list of all cards, then the in depth card view on each.
-        """
-
-    def __init__(self, card):
-        super().__init__(SingleCardSource(card))
-        self.embed = discord.Embed(colour=discord.Colour.magenta())
-
-    def _skip_double_triangle_buttons(self):
-        return True
-
-    @menus.button('\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f',
-            position=menus.First(0), skip_if=_skip_double_triangle_buttons)
-    async def go_to_first_page(self, payload):
-        # The way we are using the pages to go between different views would be really weird to skip to the beginning.
-        pass
-
-    @menus.button('\N{BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f',
-            position=menus.Last(1), skip_if=_skip_double_triangle_buttons)
-    async def go_to_last_page(self, payload):
-        pass
+# class AdvancedSearch(menus.Menu):
