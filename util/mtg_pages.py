@@ -383,6 +383,9 @@ class SingleCardMenu(Pages):
         super().__init__(SingleCardSource(card))
         self.embed = discord.Embed(colour=discord.Colour.magenta())
 
-    def _skip_double_triangle_buttons(self):
+    async def go_to_first_page(self, payload):
         # The way we are using the pages to go between different views would be really weird to skip to the beginning.
-        return False
+        pass
+
+    async def go_to_last_page(self, payload):
+        pass
