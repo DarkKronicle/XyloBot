@@ -18,20 +18,31 @@ class Searched(CardsObject):
         self.scryfallJson = json
 
 
-class CardEntry:
-    def __init__(self, entry):
-        self.name = entry.name()
-
-    def __str__(self):
-        return f"{self.name}"
-
-
-class CardSearch(SimplePages):
+class CardSearchSource(menus.ListPageSource):
 
     def __init__(self, entries, *, per_page=15):
-        self.raw_entries = entries
-        converted = [CardEntry(entry) for entry in entries]
-        super().__init__(converted, per_page=per_page, embed=discord.Embed(colour=discord.Colour.dark_green()))
+        super().__init__(entries, per_page=per_page)
+
+    async def format_page(self, menu, entries):
+        pages = []
+        for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
+            pages.append(f"**{index + 1}.** {entry.name()}")
+
+        maximum = self.get_max_pages()
+        if maximum > 1:
+            footer = f"Page {menu.current_page + 1}/{maximum} ({len(self.entries)} entries.)"
+            menu.embed.set_footer(text=footer)
+
+        menu.embed.description = '\n'.join(pages)
+        return menu.embed
+
+
+class CardSearch(Pages):
+
+    def __init__(self, entries, *, per_page=15):
+        super().__init__(CardSearchSource(entries, per_page=per_page))
+        self.embed = discord.Embed(colour=discord.Colour.purple())
+        self.entries = entries
 
     @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
     async def show_help(self, payload):
@@ -73,7 +84,7 @@ class CardSearch(SimplePages):
             to_delete.append(msg)
             if number < 1 or number > len(self.entries):
                 raise commands.BadArgument("That was too big/too small.")
-            card = self.raw_entries[number - 1]
+            card = self.entries[number - 1]
             await self.message.edit(embed=card_embed(card))
 
         try:

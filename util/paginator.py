@@ -38,10 +38,7 @@ class Pages(menus.MenuPages):
 
     async def finalize(self, timed_out):
         try:
-            if timed_out:
-                await self.message.clear_reactions()
-            else:
-                await self.message.delete()
+            await self.message.clear_reactions()
         except discord.HTTPException:
             pass
 
