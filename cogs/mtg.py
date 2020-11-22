@@ -2,12 +2,10 @@ import asyncio
 
 import discord
 from discord.ext import commands, menus
-from scrython.cards.cards_object import CardsObject
 
 from util import queue
 from util.context import Context
 from util.mtg_pages import CardSearch
-from util.paginator import SimplePages, Pages, SimplePageSource
 import scrython
 from scrython.cards.cards_object import CardsObject
 
