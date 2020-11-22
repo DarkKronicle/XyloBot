@@ -65,6 +65,7 @@ class CardSearch(Pages):
 
     async def show_page(self, page_number):
         self.card_view = False
+        self.embed.set_image(url=None)
         await super().show_page(page_number)
 
     @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
@@ -82,7 +83,7 @@ class CardSearch(Pages):
     @menus.button('\N{BLACK LEFT-POINTING TRIANGLE}\ufe0f', position=menus.First(1))
     async def go_to_previous_page(self, payload):
         """go to the previous page"""
-        if self.card_view:
+        if not self.card_view:
             await self.show_checked_page(self.current_page - 1)
         else:
             await self.show_card_page(self.current_card - 1)
@@ -90,7 +91,7 @@ class CardSearch(Pages):
     @menus.button('\N{BLACK RIGHT-POINTING TRIANGLE}\ufe0f', position=menus.Last(0))
     async def go_to_next_page(self, payload):
         """go to the next page"""
-        if self.card_view:
+        if not self.card_view:
             await self.show_checked_page(self.current_page + 1)
         else:
             await self.show_card_page(self.current_card + 1)
