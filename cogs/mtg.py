@@ -52,7 +52,7 @@ class CardSearch(SimplePages):
         self.bot.loop.create_task(go_back_to_current_page())
 
     @menus.button('📑', position=menus.Last(4))
-    async def show_help(self, payload):
+    async def card_info(self, payload):
         """view information on a card"""
         channel = self.message.channel
         author_id = payload.user_id
@@ -119,12 +119,15 @@ def append_exists(message, **kwargs):
 
 
 def color_from_card(card):
-    if card.colors() is None:
-        return discord.Colour.light_gray()
     try:
-        color = card.colors()[0]
-    except IndexError:
-        color = card.color_identity
+        if card.colors() is None:
+            return discord.Colour.light_gray()
+        try:
+            color = card.colors()[0]
+        except IndexError:
+            color = card.colors()
+    except KeyError:
+        return discord.Colour.light_grey()
     if color == "W":
         return discord.Colour.lighter_gray()
     if color == "U":
