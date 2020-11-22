@@ -156,7 +156,7 @@ class Magic(commands.Cog):
         if len(cards.data()) == 0:
             return await ctx.send("No cards with that name found.")
         try:
-            p = CardSearch(entries=[Searched(c) for c in cards.data()])
+            p = CardSearch([Searched(c) for c in cards.data()], card)
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)

@@ -23,10 +23,17 @@ class CardSearchSource(menus.ListPageSource):
             menu.embed.set_footer(text=footer)
 
         menu.embed.description = '\n'.join(pages)
+        if len(menu.query) > 20:
+            q = menu.query[:20]
+        else:
+            q = menu.query + "..."
+        menu.embed.set_author(name=f"Search Results For: {q}")
+        menu.embed.colour = discord.Colour.magenta()
         return menu.embed
 
     async def format_card(self, menu, card):
-        menu.embed = card_embed(card)
+        embed = card_embed(card)
+        embed.set_footer(text=f"{menu.current_card + 1}/{len(self.entries)}")
         return menu.embed
 
     def is_paginating(self):
@@ -39,12 +46,13 @@ class CardSearch(Pages):
     A menu that consists of two parts, the list of all cards, then the in depth card view on each.
     """
 
-    def __init__(self, entries, *, per_page=15):
+    def __init__(self, entries, query, *, per_page=15):
         super().__init__(CardSearchSource(entries, per_page=per_page))
         self.embed = discord.Embed(colour=discord.Colour.magenta())
         self.entries = entries
         self.current_card = 0
         self.card_view = False
+        self.query = query
 
     def _skip_singles(self):
         max_pages = self._source.get_max_pages()
@@ -117,7 +125,6 @@ class CardSearch(Pages):
             await self.show_checked_page(self._source.get_max_pages() - 1)
         else:
             await self.show_card_page(len(self.entries) - 1)
-
 
     @menus.button('↩️', position=menus.Last(2))
     async def go_current_page(self, payload):
