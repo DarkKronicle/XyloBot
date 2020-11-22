@@ -34,19 +34,11 @@ class CardEntrySource(SimplePageSource):
         return menu.embed
 
 
-class CardPages(Pages):
-
-    def __init__(self, entries, *, per_page=15):
-        converted = [CardEntry(entry) for entry in entries]
-        super().__init__(CardEntrySource(converted, per_page=per_page))
-        self.embed = discord.Embed(colour=discord.Colour.dark_green())
-
-
 class CardPages(SimplePages):
 
     def __init__(self, entries, *, per_page=15):
         converted = [CardEntry(entry) for entry in entries]
-        super().__init__(converted, per_page=per_page)
+        super().__init__(converted, per_page=per_page, embed=discord.Embed(colour=discord.Colour.dark_green()))
 
 
 class MagicCard(commands.Converter):
@@ -165,16 +157,17 @@ class Magic(commands.Cog):
     @mtg.command(name="search")
     async def search(self, ctx: Context, *, card=None):
         """
-        Search for cards.
+        Search for cards. Use https://scryfall.com/docs/syntax for complex formatting.
         """
         if card is None:
             return await ctx.send_help('mtg image')
-        async with queue.QueueProcess(queue=self.queue):
-            try:
-                cards = scrython.cards.Search(q=card)
-                await cards.request_data()
-            except scrython.foundation.ScryfallError as e:
-                return await ctx.send(e.error_details["details"])
+        async with ctx.typing():
+            async with queue.QueueProcess(queue=self.queue):
+                try:
+                    cards = scrython.cards.Search(q=card)
+                    await cards.request_data()
+                except scrython.foundation.ScryfallError as e:
+                    return await ctx.send(e.error_details["details"])
         if len(cards.data()) == 0:
             return await ctx.send("No cards with that name found.")
         try:

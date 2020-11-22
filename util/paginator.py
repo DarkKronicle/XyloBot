@@ -67,7 +67,7 @@ class SimplePageSource(menus.ListPageSource):
 
 class SimplePages(Pages):
 
-    def __init__(self, entries, *, per_page=15):
+    def __init__(self, entries, *, per_page=15, embed=discord.Embed(colour=discord.Colour.purple())):
         super().__init__(SimplePageSource(entries, per_page=per_page))
-        self.embed = discord.Embed(colour=discord.Colour.purple())
+        self.embed = embed
         self.entries = entries
