@@ -65,7 +65,7 @@ class CardSearch(Pages):
 
     async def show_page(self, page_number):
         self.card_view = False
-        self.embed.set_image(url=None)
+        self.embed.set_image(url=discord.Embed.Empty)
         await super().show_page(page_number)
 
     @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
