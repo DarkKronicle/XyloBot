@@ -52,7 +52,7 @@ class CardSearch(Pages):
         max_pages = self._source.get_max_pages()
         if max_pages is None:
             return True
-        return max_pages < 1
+        return max_pages <= 1
 
     @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
     async def show_help(self, payload):
