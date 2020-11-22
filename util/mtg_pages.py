@@ -21,7 +21,7 @@ class CardSearchSource(menus.ListPageSource):
         super().__init__(entries, per_page=per_page)
 
     async def format_page(self, menu, entries):
-        embed = discord.Embed(discord.Colour.magenta())
+        embed = discord.Embed(colour=discord.Colour.magenta())
         pages = []
         for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
             pages.append(f"**{index + 1}.** {entry.name()}")
@@ -98,7 +98,6 @@ class CardSearch(Pages):
 
     async def show_page(self, page_number):
         self.card_view = False
-        self.embed.set_image(url=discord.Embed.Empty)
         await super().show_page(page_number)
 
     @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(5))
