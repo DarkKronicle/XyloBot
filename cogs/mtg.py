@@ -26,19 +26,60 @@ class CardEntry:
         return f"{self.name}"
 
 
-class CardEntrySource(SimplePageSource):
-
-    async def format_page(self, menu, entries):
-        await super().format_page(menu, entries)
-        # menu.embed.description = menu.embed.description + "\n\n*To view more information run the command `x>mtg image <ID>`*"
-        return menu.embed
-
-
-class CardPages(SimplePages):
+class CardSearch(SimplePages):
 
     def __init__(self, entries, *, per_page=15):
+        self.raw_entries = entries
         converted = [CardEntry(entry) for entry in entries]
         super().__init__(converted, per_page=per_page, embed=discord.Embed(colour=discord.Colour.dark_green()))
+
+    @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
+    async def show_help(self, payload):
+        """shows this message"""
+        embed = discord.Embed(title='Paginator help', description='Hello! Welcome to the help page.')
+        messages = []
+        for (emoji, button) in self.buttons.items():
+            messages.append(f'{emoji}: {button.action.__doc__}')
+
+        embed.add_field(name='What are these reactions for?', value='\n'.join(messages), inline=False)
+        embed.set_footer(text=f'We were on page {self.current_page + 1} before this message.')
+        await self.message.edit(content=None, embed=embed)
+
+        async def go_back_to_current_page():
+            await asyncio.sleep(30.0)
+            await self.show_page(self.current_page)
+
+        self.bot.loop.create_task(go_back_to_current_page())
+
+    @menus.button('📑', position=menus.Last(4))
+    async def show_help(self, payload):
+        """view information on a card"""
+        channel = self.message.channel
+        author_id = payload.user_id
+        to_delete = [await channel.send('What number card do you want information on?')]
+
+        def message_check(m):
+            return m.author.id == author_id and \
+                   channel == m.channel and \
+                   m.content.isdigit()
+
+        try:
+            msg = await self.bot.wait_for('message', check=message_check, timeout=30.0)
+        except asyncio.TimeoutError:
+            to_delete.append(await channel.send('This has been closed due to a timeout.'))
+            await asyncio.sleep(5)
+        else:
+            number = int(msg.content)
+            to_delete.append(msg)
+            if number < 1 or number > len(self.entries):
+                raise commands.BadArgument("That was too big/too small.")
+            card = self.raw_entries[number - 1]
+            await self.message.edit(embed=card_embed(card))
+
+        try:
+            await channel.delete_messages(to_delete)
+        except Exception:
+            pass
 
 
 class MagicCard(commands.Converter):
@@ -171,32 +212,32 @@ class Magic(commands.Cog):
         if len(cards.data()) == 0:
             return await ctx.send("No cards with that name found.")
         try:
-            p = CardPages(entries=[Searched(c) for c in cards.data()])
+            p = CardSearch(entries=[Searched(c) for c in cards.data()])
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)
             return
 
-        answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
-        try:
-            await p.stop()
-        except (menus.MenuError, discord.HTTPException, TypeError):
-            try:
-                # Lets try to delete the message again...
-                await p.message.delete()
-            except (menus.MenuError, discord.HTTPException, TypeError):
-                pass
-            pass
-        if answer is None:
-            return await ctx.timeout()
-        try:
-            answer = int(answer)
-            if answer < 1 or answer > len(p.entries):
-                raise commands.BadArgument("That was too big/too small.")
-            card = cards.data()[answer - 1]
-        except ValueError:
-            raise commands.BadArgument("You need to specify a correct number.")
-        await ctx.send(embed=card_embed(Searched(card)))
+        # answer = await ctx.ask("There were multiple results that were returned. Send the number of what you want here.")
+        # try:
+        #     await p.stop()
+        # except (menus.MenuError, discord.HTTPException, TypeError):
+        #     try:
+        #         # Lets try to delete the message again...
+        #         await p.message.delete()
+        #     except (menus.MenuError, discord.HTTPException, TypeError):
+        #         pass
+        #     pass
+        # if answer is None:
+        #     return await ctx.timeout()
+        # try:
+        #     answer = int(answer)
+        #     if answer < 1 or answer > len(p.entries):
+        #         raise commands.BadArgument("That was too big/too small.")
+        #     card = cards.data()[answer - 1]
+        # except ValueError:
+        #     raise commands.BadArgument("You need to specify a correct number.")
+        # await ctx.send(embed=card_embed(Searched(card)))
 
 
 def setup(bot):
