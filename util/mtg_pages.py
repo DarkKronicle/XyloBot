@@ -369,7 +369,7 @@ class SingleCardMenu(menus.Menu):
         buttons = [
             ("🗺️", CardView.image, "view the card image"),
             ("📘", CardView.text, "view a copy paste-able text format"),
-            ("💸", CardView.price, "view prices of the card"),
+            ("💸", CardView.prices, "view prices of the card"),
             ("🧾", CardView.legalities, "view the legalities of the card")
         ]
 
