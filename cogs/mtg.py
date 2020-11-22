@@ -36,13 +36,23 @@ class CardSearchSource(menus.ListPageSource):
         menu.embed.description = '\n'.join(pages)
         return menu.embed
 
+    def is_paginating(self):
+        # We always want buttons so that we can view card information.
+        return True
+
 
 class CardSearch(Pages):
 
     def __init__(self, entries, *, per_page=15):
         super().__init__(CardSearchSource(entries, per_page=per_page))
-        self.embed = discord.Embed(colour=discord.Colour.purple())
+        self.embed = discord.Embed(colour=discord.Colour.dark_green())
         self.entries = entries
+
+    def _skip_singles(self):
+        max_pages = self._source.get_max_pages()
+        if max_pages is None:
+            return True
+        return max_pages < 1
 
     @menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
     async def show_help(self, payload):
@@ -56,11 +66,15 @@ class CardSearch(Pages):
         embed.set_footer(text=f'We were on page {self.current_page + 1} before this message.')
         await self.message.edit(content=None, embed=embed)
 
-        async def go_back_to_current_page():
-            await asyncio.sleep(30.0)
-            await self.show_page(self.current_page)
+    @menus.button('\N{BLACK LEFT-POINTING TRIANGLE}\ufe0f', position=menus.First(1), skip_if=_skip_singles)
+    async def go_to_previous_page(self, payload):
+        """go to the previous page"""
+        await self.show_checked_page(self.current_page - 1)
 
-        self.bot.loop.create_task(go_back_to_current_page())
+    @menus.button('\N{BLACK RIGHT-POINTING TRIANGLE}\ufe0f', position=menus.Last(0), skip_if=_skip_singles)
+    async def go_to_next_page(self, payload):
+        """go to the next page"""
+        await self.show_checked_page(self.current_page + 1)
 
     @menus.button('📑', position=menus.Last(4))
     async def card_info(self, payload):
