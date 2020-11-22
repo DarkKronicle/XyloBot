@@ -8,7 +8,7 @@ import cogs.mtg
 from util.paginator import Pages
 
 
-class CardView(enum):
+class CardView(enum.Enum):
     image = 0
     text = 1
     legalities = 2
