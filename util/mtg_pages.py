@@ -385,4 +385,4 @@ class SingleCardMenu(Pages):
 
     def _skip_double_triangle_buttons(self):
         # The way we are using the pages to go between different views would be really weird to skip to the beginning.
-        return True
+        return False
