@@ -362,7 +362,7 @@ class SingleCardMenu(menus.Menu):
         return button_func
 
     def __init__(self, card):
-        super().__init__()
+        super().__init__(check_embeds=True)
         self.card = card
         self.embed = discord.Embed(colour=discord.Colour.magenta())
         self.current_view = CardView.image
@@ -376,6 +376,12 @@ class SingleCardMenu(menus.Menu):
         for emoji, view, doc in buttons:
             self.add_button(menus.Button(emoji, self.create_button_func(view, doc=doc)))
 
+    async def finalize(self, timed_out):
+        try:
+            await self.message.clear_reactions()
+        except discord.HTTPException:
+            pass
+
     @menus.button('*️⃣', position=menus.Last(0))
     async def show_help(self, payload):
         """shows this message"""
@@ -386,6 +392,11 @@ class SingleCardMenu(menus.Menu):
 
         embed.add_field(name='What do these reactions do?', value='\n'.join(messages), inline=False)
         await self.message.edit(content=None, embed=embed)
+
+    @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f', position=menus.Last(2))
+    async def stop_pages(self, payload):
+        """stops the pagination session."""
+        self.stop()
 
     async def format_page(self, view):
         if view == CardView.image:
