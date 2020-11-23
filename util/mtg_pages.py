@@ -443,7 +443,7 @@ class AdvancedSearch(menus.Menu):
         }
 
         def type_convert(s):
-            splits = s.split(", ")
+            splits = s.split(" ")
             formatted = []
             for split in splits:
                 if split.startswith("-") and len(split > 1):
@@ -488,7 +488,7 @@ class AdvancedSearch(menus.Menu):
             return f"usd:{s}"
 
         to_add = [
-            ("type", "ℹ️", "Card Types", "What type of card should it be? Seperate using `, ` and put `-` in front if you don't want that.", type_convert),
+            ("type", "ℹ️", "Card Types", "What type of card should it be? Seperate using ` ` and put `-` in front if you don't want that.", type_convert),
             ("card_name", "📝", "Card Name", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
             ("card_text", "📑", "Card Text", "What text should be in the card? Use `~` as a placeholder for the card name.", text_convert),
             ("colors", "◻️", "Card Colors", "What colors should the card be? (Use `RUBGW`. You can also use `>`, `>=`, `<`, `<=`)", lambda s: f"c:{s}"),
