@@ -2,7 +2,7 @@ import asyncio
 
 import discord
 import scrython
-from discord.ext import menus
+from discord.ext import menus, commands
 import enum
 
 from scrython.cards.cards_object import CardsObject
@@ -503,13 +503,13 @@ class AdvancedSearch(menus.Menu):
         to_add = [
             ("card_name", "📝", "Card Name", "What name of card do you want to search for? (Can be incomplete)",
              lambda s: s),
-            
+
             ("si", "ℹ️", "Card Types",
              "What should the card be? Seperate using ` ` and put `-` in front if you don't want that. (Example `funny`, `hybrid`...)",
-             is_convert),
+             type_convert),
 
-            ("is", "💡", "Card Types", "What type of card should it be? Seperate using ` ` and put `-` in front if "
-             "you don't want that.", type_convert),
+            ("is", "💡", "Card Is", "What type of card should it be? Seperate using ` ` and put `-` in front if "
+             "you don't want that.", is_convert),
 
             ("card_text", "📑", "Card Text", "What text should be in the card? Use `~` as a placeholder for the card "
              "name.", text_convert),
