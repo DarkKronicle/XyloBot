@@ -5,7 +5,7 @@ from discord.ext import commands, menus
 
 from util import queue
 from util.context import Context
-from util.mtg_pages import CardSearch, SingleCardMenu
+from util.mtg_pages import CardSearch, SingleCardMenu, AdvancedSearch
 import scrython
 from scrython.cards.cards_object import CardsObject
 
@@ -112,6 +112,15 @@ class Magic(commands.Cog):
             return await ctx.send("No cards with that name found.")
         try:
             p = CardSearch([Searched(c) for c in cards.data()], card)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
+            return
+
+    @mtg.command(name="advancedsearch", aliases=["asearch"])
+    async def advanced_search(self, ctx: Context):
+        try:
+            p = AdvancedSearch(self.queue)
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)

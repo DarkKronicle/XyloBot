@@ -1,12 +1,15 @@
 import asyncio
 
 import discord
+import scrython
 from discord.ext import menus
 import enum
 
 from scrython.cards.cards_object import CardsObject
 from functools import partial
 
+import cogs.mtg
+from util import queue
 from util.paginator import Pages
 
 
@@ -414,5 +417,74 @@ class SingleCardMenu(menus.Menu):
         return await channel.send(**kwargs)
 
 
-# class AdvancedSearch(menus.Menu):
-#     pass
+class AdvancedSearch(menus.Menu):
+
+    def __init__(self, queue):
+        super().__init__(check_embeds=True)
+        self.queue = queue
+        self.query = {
+            "types": None,
+            "card_name": None,
+            "card_text": None,
+            "colors": None,
+            "cmc": None,
+            "cost": None,
+            "rarity": None,
+            "price": None
+        }
+
+    @menus.button("📝")
+    async def name_edit(self, payload):
+        """search for a name"""
+        answer = await self.ctx.ask("What name of card do you want to search for? (Can be incomplete)")
+        self.query["card_name"] = answer
+
+    @menus.button("❌", position=menus.First(1))
+    async def stop_search(self, payload):
+        """discard search"""
+        await self.stop()
+        try:
+            await self.message.delete()
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+
+    @menus.button("✅", position=menus.First(0))
+    async def send_search(self, payload):
+        """searches what you have set"""
+        await self.stop()
+        try:
+            await self.message.delete()
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+        searches = []
+        for s in self.query.values():
+            if s is not None:
+                searches.append(s)
+        if len(s) == 0:
+            return await self.ctx.send("You didn't specify anything!")
+        search = " ".join(searches)
+        async with self.ctx.typing():
+            async with queue.QueueProcess(queue=self.queue):
+                try:
+                    cards = scrython.cards.Search(q=search)
+                    await cards.request_data()
+                except scrython.foundation.ScryfallError as e:
+                    return await self.ctx.send(e.error_details["details"])
+        if len(cards.data()) == 0:
+            return await self.ctx.send("No cards with that name found.")
+        try:
+            p = CardSearch([cogs.mtg.Searched(c) for c in cards.data()], search)
+            await p.start(self.ctx)
+        except menus.MenuError as e:
+            await self.ctx.send(e)
+            return
+
+    async def send_initial_message(self, ctx, channel):
+        description = "Welcome to *Advanced Search!* React using the following emoji key to specify the query."
+        embed = discord.Embed(colour=discord.Colour.magenta(), description=description)
+        messages = []
+        for (emoji, button) in self.buttons.items():
+            messages.append(f'{emoji}: {button.action.__doc__}')
+
+        embed.add_field(name='What do these reactions do?', value='\n'.join(messages), inline=False)
+        return await channel.send(embed=embed)
