@@ -107,7 +107,7 @@ def card_legal_embed(card: CardsObject):
 
 def card_text_embed(card: CardsObject):
     # https://github.com/NandaScott/Scrython/blob/master/examples/get_and_format_card.py
-    if card.type_line() == 'Creature':
+    if "Creature" in card.type_line():
         pt = "({}/{})".format(card.power(), card.toughness())
     else:
         pt = ""
@@ -118,8 +118,9 @@ def card_text_embed(card: CardsObject):
         mana_cost = card.mana_cost()
 
     description = """
-    {cardname} {mana_cost}
-    {type_line} -- {set_code} 
+    `{mana_cost}`   -    {set_code}
+    {type_line}
+
     {oracle_text} {power_toughness}
     *{rarity}*
     """.format(
@@ -127,7 +128,7 @@ def card_text_embed(card: CardsObject):
         mana_cost=mana_cost,
         type_line=card.type_line(),
         set_code=card.set_name(),
-        rarity=card.rarity(),
+        rarity=card.rarity().capitalize(),
         oracle_text=card.oracle_text(),
         power_toughness=pt
     ).replace("    ", "")
@@ -145,10 +146,10 @@ def card_text_embed(card: CardsObject):
 
 
 class CardView(enum.Enum):
-    image = 0
-    text = 1
-    legalities = 2
-    prices = 3
+    image = card_image_embed
+    text = card_text_embed
+    legalities = card_legal_embed
+    prices = card_prices_embed
 
 
 class CardSearchSource(menus.ListPageSource):
@@ -169,9 +170,9 @@ class CardSearchSource(menus.ListPageSource):
 
         embed.description = '\n'.join(pages)
         if len(menu.query) > 20:
-            q = menu.query[:20]
+            q = menu.query[:20] + "..."
         else:
-            q = menu.query + "..."
+            q = menu.query
         embed.set_author(name=f"Search Results For: {q}")
         embed.colour = discord.Colour.magenta()
         menu.embed = embed
@@ -179,16 +180,7 @@ class CardSearchSource(menus.ListPageSource):
 
     async def format_card(self, menu, card):
         view = menu.view_type
-        if view == CardView.image:
-            embed = card_image_embed(card)
-        elif view == CardView.text:
-            embed = card_text_embed(card)
-        elif view == CardView.legalities:
-            embed = card_legal_embed(card)
-        elif view == CardView.prices:
-            embed = card_prices_embed(card)
-        else:
-            embed = card_image_embed(card)
+        embed = view.value(card)
         embed.set_footer(text=f"{embed.footer.text} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
@@ -399,17 +391,7 @@ class SingleCardMenu(menus.Menu):
         self.stop()
 
     async def format_page(self, view):
-        if view == CardView.image:
-            embed = card_image_embed(self.card)
-        elif view == CardView.text:
-            embed = card_text_embed(self.card)
-        elif view == CardView.legalities:
-            embed = card_legal_embed(self.card)
-        elif view == CardView.prices:
-            embed = card_prices_embed(self.card)
-        else:
-            embed = card_image_embed(self.card)
-        self.embed = embed
+        self.embed = view.value(self.card)
         return self.embed
 
     async def _get_kwargs_from_page(self, view):
@@ -431,4 +413,5 @@ class SingleCardMenu(menus.Menu):
         return await channel.send(**kwargs)
 
 
-# class AdvancedSearch(menus.Menu):
+class AdvancedSearch(menus.Menu):
+    pass
