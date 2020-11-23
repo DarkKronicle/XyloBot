@@ -466,7 +466,7 @@ class AdvancedSearch(menus.Menu):
         for s in self.query.values():
             if s is not None:
                 searches.append(s)
-        if len(s) == 0:
+        if len(searches) == 0:
             return await self.ctx.send("You didn't specify anything!")
         search = " ".join(searches)
         async with self.ctx.typing():
