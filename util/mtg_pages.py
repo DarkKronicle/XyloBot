@@ -473,8 +473,8 @@ class AdvancedSearch(menus.Menu):
             ("rarity", "🏆", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
             ("price", "🤑", "What name of card do you want to search for? (Can be incomplete)", lambda s: s)
         ]
-        for emoji, question, func in to_add:
-            self.add_button(menus.Button(emoji, self.create_button_func(view, doc=doc)))
+        for name, emoji, question, func in to_add:
+            self.add_button(menus.Button(emoji, self.create_button_func(name, question, func)))
 
     async def finalize(self, timed_out):
         try:
