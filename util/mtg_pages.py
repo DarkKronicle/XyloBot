@@ -233,7 +233,7 @@ class CardSearch(Pages):
         await super().show_page(page_number)
 
     @menus.button('\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f',
-            position=menus.First(0), skip_if=_skip_doubles)
+                  position=menus.First(0), skip_if=_skip_doubles)
     async def go_to_first_page(self, payload):
         """go to the first page"""
         """go to the last page"""
@@ -259,7 +259,7 @@ class CardSearch(Pages):
             await self.show_card_page(self.current_card + 1)
 
     @menus.button('\N{BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f',
-            position=menus.Last(1), skip_if=_skip_doubles)
+                  position=menus.Last(1), skip_if=_skip_doubles)
     async def go_to_last_page(self, payload):
         """go to the last page"""
         if not self.card_view:
@@ -381,7 +381,8 @@ class SingleCardMenu(menus.Menu):
     @menus.button('*️⃣', position=menus.Last(0))
     async def show_help(self, payload):
         """shows this message"""
-        embed = discord.Embed(title='Pages help', description='Hopefully this makes the buttons less confusing.', colour=discord.Colour.purple())
+        embed = discord.Embed(title='Pages help', description='Hopefully this makes the buttons less confusing.',
+                              colour=discord.Colour.purple())
         messages = []
         for (emoji, button) in self.buttons.items():
             messages.append(f'{emoji}: {button.action.__doc__}')
@@ -425,6 +426,7 @@ class AdvancedSearch(menus.Menu):
             answer = await self.ctx.ask(question)
             if answer is not None:
                 self.query[name] = func(answer)
+
         button_func.__doc__ = desc
         return button_func
 
@@ -433,6 +435,7 @@ class AdvancedSearch(menus.Menu):
         self.queue = queue
         self.query = {
             "types": None,
+            "is": None,
             "card_name": None,
             "card_text": None,
             "colors": None,
@@ -500,16 +503,34 @@ class AdvancedSearch(menus.Menu):
         to_add = [
             ("card_name", "📝", "Card Name", "What name of card do you want to search for? (Can be incomplete)",
              lambda s: s),
-            ("type", "ℹ️", "Card Types",
+            
+            ("si", "ℹ️", "Card Types",
              "What should the card be? Seperate using ` ` and put `-` in front if you don't want that. (Example `funny`, `hybrid`...)",
              is_convert),
-            ("type", "ℹ️", "Card Types", "What type of card should it be? Seperate using ` ` and put `-` in front if you don't want that.", type_convert),
-            ("card_text", "📑", "Card Text", "What text should be in the card? Use `~` as a placeholder for the card name.", text_convert),
-            ("colors", "◻️", "Card Colors", "What colors should the card be? (Use `RUBGW`. You can also use `>`, `>=`, `<`, `<=`)", lambda s: f"c:{s}"),
-            ("cmc", "👓", "CMC", "What should the calculated mana cost be? You can use `>`, `>=`, `<`, `<=` or `=`.", cmc_convert),
-            ("cost", "🛄", "Mana Cost", "What mana cost should I look for? (Use color codes. Example: `3WRR`. 3 generic mana with one white and two red. You can also use `>`, `>=`, `<`, `<=`)", c_convert),
-            ("rarity", "🏆", "Rarity", "What rarity? (Common, uncommon, rare, mythic. You can use `>`, `>=`, `<`, `<=`)", r_convert),
-            ("price", "🤑", "Price", "What price should the card be? (In USD. You can use `>`, `>=`, `<`, `<=`)", p_convert)
+
+            ("is", "💡", "Card Types", "What type of card should it be? Seperate using ` ` and put `-` in front if "
+             "you don't want that.", type_convert),
+
+            ("card_text", "📑", "Card Text", "What text should be in the card? Use `~` as a placeholder for the card "
+             "name.", text_convert),
+
+            ("colors", "◻️", "Card Colors",
+             "What colors should the card be? (Use `RUBGW`. You can also use `>`, `>=`, `<`, `<=`)",
+             lambda s: f"c:{s}"),
+
+            ("cmc", "👓", "CMC", "What should the calculated mana cost be? You can use `>`, `>=`, `<`, `<=` or `=`.",
+             cmc_convert),
+
+            ("cost", "🛄", "Mana Cost",
+             "What mana cost should I look for? (Use color codes. Example: `3WRR`. 3 generic mana with one white and two red. You can also use `>`, `>=`, `<`, `<=`)",
+             c_convert),
+
+            (
+            "rarity", "🏆", "Rarity", "What rarity? (Common, uncommon, rare, mythic. You can use `>`, `>=`, `<`, `<=`)",
+            r_convert),
+
+            ("price", "🤑", "Price", "What price should the card be? (In USD. You can use `>`, `>=`, `<`, `<=`)",
+             p_convert)
         ]
         for name, emoji, desc, question, func in to_add:
             self.add_button(menus.Button(emoji, self.create_button_func(name, desc, question, func)))
