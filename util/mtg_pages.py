@@ -452,7 +452,7 @@ class AdvancedSearch(menus.Menu):
                 if split.startswith("-") and len(split) > 1:
                     formatted.append(f"-t:{split[1:]}")
                 elif len(split) > 1:
-                    formatted.append(f"t:{split[1:]}")
+                    formatted.append(f"t:{split}")
             return " ".join(formatted)
 
         def is_convert(s):
@@ -462,7 +462,7 @@ class AdvancedSearch(menus.Menu):
                 if split.startswith("-") and len(split) > 2:
                     formatted.append(f"-is:{split[2:]}")
                 elif len(split) > 1:
-                    formatted.append(f"is:{split[1:]}")
+                    formatted.append(f"is:{split}")
             return " ".join(formatted)
 
         def text_convert(s):
