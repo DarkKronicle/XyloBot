@@ -478,10 +478,10 @@ class AdvancedSearch(menus.Menu):
 
         def c_convert(s):
             if s.startswith(">") or s.startswith("<"):
-                return f"c{s}"
+                return f"m{s}"
             if s.startswith("=") and len(s) > 1:
-                return f"c:{s[1:]}"
-            return f"c:{s}"
+                return f"m:{s[1:]}"
+            return f"m:{s}"
 
         def r_convert(s):
             s = s.lower()
@@ -537,7 +537,7 @@ class AdvancedSearch(menus.Menu):
 
     async def finalize(self, timed_out):
         try:
-            await self.message.clear_reactions()
+            await self.message.delete()
         except discord.HTTPException:
             pass
 
@@ -545,19 +545,10 @@ class AdvancedSearch(menus.Menu):
     async def stop_search(self, payload):
         """discard search"""
         self.stop()
-        try:
-            await self.message.delete()
-        except (discord.Forbidden, discord.HTTPException):
-            pass
 
     @menus.button("✅", position=menus.First(0))
     async def send_search(self, payload):
         """searches what you have set"""
-        self.stop()
-        try:
-            await self.message.delete()
-        except (discord.Forbidden, discord.HTTPException):
-            pass
         searches = []
         for s in self.query.values():
             if s is not None:

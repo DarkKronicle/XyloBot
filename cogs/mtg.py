@@ -119,6 +119,9 @@ class Magic(commands.Cog):
 
     @mtg.command(name="advancedsearch", aliases=["asearch"])
     async def advanced_search(self, ctx: Context):
+        """
+        Search using complex parameters.
+        """
         try:
             p = AdvancedSearch(self.queue)
             await p.start(ctx)
