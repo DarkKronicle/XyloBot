@@ -433,6 +433,12 @@ class AdvancedSearch(menus.Menu):
             "price": None
         }
 
+    async def finalize(self, timed_out):
+        try:
+            await self.message.clear_reactions()
+        except discord.HTTPException:
+            pass
+
     @menus.button("📝")
     async def name_edit(self, payload):
         """search for a name"""
@@ -442,7 +448,7 @@ class AdvancedSearch(menus.Menu):
     @menus.button("❌", position=menus.First(1))
     async def stop_search(self, payload):
         """discard search"""
-        await self.stop()
+        self.stop()
         try:
             await self.message.delete()
         except (discord.Forbidden, discord.HTTPException):
@@ -451,7 +457,7 @@ class AdvancedSearch(menus.Menu):
     @menus.button("✅", position=menus.First(0))
     async def send_search(self, payload):
         """searches what you have set"""
-        await self.stop()
+        self.stop()
         try:
             await self.message.delete()
         except (discord.Forbidden, discord.HTTPException):
