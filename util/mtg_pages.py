@@ -5,6 +5,7 @@ from discord.ext import menus
 import enum
 
 from scrython.cards.cards_object import CardsObject
+from functools import partial
 
 from util.paginator import Pages
 
@@ -146,10 +147,10 @@ def card_text_embed(card: CardsObject):
 
 
 class CardView(enum.Enum):
-    image = card_image_embed
-    text = card_text_embed
-    legalities = card_legal_embed
-    prices = card_prices_embed
+    image = partial(card_image_embed)
+    text = partial(card_text_embed)
+    legalities = partial(card_legal_embed)
+    prices = partial(card_prices_embed)
 
 
 class CardSearchSource(menus.ListPageSource):
@@ -413,5 +414,5 @@ class SingleCardMenu(menus.Menu):
         return await channel.send(**kwargs)
 
 
-class AdvancedSearch(menus.Menu):
-    pass
+# class AdvancedSearch(menus.Menu):
+#     pass
