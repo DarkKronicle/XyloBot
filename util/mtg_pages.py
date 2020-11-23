@@ -419,6 +419,15 @@ class SingleCardMenu(menus.Menu):
 
 class AdvancedSearch(menus.Menu):
 
+    @classmethod
+    def create_button_func(cls, name, question, func):
+        async def button_func(self, payload):
+            answer = await self.ctx.ask(question)
+            if answer is not None:
+                self.query[name] = func(answer)
+
+        return button_func
+
     def __init__(self, queue):
         super().__init__(check_embeds=True)
         self.queue = queue
@@ -433,17 +442,45 @@ class AdvancedSearch(menus.Menu):
             "price": None
         }
 
+        def type_convert(s):
+            splits = s.split(", ")
+            formatted = []
+            for split in splits:
+                if split.startswith("-") and len(split > 1):
+                    formatted.append(f"-t:{split[1:]}")
+                elif len(split > 1):
+                    formatted.append(f"t:{split[1:]}")
+            return " ".join(formatted)
+
+        def text_convert(s):
+            s = s.replace('"', r'\"')
+            return f'o:"{s}"'
+
+        def cmc_convert(s):
+            if s.startswith(">") or s.startswith("<"):
+                return s
+            if s.startswith("=") and len(s) > 1:
+                return s[1:]
+            return s
+
+        to_add = [
+            ("type", "ℹ️", "What type of card should it be? Seperate using `, ` and put `-` in front if you don't want that.", type_convert),
+            ("card_name", "📝", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
+            ("card_text", "📑", "What text should be in the card? Use `~` as a placeholder for the card name.", text_convert),
+            ("colors", "◻️", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
+            ("cmc", "👓", "What should the calculated mana cost be? You can use `>`, `>=`, `<`, `<=` or `=`.", cmc_convert),
+            ("cost", "🛄", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
+            ("rarity", "🏆", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
+            ("price", "🤑", "What name of card do you want to search for? (Can be incomplete)", lambda s: s)
+        ]
+        for emoji, question, func in to_add:
+            self.add_button(menus.Button(emoji, self.create_button_func(view, doc=doc)))
+
     async def finalize(self, timed_out):
         try:
             await self.message.clear_reactions()
         except discord.HTTPException:
             pass
-
-    @menus.button("📝")
-    async def name_edit(self, payload):
-        """search for a name"""
-        answer = await self.ctx.ask("What name of card do you want to search for? (Can be incomplete)")
-        self.query["card_name"] = answer
 
     @menus.button("❌", position=menus.First(1))
     async def stop_search(self, payload):
