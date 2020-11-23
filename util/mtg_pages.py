@@ -420,12 +420,12 @@ class SingleCardMenu(menus.Menu):
 class AdvancedSearch(menus.Menu):
 
     @classmethod
-    def create_button_func(cls, name, question, func):
+    def create_button_func(cls, name, desc, question, func):
         async def button_func(self, payload):
             answer = await self.ctx.ask(question)
             if answer is not None:
                 self.query[name] = func(answer)
-
+        button_func.__doc__ = desc
         return button_func
 
     def __init__(self, queue):
@@ -458,23 +458,47 @@ class AdvancedSearch(menus.Menu):
 
         def cmc_convert(s):
             if s.startswith(">") or s.startswith("<"):
-                return s
+                return f"cmc{s}"
             if s.startswith("=") and len(s) > 1:
-                return s[1:]
-            return s
+                return f"cmc:{s[1:]}"
+            return f"cmc:{s}"
+
+        def c_convert(s):
+            if s.startswith(">") or s.startswith("<"):
+                return f"c{s}"
+            if s.startswith("=") and len(s) > 1:
+                return f"c:{s[1:]}"
+            return f"c:{s}"
+
+        def r_convert(s):
+            s = s.lower()
+            if s not in ("common", "uncommon", "rare", "mythic"):
+                return None
+            if s.startswith(">") or s.startswith("<"):
+                return f"r{s}"
+            if s.startswith("=") and len(s) > 1:
+                return f"r:{s[1:]}"
+            return f"r:{s}"
+
+        def p_convert(s):
+            if s.startswith(">") or s.startswith("<"):
+                return f"usd{s}"
+            if s.startswith("=") and len(s) > 1:
+                return f"usd:{s[1:]}"
+            return f"usd:{s}"
 
         to_add = [
-            ("type", "ℹ️", "What type of card should it be? Seperate using `, ` and put `-` in front if you don't want that.", type_convert),
-            ("card_name", "📝", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
-            ("card_text", "📑", "What text should be in the card? Use `~` as a placeholder for the card name.", text_convert),
-            ("colors", "◻️", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
-            ("cmc", "👓", "What should the calculated mana cost be? You can use `>`, `>=`, `<`, `<=` or `=`.", cmc_convert),
-            ("cost", "🛄", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
-            ("rarity", "🏆", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
-            ("price", "🤑", "What name of card do you want to search for? (Can be incomplete)", lambda s: s)
+            ("type", "ℹ️", "Card Types", "What type of card should it be? Seperate using `, ` and put `-` in front if you don't want that.", type_convert),
+            ("card_name", "📝", "Card Name", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
+            ("card_text", "📑", "Card Text", "What text should be in the card? Use `~` as a placeholder for the card name.", text_convert),
+            ("colors", "◻️", "Card Colors", "What colors should the card be? (Use `RUBGW`. You can also use `>`, `>=`, `<`, `<=`)", lambda s: f"c:{s}"),
+            ("cmc", "👓", "CMC", "What should the calculated mana cost be? You can use `>`, `>=`, `<`, `<=` or `=`.", cmc_convert),
+            ("cost", "🛄", "Mana Cost", "What mana cost should I look for? (Use color codes. Example: `3WRR`. 3 generic mana with one white and two red. You can also use `>`, `>=`, `<`, `<=`)", c_convert),
+            ("rarity", "🏆", "Rarity", "What rarity? (Common, uncommon, rare, mythic. You can use `>`, `>=`, `<`, `<=`)", r_convert),
+            ("price", "🤑", "Price", "What price should the card be? (In USD. You can use `>`, `>=`, `<`, `<=`)", p_convert)
         ]
-        for name, emoji, question, func in to_add:
-            self.add_button(menus.Button(emoji, self.create_button_func(name, question, func)))
+        for name, emoji, desc, question, func in to_add:
+            self.add_button(menus.Button(emoji, self.create_button_func(name, desc, question, func)))
 
     async def finalize(self, timed_out):
         try:
@@ -523,7 +547,9 @@ class AdvancedSearch(menus.Menu):
             return
 
     async def send_initial_message(self, ctx, channel):
-        description = "Welcome to *Advanced Search!* React using the following emoji key to specify the query."
+        description = "Welcome to *Advanced Search!* React using the following emoji key to specify the query. You can " \
+                      "the normal search command using https://scryfall.com/docs/syntax for even more control!\n\n" \
+                      "*If it says it ignored your search query you typed something in invalid."
         embed = discord.Embed(colour=discord.Colour.magenta(), description=description)
         messages = []
         for (emoji, button) in self.buttons.items():
