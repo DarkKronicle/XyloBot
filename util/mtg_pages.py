@@ -446,10 +446,20 @@ class AdvancedSearch(menus.Menu):
             splits = s.split(" ")
             formatted = []
             for split in splits:
-                if split.startswith("-") and len(split > 1):
+                if split.startswith("-") and len(split) > 1:
                     formatted.append(f"-t:{split[1:]}")
-                elif len(split > 1):
+                elif len(split) > 1:
                     formatted.append(f"t:{split[1:]}")
+            return " ".join(formatted)
+
+        def is_convert(s):
+            splits = s.split(" ")
+            formatted = []
+            for split in splits:
+                if split.startswith("-") and len(split) > 2:
+                    formatted.append(f"-is:{split[2:]}")
+                elif len(split) > 1:
+                    formatted.append(f"is:{split[1:]}")
             return " ".join(formatted)
 
         def text_convert(s):
@@ -488,8 +498,12 @@ class AdvancedSearch(menus.Menu):
             return f"usd:{s}"
 
         to_add = [
+            ("card_name", "📝", "Card Name", "What name of card do you want to search for? (Can be incomplete)",
+             lambda s: s),
+            ("type", "ℹ️", "Card Types",
+             "What should the card be? Seperate using ` ` and put `-` in front if you don't want that. (Example `funny`, `hybrid`...)",
+             is_convert),
             ("type", "ℹ️", "Card Types", "What type of card should it be? Seperate using ` ` and put `-` in front if you don't want that.", type_convert),
-            ("card_name", "📝", "Card Name", "What name of card do you want to search for? (Can be incomplete)", lambda s: s),
             ("card_text", "📑", "Card Text", "What text should be in the card? Use `~` as a placeholder for the card name.", text_convert),
             ("colors", "◻️", "Card Colors", "What colors should the card be? (Use `RUBGW`. You can also use `>`, `>=`, `<`, `<=`)", lambda s: f"c:{s}"),
             ("cmc", "👓", "CMC", "What should the calculated mana cost be? You can use `>`, `>=`, `<`, `<=` or `=`.", cmc_convert),
