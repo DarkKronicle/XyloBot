@@ -19,8 +19,9 @@ class Searched(CardsObject):
 
 class MagicCard(commands.Converter):
 
-    def __init__(self, queue):
+    def __init__(self, queue, *, raise_again=True):
         self.queue = queue
+        self.raise_again = raise_again
 
     async def convert(self, ctx: Context, argument):
         async with ctx.typing():
@@ -29,6 +30,8 @@ class MagicCard(commands.Converter):
                     card = scrython.cards.Named(fuzzy=argument)
                     await card.request_data(loop=ctx.bot.loop)
                 except scrython.foundation.ScryfallError as e:
+                    if self.raise_again:
+                        raise e
                     await asyncio.sleep(0.1)
                     auto = scrython.cards.Autocomplete(q=argument)
                     await auto.request_data(loop=ctx.bot.loop)
@@ -61,6 +64,23 @@ class Magic(commands.Cog):
             await ctx.send(e)
             return
 
+    async def trigger_search(self, ctx, query):
+        async with ctx.typing():
+            async with queue.QueueProcess(queue=self.queue):
+                try:
+                    cards = scrython.cards.Search(q=query)
+                    await cards.request_data()
+                except scrython.foundation.ScryfallError as e:
+                    return await ctx.send(e.error_details["details"])
+        if len(cards.data()) == 0:
+            return await ctx.send("No cards with that name found.")
+        try:
+            p = CardSearch([Searched(c) for c in cards.data()], query)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
+            return
+
     @commands.group(name="mtg", aliases=["magic", "m"])
     @commands.cooldown(2, 15, commands.BucketType.user)
     async def mtg(self, ctx: Context):
@@ -76,11 +96,14 @@ class Magic(commands.Cog):
         Gets a card based off of it's name.
         """
         if card is None:
-            return await ctx.send_help('mtg image')
-        card = await MagicCard(queue=self.queue).convert(ctx, card)
-        if card is None:
-            return await ctx.send_help('mtg image')
-        await self.card_page(ctx, card)
+            return await ctx.send_help('mtg c')
+        try:
+            card = await MagicCard(queue=self.queue).convert(ctx, card)
+            if card is None:
+                return await ctx.send_help('mtg c')
+            await self.card_page(ctx, card)
+        except scrython.foundation.ScryfallError:
+            await self.trigger_search(ctx, card)
 
     @mtg.command(name="random")
     async def random(self, ctx: Context):
@@ -101,21 +124,7 @@ class Magic(commands.Cog):
         """
         if card is None:
             return await ctx.send_help('mtg image')
-        async with ctx.typing():
-            async with queue.QueueProcess(queue=self.queue):
-                try:
-                    cards = scrython.cards.Search(q=card)
-                    await cards.request_data()
-                except scrython.foundation.ScryfallError as e:
-                    return await ctx.send(e.error_details["details"])
-        if len(cards.data()) == 0:
-            return await ctx.send("No cards with that name found.")
-        try:
-            p = CardSearch([Searched(c) for c in cards.data()], card)
-            await p.start(ctx)
-        except menus.MenuError as e:
-            await ctx.send(e)
-            return
+        await self.trigger_search(ctx, card)
 
     @mtg.command(name="advancedsearch", aliases=["asearch"])
     async def advanced_search(self, ctx: Context):
