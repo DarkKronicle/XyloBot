@@ -1,6 +1,6 @@
 import asyncio
 
-import discord
+import re
 from discord.ext import commands, menus
 
 from util import queue
@@ -44,6 +44,23 @@ class MagicCard(commands.Converter):
                         extra = ". Did you mean:\n" + "\n".join(searches)
                     raise commands.BadArgument(e.error_details['details'] + extra)
         return card
+
+
+class ScryfallDeck(commands.Converter):
+
+    async def convert(self, ctx: Context, argument):
+        # The following regex is to just get the url. Not parse for the ID or anything.
+        if not argument.endswith("/"):
+            argument = argument + "/"
+        regex = r"^(https:\/\/scryfall.com\/@([^/]+)\/decks\/)([a-z0-9-]+)\/"
+        pattern = re.compile(regex)
+        match = pattern.match(argument)
+        if not match:
+            raise commands.BadArgument("URL not supported")
+        # We got the URL!
+        url = match.group(0)
+        uuid = url.split("/")[-1]
+        return uuid
 
 
 class Magic(commands.Cog):
@@ -137,6 +154,12 @@ class Magic(commands.Cog):
         except menus.MenuError as e:
             await ctx.send(e)
             return
+
+    @mtg.command(name="deck")
+    async def deck(self, ctx: Context, *, deck: ScryfallDeck = None):
+        if deck is None:
+            return await ctx.send_help('mtg deck')
+        await ctx.send(f"Your deck ID is: `{deck}`")
 
 
 def setup(bot):
