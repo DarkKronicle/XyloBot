@@ -2,7 +2,6 @@ import io
 import json
 
 import aiohttp
-import requests
 from scrython.foundation import FoundationObject, ScryfallError
 
 
@@ -10,7 +9,7 @@ class Deck(FoundationObject):
 
     def __init__(self, deck_id):
         self.url = 'decks/' + deck_id + "/export/json"
-        super(Deck, self).__init__(self.url)
+        super().__init__(self.url)
         self._url = 'https://api.scryfall.com/{0}'.format(self.url)
 
     async def get_data_from_url(self, url: str, *, loop=None):
