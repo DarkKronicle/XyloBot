@@ -59,7 +59,7 @@ class ScryfallDeck(commands.Converter):
             raise commands.BadArgument("URL not supported")
         # We got the URL!
         url = match.group(0)
-        uuid = url.split("/")[-1]
+        uuid = url.split("/")[-2]
         return uuid
 
 
