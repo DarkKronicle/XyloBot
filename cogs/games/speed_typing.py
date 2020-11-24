@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from fuzzywuzzy import fuzz
 
 import discord
 
@@ -58,16 +58,7 @@ class SpeedTypingInstance(game.Game):
         end_time = go.created_at
         total_seconds = (end_time - start_time).total_seconds()
         text = go.content
-        count = 0
-        for i, c in enumerate(self.message):
-            if i >= len(text):
-                break
-            try:
-                if text[i] == c:
-                    count += 1
-            except IndexError:
-                break
-        accuracy = round(count / len(self.message) * 100)
+        accuracy = fuzz.ratio(self.message, text)
         wpm = len(text) / (5 * (total_seconds / 60))
         await channel.send(embed=discord.Embed(
             title="Results",

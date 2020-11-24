@@ -266,7 +266,7 @@ class Games(commands.Cog):
         self.current_games[channel].pop("quiz")
 
     @commands.command(name="typetest")
-    async def type_test(self, ctx: Context, custom_text: typing.Optional[str] = None):
+    async def type_test(self, ctx: Context, *, custom_text: typing.Optional[commands.clean_content] = None):
         """
         Test your typing speed!
         """
