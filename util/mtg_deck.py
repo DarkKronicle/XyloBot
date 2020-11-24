@@ -12,7 +12,7 @@ class Deck(FoundationObject):
         super().__init__(self.url)
         self._url = 'https://api.scryfall.com/{0}'.format(self.url)
 
-    async def get_data_from_url(self, url: str, *, loop=None):
+    async def get_request(self, url: str, *, loop=None):
         async with aiohttp.ClientSession(loop=loop) as session:
             async with session.get(url) as resp:
                 if resp.status != 200:
@@ -21,7 +21,7 @@ class Deck(FoundationObject):
                 return data
 
     async def request_data(self, *, loop=None):
-        data = await self.get_data_from_url(self._url, loop=loop)
+        data = await self.get_request(self._url, loop=loop)
         data.seek(0)
         self.scryfallJson = json.loads(data.read())
         if self.scryfallJson['object'] == 'error':

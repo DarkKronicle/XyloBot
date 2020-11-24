@@ -161,9 +161,10 @@ class Magic(commands.Cog):
         deck: Deck
         if deck is None:
             return await ctx.send_help('mtg deck')
-        await ctx.send(deck._url)
-        await deck.request_data()
-        await ctx.send(f"Your deck count is: `{deck.count_entries()}`")
+        async with ctx.typing():
+            async with queue.QueueProcess(self.queue):
+                await deck.request_data()
+            await ctx.send(f"Your deck count is: `{deck.count_entries()}`")
 
 
 def setup(bot):
