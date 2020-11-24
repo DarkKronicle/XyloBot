@@ -11,6 +11,7 @@ class Deck(FoundationObject):
     def __init__(self, deck_id):
         self.url = 'decks/' + deck_id + "/export/json"
         super(Deck, self).__init__(self.url)
+        self._url = 'https://api.scryfall.com/{0}'.format(self.url)
 
     async def get_data_from_url(self, url: str, *, loop=None):
         async with aiohttp.ClientSession(loop=loop) as session:
