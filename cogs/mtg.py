@@ -6,7 +6,7 @@ from discord.ext import commands, menus
 from util import queue
 from util.context import Context
 from util.mtg_deck import Deck
-from util.mtg_pages import CardSearch, SingleCardMenu, AdvancedSearch
+import util.mtg_pages as mp
 import scrython
 from scrython.cards.cards_object import CardsObject
 
@@ -76,7 +76,7 @@ class Magic(commands.Cog):
     @classmethod
     async def card_page(cls, ctx, card):
         try:
-            p = SingleCardMenu(card)
+            p = mp.SingleCardMenu(card)
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)
@@ -93,7 +93,7 @@ class Magic(commands.Cog):
         if len(cards.data()) == 0:
             return await ctx.send("No cards with that name found.")
         try:
-            p = CardSearch([Searched(c) for c in cards.data()], query)
+            p = mp.CardSearch([Searched(c) for c in cards.data()], query)
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)
@@ -150,7 +150,7 @@ class Magic(commands.Cog):
         Search using complex parameters.
         """
         try:
-            p = AdvancedSearch(self.queue)
+            p = mp.AdvancedSearch(self.queue)
             await p.start(ctx)
         except menus.MenuError as e:
             await ctx.send(e)

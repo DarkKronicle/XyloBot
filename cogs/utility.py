@@ -1,10 +1,7 @@
-import asyncio
 import json
 import math
 from io import StringIO
 from json import detect_encoding
-
-import discord
 
 from storage import db
 from util import discord_util, storage_cache, checks
