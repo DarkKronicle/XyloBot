@@ -5,6 +5,7 @@ from discord.ext import commands, menus
 
 from util import queue
 from util.context import Context
+from util.mtg_deck import Deck
 from util.mtg_pages import CardSearch, SingleCardMenu, AdvancedSearch
 import scrython
 from scrython.cards.cards_object import CardsObject
@@ -60,7 +61,7 @@ class ScryfallDeck(commands.Converter):
         # We got the URL!
         url = match.group(0)
         uuid = url.split("/")[-2]
-        return uuid
+        return Deck(uuid)
 
 
 class Magic(commands.Cog):
@@ -157,9 +158,11 @@ class Magic(commands.Cog):
 
     @mtg.command(name="deck")
     async def deck(self, ctx: Context, *, deck: ScryfallDeck = None):
+        deck: Deck
         if deck is None:
             return await ctx.send_help('mtg deck')
-        await ctx.send(f"Your deck ID is: `{deck}`")
+        await deck.request_data(loop=ctx.bot.loop)
+        await ctx.send(f"Your deck count is: `{deck.count_entries()}`")
 
 
 def setup(bot):
