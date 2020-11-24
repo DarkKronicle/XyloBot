@@ -1,3 +1,5 @@
+import json
+
 import requests
 from scrython.foundation import FoundationObject, ScryfallError
 
@@ -9,7 +11,8 @@ class Deck(FoundationObject):
         super(Deck, self).__init__(self.url)
 
     async def request_data(self):
-        self.scryfallJson = requests.get(self._url).json()
+        data = requests.get(self._url, stream=True).json()
+        self.scryfallJson = json.loads(data)
         if self.scryfallJson['object'] == 'error':
             raise ScryfallError(self.scryfallJson, self.scryfallJson['details'])
 
