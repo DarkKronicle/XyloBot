@@ -123,6 +123,22 @@ class Magic(commands.Cog):
         except scrython.foundation.ScryfallError:
             await self.trigger_search(ctx, card)
 
+    @mtg.command(name="collectors", aliases=["cr"])
+    async def image_card(self, ctx: Context, *, code: int = None):
+        """
+        Gets a card based off of it's collecters number.
+        """
+        if code is None:
+            return await ctx.send_help('mtg c')
+        async with ctx.typing():
+            async with queue.QueueProcess(queue=self.queue):
+                try:
+                    card = scrython.cards.Collector(code=code)
+                    await card.request_data(loop=ctx.bot.loop)
+                except scrython.foundation.ScryfallError as e:
+                    raise commands.BadArgument(e.error_details['details'])
+        await self.card_page(ctx, card)
+
     @mtg.command(name="random")
     async def random(self, ctx: Context):
         """

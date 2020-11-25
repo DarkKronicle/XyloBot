@@ -5,7 +5,10 @@ import aiohttp
 from scrython.foundation import FoundationObject, ScryfallError
 
 
-class Deck(FoundationObject):
+class URLDeck(FoundationObject):
+    """
+    A class just to request data from Scryfall. Deck gives all the info in a nicely accessible format.
+    """
 
     def __init__(self, deck_id):
         self.url = 'decks/' + deck_id + "/export/json"
@@ -26,6 +29,40 @@ class Deck(FoundationObject):
         self.scryfallJson = json.loads(data.read())
         if self.scryfallJson['object'] == 'error':
             raise ScryfallError(self.scryfallJson, self.scryfallJson['details'])
+        return Deck(self.scryfallJson)
+
+
+class DeckCard:
+    __slots__ = ("section", "raw_text", "count", "name", "image", "url", "mana", "type_line", "found")
+
+    def __init__(self, data):
+        self.section = data.get("section")
+        self.raw_text = data.get("raw_text")
+        self.count = data.get("count")
+        self.found = data.get("found")
+        if self.found:
+            digest = data.get("card_digest")
+            self.image = digest.get("image")
+            self.url = digest.get("scryfall_uri")
+            self.type_line = digest.get("type_line")
+            self.mana = digest.get("mana_cost")
+            self.name = digest.get("name")
+
+
+class Deck:
+    """
+    A class to keep track of deck data.
+
+    Decks can be pretty complex, this will help arrange them and provide helpful utilities.
+    """
+
+    def __init__(self, data):
+        self.id = data.get("id")
+        self.url = data.get("uri")
+        self.name = data.get("name")
+        self.description = data.get("description")
+        self.primary_sections = data.get("sections", {}).get("primary")
+        self.secondary_sections = data.get("sections", {}).get("secondary")
 
     def count_entries(self):
         sections = self.scryfallJson["sections"]["primary"]
