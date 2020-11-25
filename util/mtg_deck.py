@@ -62,8 +62,8 @@ class Deck:
         self.url = data.get("uri")
         self.name = data.get("name")
         self.description = data.get("description")
-        self.primary_sections = data.get("sections", {}).get("primary")
-        self.secondary_sections = data.get("sections", {}).get("secondary")
+        self.primary_sections = data.get("sections", {}).get("primary", [])
+        self.secondary_sections = data.get("sections", {}).get("secondary", [])
         self.cards = []
         for section in self.primary_sections.copy().extend(self.secondary_sections):
             for card in data.get("entries", {}).get(section):

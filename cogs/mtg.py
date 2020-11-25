@@ -182,7 +182,8 @@ class Magic(commands.Cog):
         async with ctx.typing():
             async with queue.QueueProcess(self.queue):
                 deck: Deck = await deck.request_data()
-            await ctx.send(f"Your deck count is: `{deck.count_entries()}`")
+            message = f"**{deck.name}:**\n{deck.description}\nCard Count: `{len(deck.cards)}`"
+            await ctx.send(message)
 
 
 def setup(bot):
