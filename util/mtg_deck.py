@@ -35,7 +35,7 @@ class URLDeck(FoundationObject):
 class DeckCard:
     __slots__ = ("section", "raw_text", "count", "name", "image", "url", "mana", "type_line", "found")
 
-    def __init__(self, data):
+    def __init__(self, data: dict):
         self.section = data.get("section")
         self.raw_text = data.get("raw_text")
         self.count = data.get("count")
