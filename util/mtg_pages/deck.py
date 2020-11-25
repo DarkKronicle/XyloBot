@@ -4,15 +4,38 @@ import discord
 from discord.ext import menus
 
 from util.mtg_deck import Deck, DeckCard
-from util.mtg_pages import append_exists, color_from_card
+from util.mtg_pages import append_exists
 from util.paginator import Pages
+
+
+def color_from_deck_card(card: DeckCard):
+    try:
+        if card.mana is None:
+            return discord.Colour.light_gray()
+        try:
+            color = card.mana[:3]
+        except IndexError:
+            color = card.mana
+    except KeyError:
+        return discord.Colour.light_grey()
+    if color == "{W}":
+        return discord.Colour.lighter_gray()
+    if color == "{U}":
+        return discord.Colour.blue()
+    if color == "{R}":
+        return discord.Colour.red()
+    if color == "{B}":
+        return discord.Colour.darker_grey()
+    if color == "{G}":
+        return discord.Colour.green()
+    return discord.Colour.dark_grey()
 
 
 def card_image(card: DeckCard):
     description = append_exists("", Section=card.section, Mana=card.mana)
     embed = discord.Embed(
         description=description,
-        colour=color_from_card(card)
+        colour=color_from_deck_card(card)
     )
     curl = card.url or discord.Embed.Empty
     embed.set_author(name=card.raw_text, url=curl)
@@ -27,10 +50,26 @@ class DeckSource(menus.ListPageSource):
     def __init__(self, deck, *, per_page=15):
         super().__init__(deck.cards, per_page=per_page)
 
+    def get_max_pages(self):
+        return super().get_max_pages() + 1
+
+    async def get_page(self, page_number):
+        if page_number == 0:
+            return
+        else:
+            page_number = page_number - 1
+        if self.per_page == 1:
+            return self.entries[page_number]
+        else:
+            base = page_number * self.per_page
+            return self.entries[base:base + self.per_page]
+
     async def format_page(self, menu, entries):
+        if entries is None:
+            return await self.format_cover(menu, menu.deck)
         embed = discord.Embed(colour=discord.Colour.magenta())
         pages = []
-        for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
+        for index, entry in enumerate(entries, start=(menu.current_page - 1) * self.per_page):
             pages.append(f"**{index + 1}.** {entry.raw_text}")
 
         maximum = self.get_max_pages()
@@ -45,12 +84,23 @@ class DeckSource(menus.ListPageSource):
         return menu.embed
 
     async def format_card(self, menu, card):
-        embed = discord.Embed(
-
-        )
-        embed.set_footer(text=f"{embed.footer.text} - Showing card {menu.current_card + 1}/{len(self.entries)}")
+        embed = card_image(card)
+        embed.set_footer(text=f"Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
+
+    async def format_cover(self, menu, deck: Deck):
+        description = ""
+        if deck.description is not None:
+            description = deck.description + "\n"
+        description = description + f"Card Number: `{deck.total_cards}` Unique: `{len(deck.cards)}`"
+        embed = discord.Embed(
+            title=deck.name,
+            description=description,
+            colour=discord.Colour.dark_green()
+        )
+        menu.embed = embed
+        return embed
 
     def is_paginating(self):
         # We always want buttons so that we can view card information.
@@ -97,7 +147,6 @@ class DeckPages(Pages):
                   position=menus.First(0), skip_if=_skip_doubles)
     async def go_to_first_page(self, payload):
         """go to the first page"""
-        """go to the last page"""
         if not self.card_view:
             await self.show_checked_page(0)
         else:
