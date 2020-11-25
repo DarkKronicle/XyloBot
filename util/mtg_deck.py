@@ -40,13 +40,14 @@ class DeckCard:
         self.raw_text = data.get("raw_text")
         self.count = data.get("count")
         self.found = data.get("found")
-        if self.found:
-            digest = data.get("card_digest")
-            self.image = digest.get("image")
-            self.url = digest.get("scryfall_uri")
-            self.type_line = digest.get("type_line")
-            self.mana = digest.get("mana_cost")
-            self.name = digest.get("name")
+        digest = data.get("card_digest", {})
+        if digest is None:
+            digest = {}
+        self.image = digest.get("image")
+        self.url = digest.get("scryfall_uri")
+        self.type_line = digest.get("type_line")
+        self.mana = digest.get("mana_cost")
+        self.name = digest.get("name")
 
 
 class Deck:
@@ -63,18 +64,12 @@ class Deck:
         self.description = data.get("description")
         self.primary_sections = data.get("sections", {}).get("primary")
         self.secondary_sections = data.get("sections", {}).get("secondary")
+        self.cards = []
+        for section in self.primary_sections.copy().extend(self.secondary_sections):
+            for card in data.get("entries", {}).get(section):
+                c = DeckCard(card)
+                if c.raw_text != "":
+                    self.cards.append(c)
 
     def count_entries(self):
-        sections = self.scryfallJson["sections"]["primary"]
-        try:
-            sections.extend(self.scryfallJson["sections"]["secondary"])
-        except IndexError:
-            pass
-        card_num = 0
-        for section in sections:
-            for card in self.scryfallJson["entries"][section]:
-                if card["raw_text"] == "":
-                    continue
-                card_num = card_num + card["count"]
-
-        return card_num
+        return len(self.cards)
