@@ -73,4 +73,6 @@ class Deck:
                     self.cards.append(c)
 
     def count_entries(self):
-        return len(self.cards)
+        count = 0
+        for card in self.cards:
+            count = count + card.count
