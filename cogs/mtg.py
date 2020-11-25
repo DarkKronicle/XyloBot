@@ -124,16 +124,18 @@ class Magic(commands.Cog):
             await self.trigger_search(ctx, card)
 
     @mtg.command(name="collectors", aliases=["cr"])
-    async def collectors_card(self, ctx: Context, *, code: int = None):
+    async def collectors_card(self, ctx: Context, set_code: str = None, *, code: int = None):
         """
         Gets a card based off of it's collecters number.
         """
         if code is None:
-            return await ctx.send_help('mtg c')
+            return await ctx.send_help('mtg cr')
+        if set_code is None:
+            return await ctx.send_help('mtg cr')
         async with ctx.typing():
             async with queue.QueueProcess(queue=self.queue):
                 try:
-                    card = scrython.cards.Collector(code=code)
+                    card = scrython.cards.Collector(code=code, collector_number=code)
                     await card.request_data(loop=ctx.bot.loop)
                 except scrython.foundation.ScryfallError as e:
                     raise commands.BadArgument(e.error_details['details'])
