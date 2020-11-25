@@ -66,7 +66,7 @@ class Deck:
         self.secondary_sections = data["sections"]["secondary"]
         self.all_sections = self.primary_sections.copy().extend(self.secondary_sections)
         self.cards = []
-        for section in self.primary_sections:
+        for section in self.all_sections:
             for card in data.get("entries", {}).get(section):
                 c = DeckCard(card)
                 if c.raw_text != "":
