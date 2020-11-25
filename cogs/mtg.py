@@ -182,8 +182,12 @@ class Magic(commands.Cog):
         async with ctx.typing():
             async with queue.QueueProcess(self.queue):
                 deck: Deck = await deck.request_data()
-            message = f"**{deck.name}:**\n{deck.description}\nCard Count: `{deck.total_cards}`"
-            await ctx.send(message)
+        try:
+            p = mp.DeckPages(deck)
+            await p.start(ctx)
+        except menus.MenuError as e:
+            await ctx.send(e)
+            return
 
 
 def setup(bot):

@@ -119,7 +119,7 @@ class CardSearch(Pages):
             await self.show_card_page(len(self.entries) - 1)
 
     @menus.button('🔄', position=menus.Last(4))
-    async def go_to_last_page(self, payload):
+    async def rotate_views(self, payload):
         """rotate through different card views"""
         order = [CardView.image, CardView.text, CardView.legalities, CardView.prices]
         num = order.index(self.view_type) + 1

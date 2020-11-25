@@ -4,10 +4,13 @@ from .card_format import append_exists, color_from_card, CardView, card_image_em
 from .advanced_search import AdvancedSearch
 from .search import CardSearch
 from .single import SingleCardMenu
+from .deck import DeckPages
 
 __all__ = [
     "CardView",
     "AdvancedSearch",
     "CardSearch",
-    "SingleCardMenu"
+    "SingleCardMenu",
+    "append_exists",
+    "DeckPages"
 ]

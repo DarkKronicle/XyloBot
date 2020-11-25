@@ -3,21 +3,35 @@ import asyncio
 import discord
 from discord.ext import menus
 
-from util.mtg_deck import Deck
-from util.mtg_pages import CardView
+from util.mtg_deck import Deck, DeckCard
+from util.mtg_pages import append_exists, color_from_card
 from util.paginator import Pages
+
+
+def card_image(card: DeckCard):
+    description = append_exists("", Section=card.section, Mana=card.mana)
+    embed = discord.Embed(
+        description=description,
+        colour=color_from_card(card)
+    )
+    curl = card.url or discord.Embed.Empty
+    embed.set_author(name=card.raw_text, url=curl)
+    url = card.image
+    if url is not None:
+        embed.set_image(url=str(url))
+    return embed
 
 
 class DeckSource(menus.ListPageSource):
 
-    def __init__(self, entries, *, per_page=15):
-        super().__init__(entries, per_page=per_page)
+    def __init__(self, deck, *, per_page=15):
+        super().__init__(deck.cards, per_page=per_page)
 
     async def format_page(self, menu, entries):
         embed = discord.Embed(colour=discord.Colour.magenta())
         pages = []
         for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
-            pages.append(f"**{index + 1}.** {entry.name()}")
+            pages.append(f"**{index + 1}.** {entry.raw_text}")
 
         maximum = self.get_max_pages()
         if maximum > 1:
@@ -25,14 +39,15 @@ class DeckSource(menus.ListPageSource):
             embed.set_footer(text=footer)
 
         embed.description = '\n'.join(pages)
-        embed.set_author(name=f"Deck")
+        embed.set_author(name=f"{menu.deck.name}")
         embed.colour = discord.Colour.green()
         menu.embed = embed
         return menu.embed
 
     async def format_card(self, menu, card):
-        view = menu.view_type
-        embed = view.value(card)
+        embed = discord.Embed(
+
+        )
         embed.set_footer(text=f"{embed.footer.text} - Showing card {menu.current_card + 1}/{len(self.entries)}")
         menu.embed = embed
         return menu.embed
@@ -48,17 +63,16 @@ class DeckPages(Pages):
     """
 
     def __init__(self, deck: Deck, *, per_page=15):
-        super().__init__(DeckSource(entries, per_page=per_page))
+        super().__init__(DeckSource(deck, per_page=per_page))
         self.embed = discord.Embed(colour=discord.Colour.green())
-        self.entries = entries
+        self.deck = deck
         self.current_card = 0
         self.card_view = False
-        self.query = query
 
     def _skip_singles(self):
         max_pages = self._source.get_max_pages()
         if max_pages is None or max_pages <= 1:
-            max_cards = len(self.entries)
+            max_cards = len(self.deck.cards)
             if max_cards <= 1:
                 return True
             return False
@@ -68,7 +82,7 @@ class DeckPages(Pages):
     def _skip_doubles(self):
         max_pages = self._source.get_max_pages()
         if max_pages is None or max_pages <= 2:
-            max_cards = len(self.entries)
+            max_cards = len(self.deck.cards)
             if max_cards <= 2:
                 return True
             return False
@@ -114,18 +128,6 @@ class DeckPages(Pages):
         else:
             await self.show_card_page(len(self.entries) - 1)
 
-    @menus.button('🔄', position=menus.Last(4))
-    async def go_to_last_page(self, payload):
-        """rotate through different card views"""
-        order = [CardView.image, CardView.text, CardView.legalities, CardView.prices]
-        num = order.index(self.view_type) + 1
-        if num >= len(order):
-            self.view_type = order[0]
-        else:
-            self.view_type = order[num]
-        if self.card_view:
-            await self.show_card_page(self.current_card)
-
     @menus.button('↩️', position=menus.Last(2))
     async def go_current_page(self, payload):
         """switch page view to card view"""
@@ -162,7 +164,7 @@ class DeckPages(Pages):
             pass
 
     async def show_card_page(self, card_number):
-        max_cards = len(self.entries)
+        max_cards = len(self.deck.cards)
         try:
             if max_cards is None:
                 # If it doesn't give maximum pages, it cannot be checked
@@ -184,7 +186,7 @@ class DeckPages(Pages):
 
     async def show_card(self, card_number):
         self.card_view = True
-        card = self.entries[card_number]
+        card = self.deck.cards[card_number]
         self.current_card = card_number
         kwargs = await self._get_kwargs_from_card(card)
         await self.message.edit(**kwargs)
