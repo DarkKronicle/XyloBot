@@ -72,7 +72,9 @@ class Deck:
                 if c.raw_text != "":
                     self.cards.append(c)
 
-    def count_entries(self):
+    @property
+    def total_cards(self):
         count = 0
         for card in self.cards:
             count = count + card.count
+        return count
