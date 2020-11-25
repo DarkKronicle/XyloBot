@@ -124,7 +124,7 @@ class Magic(commands.Cog):
             await self.trigger_search(ctx, card)
 
     @mtg.command(name="collectors", aliases=["cr"])
-    async def image_card(self, ctx: Context, *, code: int = None):
+    async def collectors_card(self, ctx: Context, *, code: int = None):
         """
         Gets a card based off of it's collecters number.
         """
