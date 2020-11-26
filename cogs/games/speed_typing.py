@@ -7,6 +7,19 @@ from cogs.random_commands import RandomCommands
 from util import game
 
 
+def anti_copy(string):
+    chars = list(string)
+    c = 0
+    for i in range(len(chars.copy())):
+        c = c + 1
+        if i % 5 != 0:
+            continue
+        c = c + 1
+        chars.insert(c, '\u200b')
+
+    return ''.join(chars)
+
+
 class SpeedTypingInstance(game.Game):
 
     def __init__(self, channel, owner, *, message=None):
@@ -38,7 +51,7 @@ class SpeedTypingInstance(game.Game):
         channel = self.channel
         users = self.users
 
-        start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{self.message}\n```")
+        start_msg = await channel.send(f"Type this as fast as you can!\n\n```PYTHON\n{anti_copy(self.message)}\n```")
 
         def check(msg: discord.Message):
             nonlocal channel
