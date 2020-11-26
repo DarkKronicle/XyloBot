@@ -10,17 +10,16 @@ class TextCog(commands.Cog, name="text"):
     """
 
     @commands.command(name="mock", aliases=["mocking", "spongebob"])
-    async def mock(self, ctx: Context, *args):
+    async def mock(self, ctx: Context, *, to_mock: commands.clean_content = None):
         """
         Makes text like: yoU aRe baD
         """
-        if len(args) == 0:
+        if to_mock is None:
             return await ctx.send("Please put in proper phrase.")
-        data = ' '.join(args).lower()
 
         i = 0
         num = 0
-        data_list = list(data)
+        data_list = list(to_mock)
         length = len(data_list)
         while i < length:
             c = data_list[i]
@@ -33,15 +32,14 @@ class TextCog(commands.Cog, name="text"):
         await ctx.send(''.join(data_list))
 
     @commands.command(name="clap")
-    async def clap(self, ctx: Context, *args):
+    async def clap(self, ctx: Context, *, to_clap: commands.clean_content = None):
         """
         Sends a message like: Hi:clap:how:clap:is:clap:...
         """
-        if len(args) == 0:
-            return await ctx.send("Please put in a proper phrase.")
-        data = ' '.join(args)
+        if to_clap is None:
+            return await ctx.send("Please put in proper phrase.")
 
-        data = data.replace(" ", ":clap:")
+        data = to_clap.replace(" ", ":clap:")
         await ctx.send(data)
 
 
