@@ -33,7 +33,7 @@ class Games(commands.Cog):
 
     @commands.command(name="duel", usage="<user>", aliases=["gun", "wordduel"])
     @commands.guild_only()
-    async def fire_draw(self, ctx: Context, user: discord.Member = None):
+    async def fire_draw(self, ctx: Context, user: discord.Member = None, *, rand_lines: bool = False):
         """
         First person to type out a random set of characters.
         """
@@ -49,7 +49,7 @@ class Games(commands.Cog):
             await ctx.send("Just when it was about to get spicy, everyone left.")
             return
 
-        duel = FireDrawGame(ctx.channel, ctx.author)
+        duel = FireDrawGame(ctx.channel, ctx.author, rand_lines=rand_lines)
         if ctx.channel not in self.current_games:
             self.current_games[ctx.channel] = {}
         self.current_games[ctx.channel]["duel"] = duel

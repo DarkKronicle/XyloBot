@@ -36,6 +36,8 @@ class SpeedTypingInstance(game.Game):
             self.message = message
         else:
             self.message = message
+        if len(self.message) < 5:
+            self.message = "Type this fast!"
 
     async def start(self, bot):
         self.started = True
@@ -70,14 +72,21 @@ class SpeedTypingInstance(game.Game):
             return
         end_time = go.created_at
         total_seconds = (end_time - start_time).total_seconds()
-        text = go.content
-        accuracy = fuzz.ratio(self.message, text)
-        wpm = len(text) / (5 * (total_seconds / 60))
-        await channel.send(embed=discord.Embed(
-            title="Results",
-            description=f"You finished after `{round(total_seconds)}` seconds, typed at a speed of `{round(wpm)} WPM`, and an accuracy of `{accuracy}%`",
-            colour=discord.Colour.gold()
-        ))
+        text: str = go.content
+        if text.count('\u200b') > 2:
+            await channel.send(embed=discord.Embed(
+                title="Results",
+                description="You have been found to... copy and paste it! :(",
+                colour=discord.Colour.gold()
+            ))
+        else:
+            accuracy = fuzz.ratio(self.message, text)
+            wpm = len(text) / (5 * (total_seconds / 60))
+            await channel.send(embed=discord.Embed(
+                title="Results",
+                description=f"You finished after `{round(total_seconds)}` seconds, typed at a speed of `{round(wpm)} WPM`, and an accuracy of `{accuracy}%`",
+                colour=discord.Colour.gold()
+            ))
         await self.end(go.author)
 
     async def process_message(self, message):
