@@ -167,7 +167,7 @@ def rulings_embed(card: CardsObject, rulings: RulingsObject):
         i = i + 1
         if i > 10:
             break
-        embed.add_field(name=ruling['source'], value=ruling['comment'], inline=True)
+        embed.add_field(name=ruling['source'], value=ruling['comment'], inline=False)
     return embed
 
 
