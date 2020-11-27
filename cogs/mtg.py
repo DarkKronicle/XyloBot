@@ -10,6 +10,8 @@ import util.mtg_pages as mp
 import scrython
 from scrython.cards.cards_object import CardsObject
 
+from util.mtg_pages.card_format import rulings_embed
+
 
 class Searched(CardsObject):
 
@@ -188,6 +190,22 @@ class Magic(commands.Cog):
         except menus.MenuError as e:
             await ctx.send(e)
             return
+
+    @mtg.command(name="notes", aliases=["rulings", "rules", "rule"])
+    async def notes(self, ctx: Context, *, card=None):
+        """
+        Gets a card based off of it's name.
+        """
+        if card is None:
+            return await ctx.send_help('mtg notes')
+        async with ctx.typing():
+            card = await MagicCard(queue=self.queue, raise_again=False).convert(ctx, card)
+            if card is None:
+                return await ctx.send_help('mtg notes')
+            async with queue.QueueProcess(self.queue):
+                rulings = scrython.Id(id=card.id())
+                await rulings.request_data()
+            await ctx.send(rulings_embed(card, rulings))
 
 
 def setup(bot):

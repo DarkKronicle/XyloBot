@@ -3,6 +3,7 @@ from functools import partial
 
 import discord
 from scrython.cards.cards_object import CardsObject
+from scrython.rulings.rulings_object import RulingsObject
 
 
 def append_exists(message, **kwargs):
@@ -118,7 +119,10 @@ def card_text_embed(card: CardsObject):
     if card.cmc() == 0:
         mana_cost = ""
     else:
-        mana_cost = card.mana_cost()
+        try:
+            mana_cost = card.mana_cost()
+        except KeyError:
+            mana_cost = ""
 
     description = """
     `{mana_cost}`   -    {set_code}
@@ -145,6 +149,22 @@ def card_text_embed(card: CardsObject):
         embed.set_thumbnail(url=str(url))
     if card.released_at() is not None:
         embed.set_footer(text=card.released_at())
+    return embed
+
+
+def rulings_embed(card: CardsObject, rulings: RulingsObject):
+    data = rulings.data()
+    embed = discord.Embed(
+        colour=discord.Colour.gold(),
+        description="Here's what I know about this card:"
+    )
+    embed.set_author(name=card.name() + " - Rulings", url=card.scryfall_uri())
+    i = 0
+    for ruling in data:
+        i = i + 1
+        if i > 10:
+            break
+        embed.add_field(name=ruling['source'], value=ruling['comment'])
     return embed
 
 
