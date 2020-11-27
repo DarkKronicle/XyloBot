@@ -19,7 +19,7 @@ class TextCog(commands.Cog, name="text"):
 
         i = 0
         num = 0
-        data_list = list(to_mock)
+        data_list = list(to_mock.lower())
         length = len(data_list)
         while i < length:
             c = data_list[i]

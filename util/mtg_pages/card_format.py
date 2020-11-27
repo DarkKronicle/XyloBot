@@ -49,9 +49,13 @@ def card_image_embed(card: CardsObject):
         colour=color_from_card(card)
     )
     embed.set_author(name=card.name() + " - Image", url=card.scryfall_uri())
+    layout = card.scryfallJson['layout']
+    double = layout == "transform" or layout == "double_faced_token"
     url = card.image_uris(0, "large")
     if url is not None:
         embed.set_image(url=str(url))
+    if double:
+        embed.set_thumbnail(url=str(card.image_uris(1, "large")))
     if card.released_at() is not None:
         embed.set_footer(text=card.released_at())
     return embed
@@ -104,7 +108,10 @@ def card_legal_embed(card: CardsObject):
 def card_text_embed(card: CardsObject):
     # https://github.com/NandaScott/Scrython/blob/master/examples/get_and_format_card.py
     if "Creature" in card.type_line():
-        pt = "({}/{})".format(card.power(), card.toughness())
+        try:
+            pt = "({}/{})".format(card.power(), card.toughness())
+        except KeyError:
+            pt = ""
     else:
         pt = ""
 

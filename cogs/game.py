@@ -19,7 +19,10 @@ class Games(commands.Cog):
     """
     Games that users can play.
     """
-    current_games = {}
+
+    def __init__(self):
+        self.current_games = {}
+        self.cards = JSONReader("data/cah.json").data
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -64,8 +67,6 @@ class Games(commands.Cog):
         """
         if ctx.invoked_subcommand is None:
             await ctx.send_help('cah')
-
-    cards = JSONReader("data/cah.json").data
 
     @cah.command(name="start", usage="<all/categories>")
     @commands.guild_only()

@@ -326,16 +326,16 @@ class Utility(commands.Cog):
 
     @commands.command(name="txt")
     @commands.cooldown(1, 10, commands.BucketType.member)
-    async def txt(self, ctx: Context, *args):
+    async def txt(self, ctx: Context, *, content = None):
         """
         Generates a text file based on what you put.
         """
-        if len(args) == 0:
+        if content is None:
             data = ctx.ask("What do you want in the file?")
             if data is None:
                 await ctx.timeout()
         else:
-            data = ' '.join(args)
+            data = content
         buffer = StringIO()
         buffer.write(data)
         buffer.seek(0)
