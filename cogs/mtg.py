@@ -205,7 +205,7 @@ class Magic(commands.Cog):
             async with queue.QueueProcess(self.queue):
                 rulings = scrython.Id(id=card.id())
                 await rulings.request_data()
-            await ctx.send(rulings_embed(card, rulings))
+            await ctx.send(embed=rulings_embed(card, rulings))
 
 
 def setup(bot):

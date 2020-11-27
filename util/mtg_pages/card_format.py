@@ -160,6 +160,9 @@ def rulings_embed(card: CardsObject, rulings: RulingsObject):
     )
     embed.set_author(name=card.name() + " - Rulings", url=card.scryfall_uri())
     i = 0
+    if len(data) == 0:
+        embed.description="Nothing found."
+        return embed
     for ruling in data:
         i = i + 1
         if i > 10:
