@@ -196,6 +196,7 @@ class Magic(commands.Cog):
         """
         Gets a card based off of it's name.
         """
+        # TODO make this a menu since there can be lots of info.
         if card is None:
             return await ctx.send_help('mtg notes')
         async with ctx.typing():
