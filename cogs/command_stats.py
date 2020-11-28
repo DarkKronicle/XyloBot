@@ -27,8 +27,8 @@ class CommandStats(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         command = ctx.command.qualified_name
-        print(f"{command} was triggered!")
-        self.data[command] += 1
+        current = self.data.get(command, 0)
+        self.data[command] = current + 1
 
 
 def setup(bot):
