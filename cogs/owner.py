@@ -99,7 +99,7 @@ class Owner(commands.Cog):
     @commands.group(name='*reload', hidden=True, invoke_without_command=True)
     async def _reload(self, ctx: Context, *, module):
         try:
-            self.bot.reload_extension(module)
+            self.bot.reload_extension("cogs." + module)
         except commands.ExtensionError as e:
             await ctx.send(f'{e.__class__.__name__}: {e}')
         else:
