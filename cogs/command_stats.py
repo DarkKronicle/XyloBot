@@ -24,6 +24,7 @@ class CommandStats(commands.Cog):
         with open(file=STATS_FILE, mode='w') as json_file:
             json.dump(self.data, json_file, indent=4, sort_keys=True)
 
+    @commands.Cog.listener()
     async def on_command(self, ctx):
         command = ctx.command.qualified_name
         self.data[command] += 1
