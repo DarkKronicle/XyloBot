@@ -90,6 +90,7 @@ class ReactionType(enum.Enum):
 
 
 class AutoReactionConfig:
+
     class ReactionData:
         """
         Stores how it will react to data.
@@ -104,7 +105,7 @@ class AutoReactionConfig:
             self.data = data
             self.rtype = rtype
             self.uses = uses
-            self._uses = uses
+            self._uses = 0
 
         def add(self):
             self._uses = self._uses + 1
