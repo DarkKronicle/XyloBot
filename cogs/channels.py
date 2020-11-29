@@ -25,9 +25,9 @@ class Channels(commands.Cog):
     def __init__(self, bot):
         self.bot: XyloBot = bot
         self.bot.add_loop("qotd", self.send_qotd)
+        self.file = JSONReader("data/questions.json")
         self.questions: list = self.file.data["questions"]
         self.next_question: str = random.choice(self.questions)
-        self.file = JSONReader("data/questions.json")
 
     def cog_unload(self):
         self.bot.remove_loop("qotd")
