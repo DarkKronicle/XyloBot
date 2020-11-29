@@ -190,7 +190,7 @@ class Owner(commands.Cog):
         message = message + "```"
         await ctx.send(message)
 
-    @commands.command(name="*plist", hidden=True)
+    @commands.command(name="*flist", hidden=True)
     async def plist(self, ctx: Context, *start_path):
         if start_path is None or len(start_path) == 0:
             start_path = "."
@@ -214,29 +214,25 @@ class Owner(commands.Cog):
         message = message + "```"
         await ctx.send(message)
 
-    @commands.command(name="*blist", hidden=True)
-    async def blist(self, ctx: Context, *start_path):
-        dir_blacklist = ("pycache", ".git", "hooks", "refs", "objects", "__pycache__", "venv", "assets", ".gitignore")
-        ext_blacklist = (".pyc", ".cfg")
-        file_blacklist = ("config.json", "owner.py", "requirements.txt", "LICENSE.txt")
+    @commands.command(hidden=True)
+    async def sh(self, ctx, *, command):
+        """Runs a shell command."""
+        from util.paginator import TextPageSource, Pages
+        from discord.ext.menus import MenuError
 
-        # Create list of files
-        paths = []
-        for p in DisplayablePath.make_tree(".",
-                                           criteria=DisplayablePath.block_criteria(blocked_extensions=ext_blacklist,
-                                                                                   blocked_directories=dir_blacklist,
-                                                                                   blocked_files=file_blacklist)):
-            if not p.path.is_dir():
-                paths.append(p)
+        async with ctx.typing():
+            stdout, stderr = await self.run_process(command)
 
-        message = "```\n"
-        for path in paths:
-            message = message + path.displayable() + "\n"
+        if stderr:
+            text = f'stdout:\n{stdout}\nstderr:\n{stderr}'
+        else:
+            text = stdout
 
-        if len(message) > 1990:
-            message = message[:1990]
-        message = message + "```"
-        await ctx.send(message)
+        pages = Pages(TextPageSource(text))
+        try:
+            await pages.start(ctx)
+        except MenuError as e:
+            await ctx.send(str(e))
 
 
 def setup(bot):

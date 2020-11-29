@@ -326,7 +326,7 @@ class Utility(commands.Cog):
 
     @commands.command(name="txt")
     @commands.cooldown(1, 10, commands.BucketType.member)
-    async def txt(self, ctx: Context, *, content = None):
+    async def txt(self, ctx: Context, *, content=None):
         """
         Generates a text file based on what you put.
         """
@@ -342,7 +342,7 @@ class Utility(commands.Cog):
         file = discord.File(fp=buffer, filename="file.txt")
         await ctx.send("*Bing bada boom!* Here's your file!", file=file)
 
-    @commands.command(name="paste", usage="[FORMAT]")
+    @commands.command(name="paste")
     @commands.cooldown(1, 10, commands.BucketType.member)
     async def paste(self, ctx: Context):
         """

@@ -12,19 +12,6 @@ from storage import db
 from xylo_bot import XyloBot
 
 
-def id_in(id_int, check):
-    for user in check:
-        if user[0] == id_int:
-            return True
-    return False
-
-
-def key_or_false(data: dict, key: str):
-    if key in data:
-        return data[key]
-    return False
-
-
 def get_true(sets):
     if sets is None:
         return None

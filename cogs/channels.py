@@ -4,7 +4,7 @@ from datetime import datetime
 from discord.ext import commands
 
 from storage import db
-from storage.config import ConfigData
+from storage.config import ConfigData, JSONReader
 from util import checks
 from util.context import Context
 from util.discord_util import *
@@ -22,13 +22,12 @@ class Channels(commands.Cog):
     Special Channels
     """
 
-    file = ConfigData.questions
-
     def __init__(self, bot):
         self.bot: XyloBot = bot
         self.bot.add_loop("qotd", self.send_qotd)
         self.questions: list = self.file.data["questions"]
         self.next_question: str = random.choice(self.questions)
+        self.file = JSONReader("data/questions.json")
 
     def cog_unload(self):
         self.bot.remove_loop("qotd")
@@ -133,6 +132,20 @@ class Channels(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @qotd_cmd.command(name="invoke")
+    @commands.guild_only()
+    @checks.is_mod()
+    @commands.cooldown(rate=2, per=10, type=commands.BucketType.guild)
+    async def qotd_invoke(self, ctx: Context, channel: discord.TextChannel = None):
+        """Send QOTD in a channel."""
+        if channel is None:
+            return await ctx.send_help('!q invoke')
+        if channel.guild.id != ctx.guild.id:
+            return await ctx.send("Channel has to be in the same guild!")
+        question = random.choice(self.questions)
+        await self.send_qotd_embed(channel, question=question)
+        await ctx.send("Sent!")
+
     async def send_qotd(self, time: datetime):
         command = "SELECT * FROM qotd WHERE time in ($${0}$$, $${1}$$);"
         mat = time.strftime("%H:%M")
@@ -141,11 +154,6 @@ class Channels(commands.Cog):
             con.execute(command)
             rows = con.fetchall()
 
-        embed = discord.Embed(
-            title="Question of the Day",
-            description=self.next_question,
-            colour=discord.Colour.dark_blue()
-        )
         for row in rows:
             guild = self.bot.get_guild(row['guild_id'])
             if guild is None:
@@ -153,9 +161,19 @@ class Channels(commands.Cog):
             channel = guild.get_channel(row['channel_id'])
             if channel is None:
                 continue
-            await channel.send(embed=embed)
+            await self.send_qotd_embed(channel)
 
         self.queue_next_question()
+
+    async def send_qotd_embed(self, channel, *, question=None):
+        if question is None:
+            question = self.next_question
+        embed = discord.Embed(
+            title="Question of the Day",
+            description=question,
+            colour=discord.Colour.dark_blue()
+        )
+        await channel.send(embed=embed)
 
     def queue_next_question(self):
         self.next_question = random.choice(self.questions)

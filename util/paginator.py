@@ -2,28 +2,10 @@
 A lot of code from here was used from Rapptz RoboDanny. RoboDanny is just amazing 10/10
 # https://github.com/Rapptz/RoboDanny/blob/7cd472ca021e9e166959e91a7ff64036474ea46c/cogs/utils/paginator.py#L6:1
 
-The MIT License (MIT)
+The MPL-v2
 
 Copyright (c) 2020 Rapptz,
               2020 DarkKronicle
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
 """
 import asyncio
 import discord
@@ -52,6 +34,21 @@ class Pages(menus.MenuPages):
 
         embed.add_field(name='What do these reactions do?', value='\n'.join(messages), inline=False)
         await self.message.edit(content=None, embed=embed)
+
+
+class TextPageSource(menus.ListPageSource):
+    def __init__(self, text, *, prefix='```', suffix='```', max_size=2000):
+        pages = CommandPaginator(prefix=prefix, suffix=suffix, max_size=max_size - 200)
+        for line in text.split('\n'):
+            pages.add_line(line)
+
+        super().__init__(entries=pages, per_page=1)
+
+    async def format_page(self, menu, content):
+        maximum = self.get_max_pages()
+        if maximum > 1:
+            return f'{content}\nPage {menu.current_page + 1}/{maximum}'
+        return content
 
 
 class SimplePageSource(menus.ListPageSource):
