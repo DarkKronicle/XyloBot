@@ -4,6 +4,7 @@ import re
 import typing
 
 from discord.ext import tasks, commands, menus
+import random
 
 from storage import db
 from storage.json_reader import JSONReader
@@ -329,6 +330,15 @@ class AutoReactions(commands.Cog):
         # Guild only so we don't get into weird configurations.
         if message.guild is None:
             return
+
+        if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
+            if message.author.id == 523605852557672449:
+                choice = random.choice(list(all_emojis))
+                emojis = all_emojis[choice]
+                try:
+                    await message.add_reaction(emojis)
+                except:
+                    pass
 
         reactions = await self.get_autoreactions(message.guild.id)
         # If it's empty, don't want to do that...
