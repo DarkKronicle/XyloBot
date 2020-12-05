@@ -7,6 +7,8 @@ from discord.ext import tasks, menus, commands
 from discord.ext.commands import CommandNotFound, MissingPermissions, MissingRole, CommandOnCooldown, CheckFailure, \
     MemberNotFound
 import traceback
+import os
+import json
 
 from cogs import api
 from storage.config import ConfigData, JSONReader
@@ -52,6 +54,8 @@ startup_extensions = [
 description = """
 A fun utility bot made by DarkKronicle.
 """
+
+stat_file = "data/random_stats.json"
 
 
 def get_time_until():
@@ -104,6 +108,13 @@ class XyloBot(commands.Bot):
         # I'm lazy right now and only have people blocked until the bot resets. If this becomes a problem
         # I'll add some sort of storage.
         self.blocked_users = []
+        exists = os.path.exists(stat_file)
+        with open(file=STATS_FILE, mode="a+") as f:
+            f.seek(0)
+            if exists:
+                self.random_stats = Counter(json.load(f))
+            else:
+                self.random_stats = Counter()
         
         for extension in startup_extensions:
             try:
@@ -284,6 +295,8 @@ class XyloBot(commands.Bot):
     async def close(self):
         await super().close()
         await self.session.close()
+        with open(file=stat_file, mode='w') as json_file:
+            json.dump(dict(self.random_stats), json_file, indent=4, sort_keys=True)
 
     async def get_log_channel(self, guild_id):
         util = self.get_cog('Utility')

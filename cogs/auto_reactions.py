@@ -344,6 +344,8 @@ class AutoReactions(commands.Cog):
 
         if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
             if message.channel.id == 784639082063593503 or self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
+                if message.channel.id == 784639082063593503:
+                    self.bot.random_stats["baby"] += 1
                 emojis = random.choice(emoji_list)
                 try:
                     await message.add_reaction(emojis)
@@ -647,6 +649,13 @@ class AutoReactions(commands.Cog):
 
         self.suffer = mid
         await ctx.send(f"Now suffering {human}.")
+
+    @commands.command(name="emojistats", hidden=True)
+    async def emoji_stats(self, ctx: Context):
+        await ctx.send(embed=discord.Embed(
+            title="Emoji Stats",
+            description=f"Chance to get baby? `1/{len(all_emojis)}`. Amount of baby checks: `{self.bot.random_stats['baby']}`"
+        ))
 
 
 def setup(bot):
