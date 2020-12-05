@@ -344,13 +344,16 @@ class AutoReactions(commands.Cog):
 
         if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
             if message.channel.id == 784639082063593503 or self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
-                if message.channel.id == 784639082063593503:
-                    self.bot.random_stats["baby"] += 1
                 emojis = random.choice(emoji_list)
                 try:
                     await message.add_reaction(emojis)
                 except:
                     pass
+                if message.channel.id == 784639082063593503:
+                    self.bot.random_stats["baby"] += 1
+                    if emojis == "👼🏿":
+                        await message.channel.send(rf"OH \*\*\*\* WE DID IT! Only after {self.bot.random_stats['baby']} times!")
+                        await message.channel.edit(slowmode_delay=20)
 
         reactions = await self.get_autoreactions(message.guild.id)
         # If it's empty, don't want to do that...
