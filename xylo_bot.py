@@ -109,7 +109,7 @@ class XyloBot(commands.Bot):
         # I'll add some sort of storage.
         self.blocked_users = []
         exists = os.path.exists(stat_file)
-        with open(file=STATS_FILE, mode="a+") as f:
+        with open(file=stat_file, mode="a+") as f:
             f.seek(0)
             if exists:
                 self.random_stats = Counter(json.load(f))
