@@ -660,6 +660,12 @@ class AutoReactions(commands.Cog):
             description=f"Chance to get baby? `1/{len(all_emojis)}`. Amount of baby checks: `{self.bot.random_stats['baby']}`"
         ))
 
+    @commands.command(name="*slow")
+    @commands.is_owner()
+    async def slowmodeplease(self, ctx: Context, channel: discord.TextChannel, time: int):
+        await channel.edit(slowmode_delay=time)
+        await ctx.send("Slowwwww")
+
 
 def setup(bot):
     bot.add_cog(AutoReactions(bot))
