@@ -352,8 +352,8 @@ class AutoReactions(commands.Cog):
                 if message.channel.id == 784639082063593503:
                     self.bot.random_stats["baby"] += 1
                     if emojis == "👼🏿":
-                        await message.channel.send(rf"OH \*\*\*\* WE DID IT! Only after {self.bot.random_stats['baby']} times!")
-                        await message.channel.edit(slowmode_delay=20)
+                        await message.channel.send(rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
+                        await message.author.add_roles(message.guild.get_role(784847571473924097))
 
         reactions = await self.get_autoreactions(message.guild.id)
         # If it's empty, don't want to do that...
