@@ -14,6 +14,17 @@ from util.paginator import SimplePageSource, Pages
 
 all_emojis: dict = JSONReader("data/emojis.json").data
 
+emoji_list = []
+
+for _, emoji in all_emojis.items():
+    diversity = emoji.get("diversity")
+    if diversity is None:
+        emoji_list.append(emoji["emoji"])
+    else:
+        emoji_list.append([e for _, e in emoji["diversity"].items()])
+
+all_emoji_data: dict = {k: v["emoji"] for k, v in all_emojis.items()}
+
 
 class StandardEmoji(commands.Converter):
     async def convert(self, ctx, argument):
@@ -22,12 +33,12 @@ class StandardEmoji(commands.Converter):
         # 2 - Check if it's name is in discord found
         """
 
-        if argument in all_emojis.values():
+        if argument in all_emoji_data.values():
             return argument
 
         argument = argument.lower()
-        if argument in all_emojis.keys():
-            return all_emojis[argument]
+        if argument in all_emoji_data.keys():
+            return all_emoji_data[argument]
 
         return None
 
@@ -333,8 +344,7 @@ class AutoReactions(commands.Cog):
 
         if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
             if self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
-                choice = random.choice(list(all_emojis))
-                emojis = all_emojis[choice]
+                emojis = random.choice(emoji_list)
                 try:
                     await message.add_reaction(emojis)
                 except:
@@ -582,7 +592,7 @@ class AutoReactions(commands.Cog):
                     count = count + 1
                 else:
                     name = ""
-                    for v in all_emojis.values():
+                    for v in all_emoji_data.values():
                         if v == emoji:
                             name = v
                             break
