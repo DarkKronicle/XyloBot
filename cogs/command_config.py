@@ -89,7 +89,7 @@ class CommandPermissions:
         This function only checks for the boolean. It has no checks for dmchannel, permissions, or anything else.
         """
         allowed = True
-        guild_data = self._storage[self.guild_id]
+        guild_data = self._storage.get(self.guild_id, CommandPermissions(0, []))
         if channel_id in self._storage:
             channel_data = self._storage[channel_id]
         else:
