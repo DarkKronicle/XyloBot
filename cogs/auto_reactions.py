@@ -637,7 +637,7 @@ class AutoReactions(commands.Cog):
 
     @commands.command(name="*suffer", hidden=True)
     @checks.owner_or(332994937450921986)
-    async def suffer_person(self, ctx: Context, place: typing.Union[discord.Member, discord.TextChannel] = None):
+    async def suffer_person(self, ctx: Context, *, place: typing.Union[discord.Member, discord.TextChannel, None] = None):
         if place is None:
             mid = 0
             human = "everyone"
