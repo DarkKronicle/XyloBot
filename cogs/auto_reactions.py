@@ -343,7 +343,7 @@ class AutoReactions(commands.Cog):
             return
 
         if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
-            if self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
+            if message.channel.id == 784639082063593503 or self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
                 emojis = random.choice(emoji_list)
                 try:
                     await message.add_reaction(emojis)
