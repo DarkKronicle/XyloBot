@@ -1,5 +1,4 @@
 import enum
-import re
 
 import typing
 
@@ -333,7 +332,7 @@ class AutoReactions(commands.Cog):
             return
 
         if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
-            if self.suffer == 0 or message.author.id == self.suffer:
+            if self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
                 choice = random.choice(list(all_emojis))
                 emojis = all_emojis[choice]
                 try:
@@ -627,17 +626,17 @@ class AutoReactions(commands.Cog):
             return await ctx.send("You don't have permission to add reactions to that message!")
 
     @commands.command(name="*suffer", hidden=True)
-    @commands.is_owner()
-    async def suffer_person(self, ctx: Context, member: discord.Member = None):
-        if member is None:
+    @checks.owner_or(332994937450921986)
+    async def suffer_person(self, ctx: Context, place: typing.Union[discord.Member, discord.TextChannel] = None):
+        if place is None:
             mid = 0
             human = "everyone"
         else:
-            mid = member.id
-            human = member.mention
+            mid = place.id
+            human = place.mention
+
         self.suffer = mid
         await ctx.send(f"Now suffering {human}.")
-
 
 
 def setup(bot):

@@ -38,3 +38,12 @@ def is_mod():
         return await check_guild_permissions(ctx, {'manage_server': True, 'administrator': True}, check=any)
 
     return commands.check(predicate)
+
+
+def owner_or(*args):
+    async def predicate(ctx):
+        if ctx.author.id in args:
+            return True
+        return await ctx.bot.is_owner(ctx.author)
+
+    return commands.check(predicate)
