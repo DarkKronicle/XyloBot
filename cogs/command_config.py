@@ -57,6 +57,8 @@ class CommandPermissions:
         self._storage = {}
         self.guild_id = guild_id
 
+        self._storage[guild_id] = self.PermissionData()
+
         for row in db_rows:
             # For each row we have a channel_id, allow, and name.
             channel_id = row['channel_id']
