@@ -243,6 +243,7 @@ class AutoReactions(commands.Cog):
         self.bot = bot
         self.bulk_uses = {}
         self.update_usage.start()
+        self.suffer = 350007702451126282
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -332,7 +333,7 @@ class AutoReactions(commands.Cog):
             return
 
         if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
-            if message.author.id == 523605852557672449:
+            if self.suffer == 0 or message.author.id == self.suffer:
                 choice = random.choice(list(all_emojis))
                 emojis = all_emojis[choice]
                 try:
@@ -624,6 +625,19 @@ class AutoReactions(commands.Cog):
                 return await ctx.send("Something went wrong!")
         else:
             return await ctx.send("You don't have permission to add reactions to that message!")
+
+    @commands.command(name="*suffer", hidden=True)
+    @commands.is_owner()
+    async def suffer_person(self, ctx: Context, member: discord.Member = None):
+        if member is None:
+            mid = 0
+            human = "everyone"
+        else:
+            mid = member.id
+            human = member.mention
+        self.suffer = mid
+        await ctx.send(f"Now suffering {human}.")
+
 
 
 def setup(bot):
