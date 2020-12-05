@@ -21,7 +21,7 @@ for _, emoji in all_emojis.items():
     if diversity is None:
         emoji_list.append(emoji["emoji"])
     else:
-        emoji_list.append([e for _, e in emoji["diversity"].items()])
+        emoji_list.extend([e for _, e in emoji["diversity"].items()])
 
 all_emoji_data: dict = {k: v["emoji"] for k, v in all_emojis.items()}
 
