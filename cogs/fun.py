@@ -34,7 +34,7 @@ class SufferStorage:
             else:
                 e = self.emoji_reaction
             try:
-                message.add_reaction(e)
+                await message.add_reaction(e)
             except:
                 pass
 
@@ -42,7 +42,14 @@ class SufferStorage:
         self._storage = []
 
     def add(self, user, guild, *, expire=60*30, emoji=None):
-        self._storage.append(self._Sufferer(user, guild, expire, emoji_reaction=emoji))
+        found = self.get_suffer(user, guild)
+        if len(found) == 0:
+            self._storage.append(self._Sufferer(user, guild, expire, emoji_reaction=emoji))
+        else:
+            start = time.monotonic()
+            for f in found:
+                f.start = start
+                f.expire = expire
 
     def get_suffer(self, user, guild):
         self._check_integrity()
@@ -143,7 +150,7 @@ class Fun(commands.Cog, name="Fun"):
     @commands.command(name="suffer")
     @commands.guild_only()
     @checks.whitelist_cooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
-    async def suffer_person(self, ctx: Context, emoji_react: typing.Union[emoji.StandardEmoji, discord.Emoji, None] = None, *, member: discord.Member = None):
+    async def suffer_person(self, ctx: Context, emoji_react: typing.Union[discord.Emoji, emoji.StandardEmoji, None] = None, *, member: discord.Member = None):
         """
         Make someone in your guild suffer
         """
@@ -153,6 +160,9 @@ class Fun(commands.Cog, name="Fun"):
                 return await ctx.send("Emoji in another server!")
         if member is None:
             return await ctx.send("Please specify a proper user!")
+        if member.bot:
+            return await ctx.send("This doesn't work for bots :(")
+
         mid = member.id
         human = member.mention
 
