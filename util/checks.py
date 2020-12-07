@@ -2,6 +2,13 @@ from discord.ext import commands
 from discord.enums import Enum
 
 
+class OpenCooldown(commands.Cooldown):
+
+    def __init__(self, rate, per, type):
+        super().__init__(rate, per, commands.BucketType.default)
+        self.type = type
+
+
 class ExtraBucketType(Enum):
 
     user_guild = 0
@@ -17,7 +24,7 @@ class ExtraBucketType(Enum):
 class ExtraCooldown:
 
     def __init__(self, rate, per, bucket: ExtraBucketType):
-        self.default_mapping = commands.CooldownMapping.from_cooldown(rate, per, commands.BucketType.default)
+        self.default_mapping = commands.CooldownMapping(OpenCooldown(rate, per, commands.BucketType.default))
         self.default_mapping._cooldown.type = bucket
 
     def __call__(self, ctx: commands.Context):
