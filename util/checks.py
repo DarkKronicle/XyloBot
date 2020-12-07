@@ -1,6 +1,19 @@
 from discord.ext import commands
 
 
+class ExtraBucketType(commands.BucketType):
+
+    guild_user = 7
+
+    def get_key(self, msg):
+        if self is ExtraBucketType.guild_user:
+            if msg.guild is None:
+                return msg.author.id
+            else:
+                return msg.author.id, msg.guild.id
+        return super().get_key(msg)
+
+
 # https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/utils/checks.py#L11
 # MPL-2.0
 async def check_permissions(ctx, perms, *, check=all, channel=None):

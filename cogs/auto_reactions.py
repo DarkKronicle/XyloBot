@@ -254,7 +254,7 @@ class AutoReactions(commands.Cog):
         self.bot = bot
         self.bulk_uses = {}
         self.update_usage.start()
-        self.suffer = ExpiringList(60*30)
+        self.suffer = ExpiringList(60*1)
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -650,17 +650,20 @@ class AutoReactions(commands.Cog):
             return await ctx.send("You don't have permission to add reactions to that message!")
 
     @commands.command(name="suffer", hidden=True)
-    @commands.cooldown(1, 60*60*2, commands.BucketType.user)
+    @commands.cooldown(1, 60*60*2, checks.ExtraBucketType.guild_user)
     async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
+        """
+        Make someone in your guild suffer
+        """
         if place is None:
-            return await ctx.send("You need to specify a member!")
-        else:
-            mid = place.id
-            human = place.mention
+            place = ctx.author
+        mid = place.id
+        human = place.mention
 
         insert = (mid, ctx.guild.id)
         self.suffer.append(insert)
-        await ctx.send(f"Now suffering {human}.")
+        await ctx.send(embed=discord.Embed(description=f"Now suffering {human} for the next 30 minutes. Enjoy :)",
+                                           colour=discord.Colour.green()))
 
     @commands.command(name="emojistats", hidden=True)
     async def emoji_stats(self, ctx: Context):

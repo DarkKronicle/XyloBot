@@ -29,9 +29,9 @@ class BotList(commands.Cog):
         except Exception as e:
             await self.bot.log.send(discord.Embed(
                 title="Failed to update server count",
-                description='Failed to post server count\n{}: {}'.format(type(e).__name__, e)),
+                description='Failed to post server count\n{}: {}'.format(type(e).__name__, e),
                 colour=discord.Colour.red()
-            )
+            ))
 
     @commands.Cog.listener()
     async def on_dbl_upvote(self, data):
