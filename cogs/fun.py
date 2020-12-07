@@ -30,7 +30,7 @@ class SufferStorage:
 
         async def react(self, message):
             if self.emoji_reaction is None:
-                e = random.choice(emoji.all_emojis)
+                e = random.choice(emoji.emoji_list)
             else:
                 e = self.emoji_reaction
             try:
@@ -159,7 +159,11 @@ class Fun(commands.Cog, name="Fun"):
         minutes = random.randint(15, 45)
 
         self.suffer.add(mid, ctx.guild.id, expire=minutes*60, emoji=emoji_react)
-        await ctx.send(embed=discord.Embed(description=f"Now suffering {human} for the next {minutes} minutes. Enjoy :)",
+        if emoji_react is not None:
+            e = f" {emoji_react}"
+        else:
+            e = ""
+        await ctx.send(embed=discord.Embed(description=f"Now suffering {human} for the next {minutes} minutes.{e} Enjoy :)",
                                            colour=discord.Colour.green()))
 
 

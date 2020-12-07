@@ -34,7 +34,6 @@ class StandardEmoji(commands.Converter):
 
         return None
 
-@classmethod
 async def random_reaction(message):
     emojis = random.choice(emoji.emoji_list)
     try:
