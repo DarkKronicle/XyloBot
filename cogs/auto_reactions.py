@@ -360,6 +360,8 @@ class AutoReactions(commands.Cog):
                     rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
                 await message.author.add_roles(message.guild.get_role(784847571473924097))
         else:
+            for k, v in self.suffer.items():
+                print(f"{k} - {v}")
             if message.author.id in self.suffer:
                 guild = self.suffer[message.author.id]
                 if message.guild.id == guild:
@@ -651,6 +653,7 @@ class AutoReactions(commands.Cog):
             return await ctx.send("You don't have permission to add reactions to that message!")
 
     @commands.command(name="suffer", hidden=True)
+    @commands.guild_only()
     @commands.check(checks.ExtraCooldown(1, 60*60*2, checks.ExtraBucketType.user_guild))
     async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
         """
