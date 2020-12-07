@@ -1,8 +1,7 @@
 from discord.ext import commands
-import enum
 
 
-class ExtraBucketType(commands.BucketType, enum.Enum):
+class ExtraBucketType(commands.BucketType):
 
     guild_user = 7
 
