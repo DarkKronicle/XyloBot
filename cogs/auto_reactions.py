@@ -652,7 +652,7 @@ class AutoReactions(commands.Cog):
 
     @commands.command(name="suffer")
     @commands.guild_only()
-    @checks.cooldown(1, 60*60*2, checks.ExtraBucketType.user_guild)
+    @checks.whitelist_cooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
     async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
         """
         Make someone in your guild suffer

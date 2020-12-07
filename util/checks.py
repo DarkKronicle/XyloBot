@@ -54,6 +54,31 @@ def cooldown(rate, per, type):
     return commands.check(predicate)
 
 
+def whitelist_cooldown(rate, per, other_rate, other_per, whitelist_type, type, whitelisted):
+    """
+    Advanced Whitelist double cooldown weird thing
+    :param rate: The default rate
+    :param per: Default per
+    :param other_rate: Whitelisted rate
+    :param other_per: Whitelisted per
+    :param whitelist_type: BucketType for what keys should be in whitelisted
+    :param type: Normal BucketType
+    :param whitelisted: list for what values are whitelisted
+    :return:
+    """
+    cool = AdvancedCooldown(rate, per, type)
+    white = AdvancedCooldown(other_rate, other_per, whitelist_type)
+
+    def predicate(ctx):
+        key = whitelist_type.get_key(ctx.message)
+        if key in whitelisted:
+            return white(ctx)
+        else:
+            return cool(ctx)
+
+    return commands.check(predicate)
+
+
 # https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/utils/checks.py#L11
 # MPL-2.0
 async def check_permissions(ctx, perms, *, check=all, channel=None):
