@@ -143,7 +143,7 @@ class Fun(commands.Cog, name="Fun"):
     @commands.command(name="suffer")
     @commands.guild_only()
     @checks.whitelist_cooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
-    async def suffer_person(self, ctx: Context, emoji_react: typing.Optional[emoji.StandardEmoji, discord.Emoji] = None, *, member: discord.Member = None):
+    async def suffer_person(self, ctx: Context, emoji_react: typing.Union[emoji.StandardEmoji, discord.Emoji, None] = None, *, member: discord.Member = None):
         """
         Make someone in your guild suffer
         """
