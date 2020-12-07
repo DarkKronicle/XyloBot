@@ -50,7 +50,7 @@ class SufferStorage:
             for f in found:
                 f.start = start
                 f.expire = expire
-                f.emoji = emoji
+                f.emoji_reaction = emoji
 
     def get_suffer(self, user, guild):
         self._check_integrity()
