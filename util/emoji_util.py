@@ -35,6 +35,17 @@ class StandardEmoji(commands.Converter):
         return None
 
 
+class Emoji(commands.Converter):
+    async def convert(self, ctx, argument):
+        discord_convert = commands.EmojiConverter()
+        e = await discord_convert.convert(ctx, argument)
+        if e is not None:
+            return e
+        standard_convert = StandardEmoji()
+        e = await standard_convert.convert(ctx, argument)
+        return e
+
+
 async def random_reaction(message):
     emojis = random.choice(emoji.emoji_list)
     try:
