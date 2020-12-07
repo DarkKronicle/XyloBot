@@ -44,6 +44,7 @@ class ExpiringList(list):
         to_remove = []
         current = time.monotonic()
         for item, expire in self:
+            print(str(item))
             if current > (expire + self.second):
                 to_remove.append(item)
         for item in to_remove:
