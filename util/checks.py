@@ -8,6 +8,9 @@ class OpenCooldown(commands.Cooldown):
         super().__init__(rate, per, commands.BucketType.default)
         self.type = type
 
+    def copy(self):
+        return OpenCooldown(self.rate, self.per, self.type)
+
 
 class ExtraBucketType(Enum):
 
