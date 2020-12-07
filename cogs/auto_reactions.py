@@ -532,7 +532,7 @@ class AutoReactions(commands.Cog):
         return embed
 
     @commands.command(name="emoji")
-    async def emoji(self, ctx: Context,
+    async def _emoji(self, ctx: Context,
                     emoji_found: commands.Greedy[typing.Union[discord.Emoji, emoji.StandardEmoji]] = None):
         """
         View emojis in a text.
@@ -564,7 +564,8 @@ class AutoReactions(commands.Cog):
         await ctx.send(message)
 
     @commands.command(name="react")
-    async def react(self, ctx: Context, message: typing.Optional[discord.Message] = None, emojis: commands.Greedy[typing.Union[discord.Emoji, emoji.StandardEmoji]] = None):
+    async def react(self, ctx: Context, message: typing.Optional[discord.Message] = None,
+                    emojis: commands.Greedy[typing.Union[discord.Emoji, emoji.StandardEmoji]] = None):
         """
         Reacts to a message. If none specified it will react to the last message.
         """
