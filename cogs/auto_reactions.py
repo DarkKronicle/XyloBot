@@ -650,7 +650,7 @@ class AutoReactions(commands.Cog):
             return await ctx.send("You don't have permission to add reactions to that message!")
 
     @commands.command(name="suffer", hidden=True)
-    @commands.cooldown(1, 60*60*2, commands.BucketType.user)
+    @commands.cooldown(1, 60*60*2, checks.ExtraBucketType.guild_user)
     async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
         """
         Make someone in your guild suffer
