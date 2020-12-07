@@ -13,6 +13,7 @@ Tutorial on how this stuff works: https://realpython.com/primer-on-python-decora
 import asyncio
 from functools import wraps
 import inspect
+import time
 
 from lru import LRU
 
@@ -31,6 +32,38 @@ def _wrap_new_coroutine(value):
         return value
 
     return new_coroutine()
+
+
+class ExpiringList(list):
+
+    def __init__(self, second, *args):
+        self.second = second
+        super().__init__(*args)
+
+    def _verify_time(self):
+        to_remove = []
+        current = time.monotonic()
+        for item, expire in self:
+            if current > (expire + self.second):
+                to_remove.append(item)
+        for item in to_remove:
+            self.remove(item)
+
+    def __len__(self):
+        self._verify_time()
+        return super().__len__()
+
+    def __getitem__(self, item):
+        self._verify_time()
+        return super().__getitem__(item)[0]
+
+    def __setitem__(self, item, val):
+        self._verify_time()
+        super().__setitem__(item, (val, time.monotonic()))
+
+    def __contains__(self, item):
+        self._verify_time()
+        return super().__contains__(item)
 
 
 def cache(maxsize=64):

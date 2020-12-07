@@ -11,6 +11,7 @@ from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
 from util.paginator import SimplePageSource, Pages
+from util.storage_cache import ExpiringList
 
 all_emojis: dict = JSONReader("data/emojis.json").data
 
@@ -253,7 +254,7 @@ class AutoReactions(commands.Cog):
         self.bot = bot
         self.bulk_uses = {}
         self.update_usage.start()
-        self.suffer = 350007702451126282
+        self.suffer = ExpiringList(60*30)
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -332,6 +333,15 @@ class AutoReactions(commands.Cog):
             con.execute(command)
         self.get_autoreactions.invalidate(self, guild_id)
 
+    @classmethod
+    async def random_reaction(cls, message):
+        emojis = random.choice(emoji_list)
+        try:
+            await message.add_reaction(emojis)
+        except:
+            pass
+        return emojis
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         # Don't want recursion now... it's the skeletons all over
@@ -342,18 +352,17 @@ class AutoReactions(commands.Cog):
         if message.guild is None:
             return
 
-        if message.guild.id == 752584642246213732 or message.guild.id == 690652919741284402:
-            if message.channel.id == 784639082063593503 or self.suffer == 0 or message.author.id == self.suffer or message.channel.id == self.suffer:
-                emojis = random.choice(emoji_list)
-                try:
-                    await message.add_reaction(emojis)
-                except:
-                    pass
-                if message.channel.id == 784639082063593503:
-                    self.bot.random_stats["baby"] += 1
-                    if emojis == "👼🏿":
-                        await message.channel.send(rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
-                        await message.author.add_roles(message.guild.get_role(784847571473924097))
+        if message.channel.id == 784639082063593503:
+            emojis = await self.random_reaction(message)
+            self.bot.random_stats["baby"] += 1
+            if emojis == "👼🏿":
+                await message.channel.send(
+                    rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
+                await message.author.add_roles(message.guild.get_role(784847571473924097))
+        else:
+            for user, guild in self.suffer:
+                if message.guild.id == guild and message.author.id == user:
+                    await self.random_reaction(message)
 
         reactions = await self.get_autoreactions(message.guild.id)
         # If it's empty, don't want to do that...
@@ -640,17 +649,17 @@ class AutoReactions(commands.Cog):
         else:
             return await ctx.send("You don't have permission to add reactions to that message!")
 
-    @commands.command(name="*suffer", hidden=True)
-    @checks.owner_or(332994937450921986)
-    async def suffer_person(self, ctx: Context, *, place: typing.Union[discord.Member, discord.TextChannel, None] = None):
+    @commands.command(name="suffer", hidden=True)
+    @commands.cooldown(1, 60*60*2, commands.BucketType.user)
+    async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
         if place is None:
-            mid = 0
-            human = "everyone"
+            return await ctx.send("You need to specify a member!")
         else:
             mid = place.id
             human = place.mention
 
-        self.suffer = mid
+        insert = (mid, ctx.guild.id)
+        self.suffer.append(insert)
         await ctx.send(f"Now suffering {human}.")
 
     @commands.command(name="emojistats", hidden=True)
@@ -659,12 +668,6 @@ class AutoReactions(commands.Cog):
             title="Emoji Stats",
             description=f"Chance to get baby? `1/{len(all_emojis)}`. Amount of baby checks: `{self.bot.random_stats['baby']}`"
         ))
-
-    @commands.command(name="*slow", hidden=True)
-    @commands.is_owner()
-    async def slowmodeplease(self, ctx: Context, channel: discord.TextChannel, time: int):
-        await channel.edit(slowmode_delay=time)
-        await ctx.send("Slowwwww")
 
 
 def setup(bot):

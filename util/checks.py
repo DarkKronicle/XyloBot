@@ -40,6 +40,15 @@ def is_mod():
     return commands.check(predicate)
 
 
+def guild(*args):
+    async def predicate(ctx):
+        if ctx.guild is None:
+            return False
+        return ctx.guild.id in args
+
+    return commands.check(predicate)
+
+
 def owner_or(*args):
     async def predicate(ctx):
         if ctx.author.id in args:
