@@ -254,7 +254,7 @@ class AutoReactions(commands.Cog):
         self.bot = bot
         self.bulk_uses = {}
         self.update_usage.start()
-        self.suffer = ExpiringDict(60*1)
+        self.suffer = ExpiringDict(60*30)
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -650,9 +650,9 @@ class AutoReactions(commands.Cog):
         else:
             return await ctx.send("You don't have permission to add reactions to that message!")
 
-    @commands.command(name="suffer", hidden=True)
+    @commands.command(name="suffer")
     @commands.guild_only()
-    @commands.check(checks.ExtraCooldown(1, 60*60*2, checks.ExtraBucketType.user_guild))
+    @commands.check(checks.cooldown(1, 60*60*2, checks.ExtraBucketType.user_guild))
     async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
         """
         Make someone in your guild suffer

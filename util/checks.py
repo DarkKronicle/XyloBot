@@ -2,16 +2,6 @@ from discord.ext import commands
 from discord.enums import Enum
 
 
-class OpenCooldown(commands.Cooldown):
-
-    def __init__(self, rate, per, type):
-        super().__init__(rate, per, commands.BucketType.default)
-        self.type = type
-
-    def copy(self):
-        return OpenCooldown(self.rate, self.per, self.type)
-
-
 class ExtraBucketType(Enum):
 
     user_guild = 0
@@ -24,7 +14,24 @@ class ExtraBucketType(Enum):
                 return msg.author.id, msg.guild.id
 
 
-class ExtraCooldown:
+class OpenCooldown(commands.Cooldown):
+    """
+    When creating an instance of this class it won't throw an error if the type isn't a buckettype.
+    """
+
+    def __init__(self, rate, per, type):
+        super().__init__(rate, per, commands.BucketType.default)
+        self.type = type
+
+    def copy(self):
+        return OpenCooldown(self.rate, self.per, self.type)
+
+
+class AdvancedCooldown:
+    """
+    The base class for cooldowns are really cool, so I wanted to implement something similar. The problem is
+    there is only 7 types of cooldowns. I created this class to open that.
+    """
 
     def __init__(self, rate, per, bucket: ExtraBucketType):
         self.default_mapping = commands.CooldownMapping(OpenCooldown(rate, per, commands.BucketType.default))
@@ -36,6 +43,15 @@ class ExtraCooldown:
         if retry_after:
             raise commands.CommandOnCooldown(bucket, retry_after)
         return True
+
+
+def cooldown(rate, per, type):
+    cool = AdvancedCooldown(rate, per, type)
+
+    def predicate(ctx):
+        return cool(ctx)
+
+    return commands.check(predicate)
 
 
 # https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/utils/checks.py#L11
