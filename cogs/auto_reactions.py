@@ -6,42 +6,12 @@ from discord.ext import tasks, commands, menus
 import random
 
 from storage import db
-from storage.json_reader import JSONReader
+import util.emoji_util as emoji
 from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
 from util.paginator import SimplePageSource, Pages
 from util.storage_cache import ExpiringDict
-
-all_emojis: dict = JSONReader("data/emojis.json").data
-
-emoji_list = []
-
-for _, emoji in all_emojis.items():
-    diversity = emoji.get("diversity")
-    if diversity is None:
-        emoji_list.append(emoji["emoji"])
-    else:
-        emoji_list.extend([e for _, e in emoji["diversity"].items()])
-
-all_emoji_data: dict = {k: v["emoji"] for k, v in all_emojis.items()}
-
-
-class StandardEmoji(commands.Converter):
-    async def convert(self, ctx, argument):
-        """
-        # 1 - Check if unicode emoji
-        # 2 - Check if it's name is in discord found
-        """
-
-        if argument in all_emoji_data.values():
-            return argument
-
-        argument = argument.lower()
-        if argument in all_emoji_data.keys():
-            return all_emoji_data[argument]
-
-        return None
 
 
 class AutoReactionsDB(db.Table, table_name="auto_reactions"):
@@ -254,7 +224,6 @@ class AutoReactions(commands.Cog):
         self.bot = bot
         self.bulk_uses = {}
         self.update_usage.start()
-        self.suffer = ExpiringDict(60*30)
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -333,15 +302,6 @@ class AutoReactions(commands.Cog):
             con.execute(command)
         self.get_autoreactions.invalidate(self, guild_id)
 
-    @classmethod
-    async def random_reaction(cls, message):
-        emojis = random.choice(emoji_list)
-        try:
-            await message.add_reaction(emojis)
-        except:
-            pass
-        return emojis
-
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         # Don't want recursion now... it's the skeletons all over
@@ -351,19 +311,6 @@ class AutoReactions(commands.Cog):
         # Guild only so we don't get into weird configurations.
         if message.guild is None:
             return
-
-        if message.channel.id == 784639082063593503:
-            emojis = await self.random_reaction(message)
-            self.bot.random_stats["baby"] += 1
-            if emojis == "👼🏿":
-                await message.channel.send(
-                    rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
-                await message.author.add_roles(message.guild.get_role(784847571473924097))
-        else:
-            if message.author.id in self.suffer:
-                guild = self.suffer[message.author.id]
-                if message.guild.id == guild:
-                    await self.random_reaction(message)
 
         reactions = await self.get_autoreactions(message.guild.id)
         # If it's empty, don't want to do that...
@@ -489,7 +436,7 @@ class AutoReactions(commands.Cog):
             split = data.split(' ')
             emojis = []
             for s in split:
-                e = await StandardEmoji().convert(ctx, s)
+                e = await emoji.StandardEmoji().convert(ctx, s)
                 if e is not None:
                     emojis.append(e)
                     continue
@@ -586,7 +533,7 @@ class AutoReactions(commands.Cog):
 
     @commands.command(name="emoji")
     async def emoji(self, ctx: Context,
-                    emoji_found: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
+                    emoji_found: commands.Greedy[typing.Union[discord.Emoji, emoji.StandardEmoji]] = None):
         """
         View emojis in a text.
         """
@@ -594,21 +541,21 @@ class AutoReactions(commands.Cog):
             return await ctx.send("No emoji in that text!")
         message = "Emoji's found:"
         count = 0
-        for emoji in emoji_found:
-            if emoji is not None:
-                if isinstance(emoji, discord.Emoji):
-                    if emoji.guild.id not in (ctx.guild.id, 658371169728331788):
+        for em in emoji_found:
+            if em is not None:
+                if isinstance(em, discord.Emoji):
+                    if em.guild.id not in (ctx.guild.id, 658371169728331788):
                         # We don't want cross guild stuff... but Xylo's server is fine.
                         continue
-                    if emoji.animated:
-                        message = message + f"\n <a:{emoji.name}:{emoji.id}> - `<a:{emoji.name}:{emoji.id}>`"
+                    if em.animated:
+                        message = message + f"\n <a:{em.name}:{em.id}> - `<a:{em.name}:{em.id}>`"
                     else:
-                        message = message + f"\n <:{emoji.name}:{emoji.id}> - `<:{emoji.name}:{emoji.id}>`"
+                        message = message + f"\n <:{em.name}:{em.id}> - `<:{em.name}:{em.id}>`"
                     count = count + 1
                 else:
                     name = ""
-                    for v in all_emoji_data.values():
-                        if v == emoji:
+                    for v in emoji.all_emoji_data.values():
+                        if v == em:
                             name = v
                             break
 
@@ -617,7 +564,7 @@ class AutoReactions(commands.Cog):
         await ctx.send(message)
 
     @commands.command(name="react")
-    async def react(self, ctx: Context, message: typing.Optional[discord.Message] = None, emojis: commands.Greedy[typing.Union[discord.Emoji, StandardEmoji]] = None):
+    async def react(self, ctx: Context, message: typing.Optional[discord.Message] = None, emojis: commands.Greedy[typing.Union[discord.Emoji, emoji.StandardEmoji]] = None):
         """
         Reacts to a message. If none specified it will react to the last message.
         """
@@ -637,41 +584,18 @@ class AutoReactions(commands.Cog):
                 return await ctx.send("Something went wrong finding a message...")
         if await checks.check_permissions(ctx, {'add_reactions': True, 'administrator': True}, channel=message.channel, check=any):
             try:
-                for emoji in emojis:
-                    if emoji is None:
+                for em in emojis:
+                    if em is None:
                         continue
-                    if isinstance(emoji, discord.Emoji):
-                        if emoji.guild.id not in (ctx.guild.id, 658371169728331788):
+                    if isinstance(em, discord.Emoji):
+                        if em.guild.id not in (ctx.guild.id, 658371169728331788):
                             # We don't want cross guild stuff... but Xylo's server is fine.
                             continue
-                    await message.add_reaction(emoji)
+                    await message.add_reaction(em)
             except discord.HTTPException:
                 return await ctx.send("Something went wrong!")
         else:
             return await ctx.send("You don't have permission to add reactions to that message!")
-
-    @commands.command(name="suffer")
-    @commands.guild_only()
-    @checks.whitelist_cooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
-    async def suffer_person(self, ctx: Context, *, place: typing.Optional[discord.Member] = None):
-        """
-        Make someone in your guild suffer
-        """
-        if place is None:
-            place = ctx.author
-        mid = place.id
-        human = place.mention
-
-        self.suffer[mid] = ctx.guild.id
-        await ctx.send(embed=discord.Embed(description=f"Now suffering {human} for the next 30 minutes. Enjoy :)",
-                                           colour=discord.Colour.green()))
-
-    @commands.command(name="emojistats", hidden=True)
-    async def emoji_stats(self, ctx: Context):
-        await ctx.send(embed=discord.Embed(
-            title="Emoji Stats",
-            description=f"Chance to get baby? `1/{len(all_emojis)}`. Amount of baby checks: `{self.bot.random_stats['baby']}`"
-        ))
 
 
 def setup(bot):
