@@ -11,14 +11,14 @@ class ExtraBucketType(Enum):
             if msg.guild is None:
                 return msg.author.id
             else:
-                return msg.author.id, msg.guild.id
+                return (msg.author.id, msg.guild.id)
 
 
 class ExtraCooldown:
 
     def __init__(self, rate, per, bucket: ExtraBucketType):
         self.default_mapping = commands.CooldownMapping.from_cooldown(rate, per, commands.BucketType.default)
-        self.default_mapping.type = bucket
+        self.default_mapping._cooldown.type = bucket
 
     def __call__(self, ctx: commands.Context):
         bucket = self.default_mapping.get_bucket(ctx.message)

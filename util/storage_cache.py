@@ -34,37 +34,29 @@ def _wrap_new_coroutine(value):
     return new_coroutine()
 
 
-class ExpiringList(list):
+# https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/utils/cache.py#L22
+class ExpiringDict(dict):
+    def __init__(self, seconds):
+        self.__ttl = seconds
+        super().__init__()
 
-    def __init__(self, second, *args):
-        self.second = second
-        super().__init__(*args)
+    def __verify_cache_integrity(self):
+        # Have to do this in two steps...
+        current_time = time.monotonic()
+        to_remove = [k for (k, (v, t)) in self.items() if current_time > (t + self.__ttl)]
+        for k in to_remove:
+            del self[k]
 
-    def _verify_time(self):
-        to_remove = []
-        current = time.monotonic()
-        for item, expire in self:
-            print(str(item))
-            if current > (expire + self.second):
-                to_remove.append(item)
-        for item in to_remove:
-            self.remove(item)
+    def __contains__(self, key):
+        self.__verify_cache_integrity()
+        return super().__contains__(key)
 
-    def __len__(self):
-        self._verify_time()
-        return super().__len__()
+    def __getitem__(self, key):
+        self.__verify_cache_integrity()
+        return super().__getitem__(key)
 
-    def __getitem__(self, item):
-        self._verify_time()
-        return super().__getitem__(item)[0]
-
-    def __setitem__(self, item, val):
-        self._verify_time()
-        super().__setitem__(item, (val, time.monotonic()))
-
-    def __contains__(self, item):
-        self._verify_time()
-        return super().__contains__(item)
+    def __setitem__(self, key, value):
+        super().__setitem__(key, (value, time.monotonic()))
 
 
 def cache(maxsize=64):

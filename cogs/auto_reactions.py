@@ -11,7 +11,7 @@ from util import storage_cache, checks
 from util.context import Context
 from util.discord_util import *
 from util.paginator import SimplePageSource, Pages
-from util.storage_cache import ExpiringList
+from util.storage_cache import ExpiringDict
 
 all_emojis: dict = JSONReader("data/emojis.json").data
 
@@ -254,7 +254,7 @@ class AutoReactions(commands.Cog):
         self.bot = bot
         self.bulk_uses = {}
         self.update_usage.start()
-        self.suffer = ExpiringList(60*1)
+        self.suffer = ExpiringDict(60*1)
 
     @storage_cache.cache(maxsize=256)
     async def get_autoreactions(self, guild_id):
@@ -360,7 +360,7 @@ class AutoReactions(commands.Cog):
                     rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
                 await message.author.add_roles(message.guild.get_role(784847571473924097))
         else:
-            for user, guild in self.suffer:
+            for user, guild in self.suffer.items():
                 if message.guild.id == guild and message.author.id == user:
                     await self.random_reaction(message)
 
@@ -660,8 +660,7 @@ class AutoReactions(commands.Cog):
         mid = place.id
         human = place.mention
 
-        insert = (mid, ctx.guild.id)
-        self.suffer.append(insert)
+        self.suffer[mid] = ctx.guild.id
         await ctx.send(embed=discord.Embed(description=f"Now suffering {human} for the next 30 minutes. Enjoy :)",
                                            colour=discord.Colour.green()))
 
