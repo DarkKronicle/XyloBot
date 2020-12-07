@@ -360,8 +360,9 @@ class AutoReactions(commands.Cog):
                     rf"WE HAVE FOUND A BABY! CONGRATZ {message.author.mention}! Amount of babies trying to be found has been {self.bot.random_stats['baby']} times.")
                 await message.author.add_roles(message.guild.get_role(784847571473924097))
         else:
-            for user, guild in self.suffer.items():
-                if message.guild.id == guild and message.author.id == user:
+            if message.author.id in self.suffer:
+                guild = self.suffer[message.author.id]
+                if message.guild.id == guild:
                     await self.random_reaction(message)
 
         reactions = await self.get_autoreactions(message.guild.id)

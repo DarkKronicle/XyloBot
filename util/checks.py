@@ -21,7 +21,7 @@ class ExtraBucketType(Enum):
             if msg.guild is None:
                 return msg.author.id
             else:
-                return (msg.author.id, msg.guild.id)
+                return msg.author.id, msg.guild.id
 
 
 class ExtraCooldown:
