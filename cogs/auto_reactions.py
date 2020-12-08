@@ -533,7 +533,7 @@ class AutoReactions(commands.Cog):
 
     @commands.command(name="emoji")
     async def _emoji(self, ctx: Context,
-                    emoji_found: commands.Greedy[typing.Union[discord.Emoji, emoji.StandardEmoji]] = None):
+                    emoji_found: commands.Greedy[emoji.Emoji] = None):
         """
         View emojis in a text.
         """
@@ -559,7 +559,7 @@ class AutoReactions(commands.Cog):
                             name = v
                             break
 
-                    message = message + f"\n{name} - \\{emoji}"
+                    message = message + f"\n{name} - \\{em}"
 
         await ctx.send(message)
 
