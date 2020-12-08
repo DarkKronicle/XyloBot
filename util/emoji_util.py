@@ -52,7 +52,7 @@ class Emoji(commands.Converter):
 
 
 async def random_reaction(message):
-    emojis = random.choice(emoji.emoji_list)
+    emojis = random.choice(emoji_list)
     try:
         await message.add_reaction(emojis)
     except:
