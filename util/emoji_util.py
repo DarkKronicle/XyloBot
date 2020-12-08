@@ -38,7 +38,10 @@ class StandardEmoji(commands.Converter):
 class Emoji(commands.Converter):
     async def convert(self, ctx, argument):
         discord_convert = commands.EmojiConverter()
-        e = await discord_convert.convert(ctx, argument)
+        try:
+            e = await discord_convert.convert(ctx, argument)
+        except:
+            pass
         if e is not None:
             return e
         standard_convert = StandardEmoji()
