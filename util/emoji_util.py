@@ -41,7 +41,7 @@ class Emoji(commands.Converter):
         try:
             e = await discord_convert.convert(ctx, argument)
         except:
-            pass
+            e = None
         if e is not None:
             return e
         standard_convert = StandardEmoji()
