@@ -151,7 +151,7 @@ class Fun(commands.Cog, name="Fun"):
 
     @commands.command(name="suffer")
     @commands.guild_only()
-    async def suffer_person(self, ctx: Context, emoji_react: typing.Optional[emoji.Emoji] = None, *, member: discord.Member = None):
+    async def suffer_person(self, ctx: Context, emoji_react: typing.Optional[emoji.Emoji], *, member: discord.Member):
         """
         Make someone in your guild suffer
         """
