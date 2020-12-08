@@ -46,6 +46,8 @@ class Emoji(commands.Converter):
             return e
         standard_convert = StandardEmoji()
         e = await standard_convert.convert(ctx, argument)
+        if e is None:
+            raise commands.EmojiNotFound(argument)
         return e
 
 
