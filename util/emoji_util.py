@@ -40,7 +40,7 @@ class Emoji(commands.Converter):
         discord_convert = commands.EmojiConverter()
         try:
             e = await discord_convert.convert(ctx, argument)
-        except:
+        except commands.EmojiNotFound:
             e = None
         if e is not None:
             return e

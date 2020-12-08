@@ -88,6 +88,7 @@ class Fun(commands.Cog, name="Fun"):
     def __init__(self, bot):
         self.bot = bot
         self.suffer = SufferStorage()
+        self.suffer_cool = checks.WhitelistCooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
 
     @commands.group(name="lober", invoke_without_command=True)
     async def lober(self, ctx: commands.Context):
@@ -150,7 +151,6 @@ class Fun(commands.Cog, name="Fun"):
 
     @commands.command(name="suffer")
     @commands.guild_only()
-    @checks.whitelist_cooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
     async def suffer_person(self, ctx: Context, emoji_react: typing.Optional[emoji.Emoji] = None, *, member: discord.Member = None):
         """
         Make someone in your guild suffer
@@ -163,7 +163,7 @@ class Fun(commands.Cog, name="Fun"):
             return await ctx.send("Please specify a proper user!")
         if member.bot:
             return await ctx.send("This doesn't work for bots :(")
-
+        self.suffer_cool(ctx)
         mid = member.id
         human = member.mention
 

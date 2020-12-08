@@ -45,6 +45,27 @@ class AdvancedCooldown:
         return True
 
 
+class WhitelistCooldown:
+
+    def __init__(self, rate, per, other_rate, other_per, whitelist_type, type, whitelisted):
+        self.rate = rate
+        self.per = per
+        self.other_rate = other_rate
+        self.other_per = other_per
+        self.whitelist_type = whitelist_type
+        self.type = type
+        self.whitelisted = whitelisted
+        self.cool = AdvancedCooldown(rate, per, type)
+        self.white = AdvancedCooldown(other_rate, other_per, whitelist_type)
+
+    def __call__(self, ctx):
+        key = self.whitelist_type.get_key(ctx.message)
+        if key in self.whitelisted:
+            return self.white(ctx)
+        else:
+            return self.cool(ctx)
+
+
 def cooldown(rate, per, type):
     cool = AdvancedCooldown(rate, per, type)
 
@@ -66,15 +87,10 @@ def whitelist_cooldown(rate, per, other_rate, other_per, whitelist_type, type, w
     :param whitelisted: list for what values are whitelisted
     :return:
     """
-    cool = AdvancedCooldown(rate, per, type)
-    white = AdvancedCooldown(other_rate, other_per, whitelist_type)
+    cool = WhitelistCooldown(rate, per, other_rate, other_per, whitelist_type, type, whitelisted)
 
     def predicate(ctx):
-        key = whitelist_type.get_key(ctx.message)
-        if key in whitelisted:
-            return white(ctx)
-        else:
-            return cool(ctx)
+        return cool(ctx)
 
     return commands.check(predicate)
 
