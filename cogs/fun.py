@@ -75,7 +75,7 @@ class SufferStorage:
         current = time.monotonic()
         for i, sufferer in enumerate(self._storage):
             if sufferer.expired(current=current):
-                to_remove.append(sufferer)
+                to_remove.append(i)
         for i in to_remove:
             del self._storage[i]
 
