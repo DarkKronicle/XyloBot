@@ -163,7 +163,8 @@ class Fun(commands.Cog, name="Fun"):
             return await ctx.send("Please specify a proper user!")
         if member.bot:
             return await ctx.send("This doesn't work for bots :(")
-        self.suffer_cool(ctx)
+        if not await self.bot.is_owner(ctx.author):
+            self.suffer_cool(ctx)
         mid = member.id
         human = member.mention
 
