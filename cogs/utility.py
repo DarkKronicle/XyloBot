@@ -478,15 +478,24 @@ class Utility(commands.Cog):
                 m = message.created_at.strftime("%m/%d %H:%S") + " " + str(message.author) + ": "
                 if message.clean_content is not None:
                     m = m + message.clean_content
+                if len(message.attachments) != 0:
+                    m = m + "\n\n"
+                    for a in message.attachments:
+                        a: discord.Attachment
+                        m = m + f"{a.filename} {a.proxy_url} "
+                if len(message.embeds) != 0:
+                    m = m + "\n"
+                    for e in message.embeds:
+                        e: discord.Embed
+                        m = m + e.description
+
                 download.append(m)
 
         buffer = StringIO()
-        buffer.write("\n\n".join(download))
+        buffer.write("\n\n".join(download[::-1]))
         buffer.seek(0)
         file = discord.File(fp=buffer, filename="file.txt")
         await ctx.send("*Bing bada boom!* Here's your channel history!", file=file)
-
-
 
 
 def setup(bot):
