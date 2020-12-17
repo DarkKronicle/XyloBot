@@ -475,7 +475,7 @@ class Utility(commands.Cog):
         async with ctx.typing():
             async for message in channel.history(limit=amount):
                 message: discord.Message
-                m = message.create_at.strftime("%M/%D %H:%S") + " " + str(message.author) + ": "
+                m = message.created_at.strftime("%M/%D %H:%S") + " " + str(message.author) + ": "
                 if message.clean_content is not None:
                     m = m + message.clean_content
                 download.append(m)
