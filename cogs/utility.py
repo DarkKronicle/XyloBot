@@ -466,7 +466,7 @@ class Utility(commands.Cog):
     @commands.command(name="*download", hidden=True)
     @commands.is_owner()
     async def download(self, ctx: Context, channel: discord.TextChannel = None, amount: int = 10):
-        if amount <= 0 or amount > 100:
+        if amount <= 0 or amount > 200:
             return await ctx.send("Too big!")
         if channel is None:
             return await ctx.send("Please select a proper channel.")
@@ -475,7 +475,7 @@ class Utility(commands.Cog):
         async with ctx.typing():
             async for message in channel.history(limit=amount):
                 message: discord.Message
-                m = message.created_at.strftime("%M/%D %H:%S") + " " + str(message.author) + ": "
+                m = message.created_at.strftime("%m/%d %H:%S") + " " + str(message.author) + ": "
                 if message.clean_content is not None:
                     m = m + message.clean_content
                 download.append(m)
