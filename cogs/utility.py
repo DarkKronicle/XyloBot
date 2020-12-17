@@ -463,6 +463,31 @@ class Utility(commands.Cog):
         embed.add_field(name="Created Account", value=user.created_at.strftime("%m/%d/%Y, %H:%M:%S UTC"))
         await ctx.send(embed=embed)
 
+    @commands.command(name="*download", hidden=True)
+    @commands.is_owner()
+    async def download(self, ctx: Context, channel: discord.TextChannel = None, amount: int = 10):
+        if amount <= 0 or amount > 100:
+            return await ctx.send("Too big!")
+        if channel is None:
+            return await ctx.send("Please select a proper channel.")
+        download = []
+
+        async with ctx.typing():
+            async for message in channel.history(limit=amount):
+                message: discord.Message
+                m = message.create_at.strftime("%M/%D %H:%S") + " " + str(message.author) + ": "
+                if message.clean_content is not None:
+                    m = m + message.clean_content
+                download.append(m)
+
+        buffer = StringIO()
+        buffer.write("\n\n".join(download))
+        buffer.seek(0)
+        file = discord.File(fp=buffer, filename="file.txt")
+        await ctx.send("*Bing bada boom!* Here's your channel history!", file=file)
+
+
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
