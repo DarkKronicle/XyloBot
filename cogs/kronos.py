@@ -27,8 +27,8 @@ class Kronos(commands.Cog):
             self.required[name] = self.guild.get_role(discord_id[1])
 
     @commands.command(name="color", hidden=True)
-    async def color(self, ctx: Context, *args):
-        if len(args) == 0:
+    async def color(self, ctx: Context, *, color):
+        if color is None or len(color) == 0:
             description = ""
             for name in self.COLORS:
                 description = description + f"`{name}` {self.roles[name].mention} {self.required[name].mention}\n"
@@ -40,7 +40,7 @@ class Kronos(commands.Cog):
             embed.set_footer(text="Use >color <name> to add a color")
             await ctx.send(embed=embed)
             return
-        c = args[0].lower()
+        c = color.lower()
         if c not in self.COLORS:
             return await ctx.send("That's not a proper color!")
 
@@ -50,7 +50,7 @@ class Kronos(commands.Cog):
         if require not in author.roles:
             return await ctx.send("You haven't unlocked that color yet!")
 
-        await author.remove_roles(self.roles.values(), reason="Color")
+        await author.remove_roles(list(self.roles.values()), reason="Color")
         await author.add_roles([role])
         await ctx.send(f"You now have the `{c}` color!")
 
