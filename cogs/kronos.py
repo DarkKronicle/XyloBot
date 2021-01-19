@@ -27,7 +27,7 @@ class Kronos(commands.Cog):
             self.required[name] = self.guild.get_role(discord_id[1])
 
     @commands.command(name="color", hidden=True)
-    async def color(self, ctx: Context, *, color):
+    async def color(self, ctx: Context, *, color=None):
         if color is None or len(color) == 0:
             description = ""
             for name in self.COLORS:
