@@ -32,6 +32,7 @@ class Kronos(commands.Cog):
             description = ""
             for name in self.COLORS:
                 description = description + f"`{name}` {self.roles[name].mention} {self.required[name].mention}\n"
+            description = description + "`none` Removes your colors"
             embed = discord.Embed(
                 title="Colors",
                 description=description,
@@ -41,6 +42,9 @@ class Kronos(commands.Cog):
             await ctx.send(embed=embed)
             return
         c = color.lower()
+        if c is "none":
+            await ctx.author.remove_roles(*list(self.roles.values()), reason="Color")
+            return await ctx.send("You don't have a color role anymore!")
         if c not in self.COLORS:
             return await ctx.send("That's not a proper color!")
 
