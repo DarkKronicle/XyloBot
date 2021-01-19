@@ -31,7 +31,7 @@ class Kronos(commands.Cog):
         if len(args) == 0:
             description = ""
             for name in self.COLORS:
-                description = description + f"`{name}` {self.roles[name].mention} {self.required[name].mention}"
+                description = description + f"`{name}` {self.roles[name].mention} {self.required[name].mention}\n"
             embed = discord.Embed(
                 title="Colors",
                 description=description,
@@ -45,9 +45,9 @@ class Kronos(commands.Cog):
             return await ctx.send("That's not a proper color!")
 
         require = self.required[c]
-        role = self.roles[require]
+        role = self.roles[c]
         author: discord.Member = ctx.author
-        if role not in author.roles:
+        if require not in author.roles:
             return await ctx.send("You haven't unlocked that color yet!")
 
         await author.remove_roles(self.roles.values(), reason="Color")
