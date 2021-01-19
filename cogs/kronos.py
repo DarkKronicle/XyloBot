@@ -51,7 +51,7 @@ class Kronos(commands.Cog):
             return await ctx.send("You haven't unlocked that color yet!")
 
         await author.remove_roles(*list(self.roles.values()), reason="Color")
-        await author.add_roles([role])
+        await author.add_roles(role)
         await ctx.send(f"You now have the `{c}` color!")
 
     async def cog_check(self, ctx: Context):
