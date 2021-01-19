@@ -42,7 +42,7 @@ class Kronos(commands.Cog):
             await ctx.send(embed=embed)
             return
         c = color.lower()
-        if c is "none":
+        if c == "none":
             await ctx.author.remove_roles(*list(self.roles.values()), reason="Color")
             return await ctx.send("You don't have a color role anymore!")
         if c not in self.COLORS:
