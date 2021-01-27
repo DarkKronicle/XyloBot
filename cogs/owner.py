@@ -241,13 +241,13 @@ class Owner(commands.Cog):
         channel = ctx.channel
         msg_id = ctx.message.id
         self.current.append(msg_id)
-        await channel.send(message)
+        await channel.send(f"1/{amount}: {message}")
         for i in range(1, amount):
             if msg_id not in self.current:
                 await ctx.send("Stopping!")
                 return
             await asyncio.sleep(delay)
-            await channel.send(f"{i + 1}/{amount}: ", message)
+            await channel.send(f"{i + 1}/{amount}: {message}")
         self.current.remove(msg_id)
 
     @commands.Cog.listener()
