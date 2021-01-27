@@ -234,10 +234,11 @@ class Owner(commands.Cog):
         except MenuError as e:
             await ctx.send(str(e))
 
-    @commands.command(hidden=True)
+    @commands.command(hidden=True, name="*repeat")
     async def repeat(self, ctx: Context, delay: int, amount: int, *, message: str):
         channel = ctx.channel
-        for i in range(amount):
+        await channel.send(message)
+        for i in range(amount - 1):
             await asyncio.sleep(delay)
             await channel.send(message)
 
