@@ -12,6 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import discord
 import psutil
 from discord.ext import commands
 
@@ -31,6 +32,7 @@ class Owner(commands.Cog):
 
     def __init__(self, bot):
         self.bot: XyloBot = bot
+        self.current = []
 
     async def cog_check(self, ctx: Context):
         return await self.bot.is_owner(ctx.author)
@@ -235,12 +237,23 @@ class Owner(commands.Cog):
             await ctx.send(str(e))
 
     @commands.command(hidden=True, name="*repeat")
-    async def repeat(self, ctx: Context, delay: int, amount: int, *, message: str):
+    async def repeat(self, ctx: Context, delay: float, amount: int, *, message: str):
         channel = ctx.channel
+        msg_id = ctx.message.id
+        self.current.append(msg_id)
         await channel.send(message)
-        for i in range(amount - 1):
+        for i in range(1, amount):
+            if msg_id not in self.current:
+                await ctx.send("Stopping!")
+                return
             await asyncio.sleep(delay)
-            await channel.send(message)
+            await channel.send(f"{i + 1}/{amount}: ", message)
+        self.current.remove(msg_id)
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        if message.id in self.current:
+            self.current.remove(message.id)
 
 
 def setup(bot):
