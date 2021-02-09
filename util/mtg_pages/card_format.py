@@ -119,6 +119,17 @@ def card_legal_embed(card: CardsObject):
 
 
 def card_text_embed(card: CardsObject):
+
+    def oracle(c: CardsObject):
+        o = ""
+        try:
+            faces = c.card_faces()
+            for f in faces:
+                o += f["oracle_text"] + "\n\n"
+        except:
+            o = c.oracle_text()
+        return o
+
     # https://github.com/NandaScott/Scrython/blob/master/examples/get_and_format_card.py
     if "Creature" in card.type_line():
         try:
@@ -148,7 +159,7 @@ def card_text_embed(card: CardsObject):
         type_line=card.type_line(),
         set_code=card.set_code(),
         rarity=card.rarity().capitalize(),
-        oracle_text=card.oracle_text(),
+        oracle_text=oracle(card),
         power_toughness=pt
     ).replace("    ", "")
     embed = discord.Embed(
