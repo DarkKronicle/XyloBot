@@ -53,12 +53,21 @@ def card_image_embed(card: CardsObject):
     layout = card.scryfallJson['layout']
     double = layout == "transform" or layout == "double_faced_token"
     try:
+        faces = card.card_faces()
+        url = faces["image_uris"]["large"]
+        if url is not None:
+            embed.set_image(url=faces[0]["image_uris"]["large"])
+        if double:
+            embed.set_thumbnail(url=faces[1]["image_uris"]["large"])
+        if card.released_at() is not None:
+            embed.set_footer(text=card.released_at())
+        return embed
+    except KeyError:
+        pass
+    try:
         url = card.image_uris(0, "large")
     except:
-        try:
-            url = card.image_uris(0, "small")
-        except:
-            url = None
+        url = None
     if url is not None:
         embed.set_image(url=str(url))
     if double:
