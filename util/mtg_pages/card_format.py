@@ -52,7 +52,10 @@ def card_image_embed(card: CardsObject):
     embed.set_author(name=card.name() + " - Image", url=card.scryfall_uri())
     layout = card.scryfallJson['layout']
     double = layout == "transform" or layout == "double_faced_token"
-    url = card.image_uris(0, "large")
+    try:
+        url = card.image_uris(0, "large")
+    except:
+        url = card.image_uris(0, "small")
     if url is not None:
         embed.set_image(url=str(url))
     if double:
