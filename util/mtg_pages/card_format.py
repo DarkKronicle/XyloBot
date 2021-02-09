@@ -54,11 +54,8 @@ def card_image_embed(card: CardsObject):
     double = layout == "transform" or layout == "double_faced_token"
     try:
         faces = card.card_faces()
-        url = faces["image_uris"]["large"]
-        if url is not None:
-            embed.set_image(url=faces[0]["image_uris"]["large"])
-        if double:
-            embed.set_thumbnail(url=faces[1]["image_uris"]["large"])
+        embed.set_image(url=faces[0]["image_uris"]["large"])
+        embed.set_thumbnail(url=faces[1]["image_uris"]["large"])
         if card.released_at() is not None:
             embed.set_footer(text=card.released_at())
         return embed
