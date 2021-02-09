@@ -81,7 +81,10 @@ def card_prices_embed(card: CardsObject):
         colour=color_from_card(card)
     )
     embed.set_author(name=card.name() + " - Prices", url=card.scryfall_uri())
-    url = card.image_uris(0, "large")
+    try:
+        url = card.image_uris(0, "large")
+    except:
+        url = None
     if url is not None:
         embed.set_thumbnail(url=str(url))
     if card.released_at() is not None:
@@ -100,7 +103,10 @@ def card_legal_embed(card: CardsObject):
         colour=color_from_card(card)
     )
     embed.set_author(name=card.name() + " - Legalities", url=card.scryfall_uri())
-    url = card.image_uris(0, "large")
+    try:
+        url = card.image_uris(0, "large")
+    except:
+        url = None
     if url is not None:
         embed.set_thumbnail(url=str(url))
     if card.released_at() is not None:
