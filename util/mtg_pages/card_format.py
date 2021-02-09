@@ -55,7 +55,10 @@ def card_image_embed(card: CardsObject):
     try:
         url = card.image_uris(0, "large")
     except:
-        url = card.image_uris(0, "small")
+        try:
+            url = card.image_uris(0, "small")
+        except:
+            url = None
     if url is not None:
         embed.set_image(url=str(url))
     if double:
