@@ -2,9 +2,6 @@ import json
 
 
 class JSONReader:
-    file = ""
-    data = ""
-
     def __init__(self, file: str):
         self.file = file
         self.loadfile()

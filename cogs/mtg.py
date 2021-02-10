@@ -1,6 +1,7 @@
 import asyncio
 
 import re
+import discord
 from discord.ext import commands, menus
 
 from util import queue
@@ -207,6 +208,23 @@ class Magic(commands.Cog):
                 rulings = scrython.Id(id=card.id())
                 await rulings.request_data()
             await ctx.send(embed=rulings_embed(card, rulings))
+
+    @mtg.command(name="define")
+    async def define(self, ctx: Context, *, keyword=None):
+        """
+        Defines a keyword using MTG Rules
+        """
+        if keyword is None:
+            return await ctx.send('mtg define')
+        gloss = mp.rules.lookup(keyword)
+        if gloss is None:
+            return await ctx.send("Nothing was found!")
+        embed = discord.Embed(
+            title=keyword,
+            description=gloss,
+            colour=discord.Colour.dark_grey()
+        )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

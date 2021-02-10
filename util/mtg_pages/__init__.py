@@ -12,5 +12,6 @@ __all__ = [
     "CardSearch",
     "SingleCardMenu",
     "append_exists",
-    "DeckPages"
+    "DeckPages",
+    "rules"
 ]
