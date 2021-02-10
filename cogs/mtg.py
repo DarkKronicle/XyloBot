@@ -247,16 +247,16 @@ class Magic(commands.Cog):
                 message = message + f"\n"
                 message = message + f"{self.keys_to_human(keys + [key])} "
                 for key1, val1 in val.items():
-                    if key == "name":
+                    if key1 == "name":
                         message = message + f"\n**{val1}**\n"
-                    elif isinstance(val, str):
+                    elif isinstance(val1, str):
                         message = message + f"\n{val1}"
-                    elif isinstance(val, dict):
+                    elif isinstance(val1, dict):
                         message = message + f"{self.keys_to_human(keys + [key, key1])} "
                         for key2, val2 in val1.items():
-                            if key == "name":
+                            if key2 == "name":
                                 message = message + f"\n**{val2}**\n"
-                            elif isinstance(val, str):
+                            elif isinstance(val2, str):
                                 message = message + f"\n{val2}"
                     if len(message) > limit:
                         break
