@@ -237,7 +237,7 @@ class Magic(commands.Cog):
         if definition is None:
             return await ctx.send("That rule doesn't exist!")
         limit = 1500
-        message = self.keys_to_human(keys)
+        message = ""
         for key, val in definition.items():
             if key == "name":
                 message = message + f"\n__{val}__\n\n"
@@ -245,14 +245,14 @@ class Magic(commands.Cog):
                 message = message + f"\n{val}"
             elif isinstance(val, dict):
                 message = message + f"\n"
-                message = message + f"{self.keys_to_human(keys + [key])} "
+                message = message + f"__{self.keys_to_human(keys + [key])}__"
                 for key1, val1 in val.items():
                     if key1 == "name":
                         message = message + f"\n**{val1}**\n"
                     elif isinstance(val1, str):
                         message = message + f"\n{val1}"
                     elif isinstance(val1, dict):
-                        message = message + f"{self.keys_to_human(keys + [key, key1])} "
+                        message = message + f"__{self.keys_to_human(keys + [key, key1])}__"
                         for key2, val2 in val1.items():
                             if key2 == "name":
                                 message = message + f"\n**{val2}**\n"
@@ -264,14 +264,13 @@ class Magic(commands.Cog):
                 break
 
         if len(message) > limit:
-            message = message[:limit]
+            message = message[:limit] + "..."
 
         embed = discord.Embed(
-            message=message,
+            description=message,
             colour=discord.Colour.dark_grey()
         )
         await ctx.send(embed=embed)
-        await ctx.send(message)
 
     def keys_to_human(self, keys):
         key_length = len(keys)
