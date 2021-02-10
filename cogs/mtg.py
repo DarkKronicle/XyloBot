@@ -244,7 +244,7 @@ class Magic(commands.Cog):
             elif isinstance(val, str):
                 message = message + f"\n{val}"
             elif isinstance(val, dict):
-                message = message + f"\n\n"
+                message = message + f"\n"
                 message = message + f"__{self.keys_to_human(keys + [key])}__"
                 for key1, val1 in val.items():
                     if key1 == "name":
@@ -268,6 +268,7 @@ class Magic(commands.Cog):
             message = message[:limit] + "..."
 
         embed = discord.Embed(
+            title=self.keys_to_human(keys),
             description=message,
             colour=discord.Colour.dark_grey()
         )
