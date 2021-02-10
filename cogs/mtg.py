@@ -231,7 +231,7 @@ class Magic(commands.Cog):
         """
         Shows what symbols Xylo uses for MTG
         """
-        message = "🇺 - Uncommon\n🇨 - Common\n🇱 - Legendary\n🇲 - Mythic\n✨ - Foil\n💵 - Promo\n📘 - Story\n⛔ - Reserved"
+        message = "🇺 - Uncommon\n🇨 - Common\n🇷 - Rare\n🇲 - Mythic\n✨ - Foil\n💵 - Promo\n📘 - Story\n⛔ - Reserved"
         embed = discord.Embed(
             title="Xylo Symbols",
             description=message

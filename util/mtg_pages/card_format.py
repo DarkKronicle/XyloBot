@@ -34,8 +34,8 @@ def get_stat_string(card: CardsObject):
         message += "🇺"
     elif rarity == "common":
         message += "🇨"
-    elif rarity == "legendary":
-        message += "🇱"
+    elif rarity == "rare":
+        message += "🇷"
     elif rarity == "mythic":
         message += "🇲"
     if try_or_false(card.foil):
