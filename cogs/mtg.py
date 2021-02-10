@@ -264,7 +264,7 @@ class Magic(commands.Cog):
                 break
 
         if len(message) > limit:
-            message = limit[:limit]
+            message = message[:limit]
 
         embed = discord.Embed(
             message=message,
