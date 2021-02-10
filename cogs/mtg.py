@@ -226,6 +226,18 @@ class Magic(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @mtg.command(name="key")
+    async def key(self, ctx: Context):
+        """
+        Shows what symbols Xylo uses for MTG
+        """
+        message = "🇺 - Uncommon\n🇨 - Common\n🇱 - Legendary\n🇲 - Mythic\n✨ - Foil\n💵 - Promo\n📘 - Story\n⛔ - Reserved"
+        embed = discord.Embed(
+            title="Xylo Symbols",
+            description=message
+        )
+        await ctx.send(embed=embed)
+
     @mtg.command(name="rule")
     async def rule(self, ctx: Context, *, rule=None):
         """

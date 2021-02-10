@@ -20,6 +20,36 @@ def append_exists(message, **kwargs):
     return message
 
 
+def try_or_false(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except:
+        return False
+
+
+def get_stat_string(card: CardsObject):
+    message = ""
+    rarity = card.rarity()
+    if rarity == "uncommon":
+        message += "🇺"
+    elif rarity == "common":
+        message += "🇨"
+    elif rarity == "legendary":
+        message += "🇱"
+    elif rarity == "mythic":
+        message += "🇲"
+    if try_or_false(card.foil):
+        message += "✨"
+    if try_or_false(card.promo):
+        message += "💵"
+    if try_or_false(card.story_spotlight):
+        message += "📘"
+    if try_or_false(card.reserved):
+        message += "⛔"
+
+    return message
+
+
 def color_from_card(card):
     try:
         if card.colors() is None:
@@ -45,13 +75,7 @@ def color_from_card(card):
 
 def card_image_embed(card: CardsObject):
     description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
-    foil = False
-    try:
-        foil = card.foil()
-    except:
-        pass
-    if foil:
-        description = description + "\n✨ Has foil"
+    description = description + "\n" + get_stat_string(card)
     embed = discord.Embed(
         description=description,
         colour=color_from_card(card)
