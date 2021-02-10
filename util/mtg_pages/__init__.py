@@ -5,6 +5,7 @@ from .advanced_search import AdvancedSearch
 from .search import CardSearch
 from .single import SingleCardMenu
 from .deck import DeckPages
+from .rules import string_to_section, lookup, get_section
 
 __all__ = [
     "CardView",
@@ -13,5 +14,7 @@ __all__ = [
     "SingleCardMenu",
     "append_exists",
     "DeckPages",
-    "rules"
+    "string_to_section",
+    "lookup",
+    "get_section"
 ]

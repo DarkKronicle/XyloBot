@@ -216,7 +216,7 @@ class Magic(commands.Cog):
         """
         if keyword is None:
             return await ctx.send('mtg define')
-        gloss = mp.rules.lookup(keyword)
+        gloss = mp.lookup(keyword)
         if gloss is None:
             return await ctx.send("Nothing was found!")
         embed = discord.Embed(
