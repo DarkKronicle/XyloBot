@@ -240,11 +240,11 @@ class Magic(commands.Cog):
         message = ""
         for key, val in definition.items():
             if key == "name":
-                message = message + f"\n__{val}__\n\n"
+                message = message + f"\n__{val}__"
             elif isinstance(val, str):
                 message = message + f"\n{val}"
             elif isinstance(val, dict):
-                message = message + f"\n"
+                message = message + f"\n\n"
                 message = message + f"__{self.keys_to_human(keys + [key])}__"
                 for key1, val1 in val.items():
                     if key1 == "name":
@@ -252,6 +252,7 @@ class Magic(commands.Cog):
                     elif isinstance(val1, str):
                         message = message + f"\n{val1}"
                     elif isinstance(val1, dict):
+                        message = message + f"\n\n"
                         message = message + f"__{self.keys_to_human(keys + [key, key1])}__"
                         for key2, val2 in val1.items():
                             if key2 == "name":
