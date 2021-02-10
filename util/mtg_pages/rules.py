@@ -15,7 +15,7 @@ def string_to_section(keyword):
     short = keyword.replace(m, "", 1)[1:]
     if len(m) == 1:
         return [val]
-    if short[0] == " ":
+    if len(short) == 0 or short[0] == " ":
         return [val, val1]
     match2 = re.search(r'\d+', short)
     if not match2:
@@ -24,7 +24,7 @@ def string_to_section(keyword):
     m2 = match2.group(0)
     val2 = int(m2)
     short = short.replace(m2, "", 1)
-    if short[0] == ".":
+    if len(short) == 0 or short[0] == ".":
         return [val, val1, val2]
     return [val, val1, val2, short[0]]
 
