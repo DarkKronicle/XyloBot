@@ -192,7 +192,7 @@ class Magic(commands.Cog):
             await ctx.send(e)
             return
 
-    @mtg.command(name="notes", aliases=["rulings", "rules", "rule"])
+    @mtg.command(name="notes")
     async def notes(self, ctx: Context, *, card=None):
         """
         Gets a card based off of it's name.
