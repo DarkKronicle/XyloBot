@@ -245,14 +245,14 @@ class Magic(commands.Cog):
                 message = message + f"\n{val}"
             elif isinstance(val, dict):
                 message = message + f"\n"
-                message = message + f"{self.keys_to_human(keys + key)} "
+                message = message + f"{self.keys_to_human(keys + [key])} "
                 for key1, val1 in val.items():
                     if key == "name":
                         message = message + f"\n**{val1}**\n"
                     elif isinstance(val, str):
                         message = message + f"\n{val1}"
                     elif isinstance(val, dict):
-                        message = message + f"{self.keys_to_human(keys + key + key1)} "
+                        message = message + f"{self.keys_to_human(keys + [key, key1])} "
                         for key2, val2 in val1.items():
                             if key == "name":
                                 message = message + f"\n**{val2}**\n"
