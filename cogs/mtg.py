@@ -271,6 +271,7 @@ class Magic(commands.Cog):
             colour=discord.Colour.dark_grey()
         )
         await ctx.send(embed=embed)
+        await ctx.send(message)
 
     def keys_to_human(self, keys):
         key_length = len(keys)
