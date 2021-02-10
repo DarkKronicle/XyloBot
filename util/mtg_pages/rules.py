@@ -44,6 +44,6 @@ def get_section(keyword):
 # @TODO Add deep search which goes through all text
 def lookup(keyword, *, deep=False):
     if keyword.lower() in RULES.data["glossary"]:
-        return RULES.data["glossary"][keyword.lower]
+        return RULES.data["glossary"][keyword.lower()]
 
 
