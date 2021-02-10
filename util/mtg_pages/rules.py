@@ -35,6 +35,7 @@ def get_section(keyword):
         return None, None
     c = RULES.data["contents"]
     for s in string_to_section(keyword):
+        s = str(s)
         if s in c:
             c = c[s]
         else:
