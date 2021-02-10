@@ -32,13 +32,14 @@ def string_to_section(keyword):
 def get_section(keyword):
     section = string_to_section(keyword)
     if section is None:
-        return None
+        return None, None
     c = RULES.data["contents"]
     for s in string_to_section(keyword):
         if s in c:
             c = c[s]
         else:
-            return None
+            return None, None
+    return section, c
 
 
 # @TODO Add deep search which goes through all text

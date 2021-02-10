@@ -226,6 +226,65 @@ class Magic(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @mtg.command(name="rule")
+    async def rule(self, ctx: Context, *, rule=None):
+        """
+        Grabs a rule for MTG. ###.#A-Z
+        """
+        if rule is None:
+            return await ctx.send('mtg rule')
+        keys, definition = mp.get_section(rule)
+        if definition is None:
+            return await ctx.send("That rule doesn't exist!")
+        limit = 1500
+        message = self.keys_to_human(keys)
+        for key, val in definition.items():
+            if key == "name":
+                message = message + f"\n__{val}__\n\n"
+            elif isinstance(val, str):
+                message = message + f"\n{val}"
+            elif isinstance(val, dict):
+                message = message + f"\n"
+                message = message + f"{self.keys_to_human(keys + key)} "
+                for key1, val1 in val.items():
+                    if key == "name":
+                        message = message + f"\n**{val1}**\n"
+                    elif isinstance(val, str):
+                        message = message + f"\n{val1}"
+                    elif isinstance(val, dict):
+                        message = message + f"{self.keys_to_human(keys + key + key1)} "
+                        for key2, val2 in val1.items():
+                            if key == "name":
+                                message = message + f"\n**{val2}**\n"
+                            elif isinstance(val, str):
+                                message = message + f"\n{val2}"
+                    if len(message) > limit:
+                        break
+            if len(message) > limit:
+                break
+
+        if len(message) > limit:
+            message = limit[:limit]
+
+        embed = discord.Embed(
+            message=message,
+            colour=discord.Colour.dark_grey()
+        )
+        await ctx.send(embed=embed)
+
+    def keys_to_human(self, keys):
+        key_length = len(keys)
+        if key_length == 1:
+            message = f"{keys[0]}"
+        elif key_length == 2:
+            message = f"{keys[1]}"
+        elif key_length == 3:
+            message = f"{keys[1]}.{keys[2]}"
+        elif key_length == 4:
+            message = f"{keys[1]}.{keys[2]}{keys[3]}"
+        else:
+            message = f"{keys[1]}.{keys[2]}{keys[3]}"
+        return message
 
 def setup(bot):
     bot.add_cog(Magic(bot))
