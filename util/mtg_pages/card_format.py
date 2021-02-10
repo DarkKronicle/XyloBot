@@ -45,6 +45,13 @@ def color_from_card(card):
 
 def card_image_embed(card: CardsObject):
     description = append_exists("", Set=card.set_name(), CMC=card.cmc(), Price=(card.prices("usd"), "$"))
+    foil = False
+    try:
+        foil = card.foil()
+    except:
+        pass
+    if foil:
+        description = description + "\n✨ Has foil"
     embed = discord.Embed(
         description=description,
         colour=color_from_card(card)
@@ -168,6 +175,13 @@ def card_text_embed(card: CardsObject):
         oracle_text=oracle(card),
         power_toughness=pt
     ).replace("    ", "")
+    foil = False
+    try:
+        foil = card.foil()
+    except:
+        pass
+    if foil:
+        description = description + "  ✨"
     embed = discord.Embed(
         description=description,
         colour=color_from_card(card)
