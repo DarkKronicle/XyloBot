@@ -109,6 +109,11 @@ class Counting(commands.Cog):
         "+ FOREVER"
     ]
 
+    @commands.command(name="chronosbadinc", hidden=True, aliases=["i"])
+    async def i(self, ctx: Context):
+        if ctx.author.id == 203531944909078528 or ctx.author.id == 523605852557672449:
+            await self.increment(ctx)
+
     @commands.command(name="increment", aliases=["+"])
     async def increment(self, ctx: Context):
         """
