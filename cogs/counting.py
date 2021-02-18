@@ -41,7 +41,6 @@ class Counter:
         if user_id == self.last_id:
             return True
         else:
-            self.last_id = user_id
             return False
 
 
@@ -139,7 +138,8 @@ class Counting(commands.Cog):
                             f"now we're at {self.counter.count}.",
                 colour=discord.Colour.red()
             ), delete_after=15)
-        # end
+
+        self.counter.last_id = ctx.author.id
 
         await ctx.delete()
         number = self.counter.increment()
@@ -176,6 +176,16 @@ class Counting(commands.Cog):
         """
         Become a decrementer and DESTROY THE INCREMENTERS.
         """
+
+        # Don't want them to increment it all by themselves.
+        if self.counter.is_last(ctx.author.id):
+            await ctx.delete()
+            return await ctx.send(embed=discord.Embed(
+                description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
+                colour=discord.Colour.red()
+            ), delete_after=15)
+        # end
+
         # Error handling/cooldown.
         bucket = self.counter_cooldown.get_bucket(ctx.message)
         retry_after = bucket.update_rate_limit()
@@ -187,15 +197,7 @@ class Counting(commands.Cog):
                 colour=discord.Colour.red()
             ), delete_after=15)
 
-        # Don't want them to increment it all by themselves.
-        if self.counter.is_last(ctx.author.id):
-            await ctx.delete()
-            return await ctx.send(embed=discord.Embed(
-                description=f"You were the last one to mess with the counter! Right now we're at {self.counter.count}.",
-                colour=discord.Colour.red()
-            ), delete_after=15)
-        # end
-
+        self.counter.last_id = ctx.author.id
         await ctx.delete()
         number = self.counter.decrement()
         parrot = "<a:deploy:771180662643490817>"

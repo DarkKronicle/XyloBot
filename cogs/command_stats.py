@@ -28,9 +28,10 @@ class CommandStats(commands.Cog):
             json.dump(dict(self.data), json_file, indent=4, sort_keys=True)
 
     @commands.Cog.listener()
-    async def on_command(self, ctx):
-        command = ctx.command.qualified_name
-        self.data[command] += 1
+    async def on_command(self, ctx: Context):
+        command: commands.Command = ctx.command.qualified_name
+        if not command.hidden:
+            self.data[command] += 1
 
     @commands.group(name="stats", invoke_without_command=True)
     async def stats(self, ctx: Context, *, command_name="help"):
