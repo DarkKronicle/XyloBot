@@ -442,7 +442,7 @@ class Utility(commands.Cog):
         message = f"Guilds: `{guilds}`\nUsers: `{users}` Unique: `{unique_users}`\n\nText Channels: `{text}`\nVoice " \
                   f"Channels: `{voice}`\n\nUptime: `{uptime}` " \
                   f"\n\n[Invite Me](https://discord.com/api/oauth2/authorize?client_id=728739973708120096&permissions=403565681&scope=bot)" \
-                  f" - [Support Server](https://discord.gg/X2Kmd7t) - [GitHub](https://github.com/DarkKronicle/XyloBot/)"
+                  f" - [Support Server](https://discord.gg/WnaE3uZxDA) - [GitHub](https://github.com/DarkKronicle/XyloBot/)"
         embed.description = message
         await ctx.send(embed=embed)
 
