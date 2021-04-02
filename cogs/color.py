@@ -34,7 +34,7 @@ class Color(commands.Cog):
     async def col(self, ctx: Context, rgb: int):
         color = Color4.from_int(rgb)
 
-        embed = discord.Embed(color=color.to_int(), description=f"Color: {color.to_int()}\n\nR: {color.red}\n\nG: {color.green}\n\nB: {color.blue}\n\nA: {color.alpha}")
+        embed = discord.Embed(description=f"Color: {color.to_int()}\n\nR: {color.red}\n\nG: {color.green}\n\nB: {color.blue}\n\nA: {color.alpha}")
 
         await ctx.send(embed=embed)
 
