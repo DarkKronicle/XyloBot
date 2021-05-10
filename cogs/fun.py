@@ -98,7 +98,7 @@ class Fun(commands.Cog, name="Fun"):
         await ctx.send_help('lober')
 
     @lober.command(name="fact")
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 20)
     async def fact(self, ctx: commands.Context):
         """
         Sends a lober fact
@@ -112,7 +112,7 @@ class Fun(commands.Cog, name="Fun"):
         await ctx.send(embed=embed)
 
     @lober.command(name="image")
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 10)
     async def image(self, ctx: commands.Context):
         """
         Sends a lober image.
