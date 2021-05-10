@@ -19,12 +19,12 @@ class OpenCooldown(commands.Cooldown):
     When creating an instance of this class it won't throw an error if the type isn't a buckettype.
     """
 
-    def __init__(self, rate, per, type):
-        super().__init__(rate, per, commands.BucketType.default)
+    def __init__(self, rate, per):
+        super().__init__(rate, per)
         self.type = type
 
     def copy(self):
-        return OpenCooldown(self.rate, self.per, self.type)
+        return OpenCooldown(self.rate, self.per)
 
 
 class AdvancedCooldown:
@@ -34,7 +34,7 @@ class AdvancedCooldown:
     """
 
     def __init__(self, rate, per, bucket: ExtraBucketType):
-        self.default_mapping = commands.CooldownMapping(OpenCooldown(rate, per, commands.BucketType.default))
+        self.default_mapping = commands.CooldownMapping(OpenCooldown(rate, per), commands.BucketType.default)
         self.default_mapping._cooldown.type = bucket
 
     def __call__(self, ctx: commands.Context):
