@@ -29,9 +29,9 @@ class CommandStats(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx: Context):
-        command: commands.Command = ctx.command.qualified_name
+        command: commands.Command = ctx.command
         if not command.hidden:
-            self.data[command] += 1
+            self.data[command.qualified_name] += 1
 
     @commands.group(name="stats", invoke_without_command=True)
     async def stats(self, ctx: Context, *, command_name="help"):

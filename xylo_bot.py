@@ -126,7 +126,7 @@ class XyloBot(commands.Bot):
         self.lines = api.LineCount("DarkKronicle", "XyloBot")
 
     def run(self):
-        super().run(self.config['bot_token'], reconnect=True, bot=True)
+        super().run(self.config['bot_token'], reconnect=True)
 
     async def on_ready(self):
         self.boot = datetime.now()
