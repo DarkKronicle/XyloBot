@@ -1,8 +1,7 @@
 from discord.ext import commands
-from discord.enums import Enum
 
 
-def user_guild(cls, msg):
+def user_guild(msg):
     if msg.guild is None:
         return msg.author.id
     else:
@@ -15,7 +14,7 @@ class AdvancedCooldown:
     there is only 7 types of cooldowns. I created this class to open that.
     """
 
-    def __init__(self, rate, per, bucket:
+    def __init__(self, rate, per, bucket):
         self.default_mapping = commands.CooldownMapping(commands.Cooldown(rate, per, bucket))
 
     def __call__(self, ctx: commands.Context):
