@@ -144,7 +144,7 @@ class Help(commands.HelpCommand):
 
     def __init__(self):
         super().__init__(command_attrs={
-            'cooldown': commands.Cooldown(2, 10),
+            'cooldown': commands.Cooldown(2, 10, commands.BucketType.user),
             'help': 'Shows help information for specific commands.'
         })
 
