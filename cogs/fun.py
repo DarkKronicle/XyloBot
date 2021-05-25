@@ -88,7 +88,7 @@ class Fun(commands.Cog, name="Fun"):
     def __init__(self, bot):
         self.bot = bot
         self.suffer = SufferStorage()
-        self.suffer_cool = checks.WhitelistCooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.ExtraBucketType.user_guild, [332994937450921986])
+        self.suffer_cool = checks.WhitelistCooldown(1, 60*60*2, 1, 60*15, commands.BucketType.user, checks.user_guild, [332994937450921986])
 
     @commands.group(name="lober", invoke_without_command=True)
     async def lober(self, ctx: commands.Context):

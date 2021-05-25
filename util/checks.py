@@ -2,29 +2,11 @@ from discord.ext import commands
 from discord.enums import Enum
 
 
-class ExtraBucketType(Enum):
-
-    user_guild = 0
-
-    def get_key(self, msg):
-        if self is ExtraBucketType.user_guild:
-            if msg.guild is None:
-                return msg.author.id
-            else:
-                return msg.author.id, msg.guild.id
-
-
-class OpenCooldown(commands.Cooldown):
-    """
-    When creating an instance of this class it won't throw an error if the type isn't a buckettype.
-    """
-
-    def __init__(self, rate, per, type):
-        super().__init__(rate, per, type)
-        self.type = type
-
-    def copy(self):
-        return OpenCooldown(self.rate, self.per, self.type)
+def user_guild(cls, msg):
+    if msg.guild is None:
+        return msg.author.id
+    else:
+        return msg.author.id, msg.guild.id
 
 
 class AdvancedCooldown:
@@ -33,8 +15,8 @@ class AdvancedCooldown:
     there is only 7 types of cooldowns. I created this class to open that.
     """
 
-    def __init__(self, rate, per, bucket: ExtraBucketType):
-        self.default_mapping = commands.CooldownMapping(OpenCooldown(rate, per, bucket))
+    def __init__(self, rate, per, bucket:
+        self.default_mapping = commands.CooldownMapping(commands.Cooldown(rate, per, bucket))
 
     def __call__(self, ctx: commands.Context):
         bucket = self.default_mapping.get_bucket(ctx.message)
